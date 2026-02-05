@@ -1,0 +1,55 @@
+QDialog#LoginClass, #RegisterClass{
+background-color:rgb(255,255,255)
+}
+
+#user_label, #pwd_label{
+	color: black;
+}
+
+#err_tip[state='normal']{
+	color: green;
+}
+
+#err_tip[state='err']{
+	color: red;
+}
+
+#pwd_visible[state='unvisible']{
+   border-image: url(:/image/resource/unvisible.png);
+}
+
+#pwd_visible[state='unvisible_hover']{
+   border-image: url(:/image/resource/unvisible_hover.png);
+}
+
+#pwd_visible[state='visible']{
+   border-image: url(:/image/resource/visible.png);
+}
+
+#pwd_visible[state='visible_hover']{
+   border-image: url(:/image/resource/visible_hover.png);
+}
+
+#again_visible[state='unvisible']{
+   border-image: url(:/image/resource/unvisible.png);
+}
+
+#again_visible[state='unvisible_hover']{
+   border-image: url(:/image/resource/unvisible_hover.png);
+}
+
+#again_visible[state='visible']{
+   border-image: url(:/image/resource/visible.png);
+}
+
+#again_visible[state='visible_hover']{
+   border-image: url(:/image/resource/visible_hover.png);
+}
+
+#forget_label[state='normal'],#forget_label[state='selected']{
+    color:black;
+}
+
+#forget_label[state='hover'], #forget_label[state='selected_hover']{
+    color: rgb(42, 112, 241);
+}

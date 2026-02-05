@@ -1,0 +1,21 @@
+{
+    "email": {
+      "user": "feng_pengxi@163.com",
+      "pass": "WXhVqpQX7hLPWXpj"
+    },
+
+    "mysql": {
+      "host": "127.0.0.1",
+      "port": 33060,
+      "passwd": "123456"
+    },
+
+    "redis":{
+      "host": "127.0.0.1",
+      "port": 6380,
+      "passwd": 123456
+    }
+}
+
+
+  

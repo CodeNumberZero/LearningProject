@@ -1,0 +1,30 @@
+#pragma once
+
+#include <QtWidgets/QMainWindow>
+#include "ui_MainWindow.h"
+#include "Login.h"
+#include "Register.h"
+#include "resetdialog.h"
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
+
+public slots:
+    void SlotSwitchReg();
+    void SlotSwitchLogin();
+    void SlotSwitchReset();
+    void SlotSwitchLoginFromReset();
+
+private:
+    Ui::MainWindowClass ui;
+    Login* _login;
+    Register* _register;
+    ResetDialog* _reset;
+
+};
+

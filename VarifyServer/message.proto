@@ -1,0 +1,20 @@
+/*
+	接口定义文件,用于定义一个RPC服务和配套的请求/响应数据结构,核心作用是标准化RPC通信的接口和数据格式
+*/
+syntax = "proto3";                                               //  指定使用proto3语法
+
+package message;                                                 //  定义包名(命名空间),避免不同proto文件的类型命名冲突
+
+service VarifyService {                                          // service关键字用于定义RPC服务,本质是"一组RPC方法的集合"
+  rpc GetVarifyCode (GetVarifyReq) returns (GetVarifyRsp) {}     // rpc 方法名 (请求类型) returns (响应类型)
+}
+
+message GetVarifyReq {                                           // message关键字定义一个结构化数据类型(类似C++的struct),用于封装RPC通信的参数
+  string email = 1;                                              // 字段格式:类型 字段名 = 字段编号;字段编号是核心,每个字段必须有唯一的数字编号,后续修改proto时(比如新增字段),只要不修改旧字段的编号,新旧版本的程序就能兼容
+}
+
+message GetVarifyRsp {
+  int32 error = 1;
+  string email = 2;
+  string code = 3;
+}
