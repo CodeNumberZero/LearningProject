@@ -204,7 +204,6 @@ bool MysqlDao::CheckEmail(const std::string& name, const std::string& email) {
         // ÌáÈ¡email×Ö¶ÎÖµ
         //std::cout << row.colCount() << std::endl;   // 1
         //std::cout << row.isNull() << std::endl;     // 0
-        //std::cout << "hello world!" << std::endl;
         std::string db_email = row[0].get<std::string>();
         std::cout << "Check email: " << db_email << " found!" << std::endl;
 
