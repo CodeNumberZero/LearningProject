@@ -15,7 +15,7 @@ Register::Register(QWidget *parent)
 	connect(HttpMgr::GetInstance().get(), &HttpMgr::sig_reg_mod_finish, 
 		this, &Register::slot_reg_mod_finish);
 
-	// 注册相应的回调函数
+	// 注册相应的回调函数,隐藏默认的错误提示
 	initHttpHandlers();
 	ui.err_tip->clear();
 
@@ -156,20 +156,20 @@ void Register::on_getcode_Button_clicked() {
 void Register::slot_reg_mod_finish(ReqId id, QString result, ErrorCodes err)
 {
 	if (err != ErrorCodes::SUCCESS) {                                    // 先检查请求是否成功
-		showTip(tr("网络请求错误"), false);
+		showTip(tr("注册模块网络请求错误，错误码: ") + QString::number(err), false);
 		return;
 	}
 
 	// 解析JSON字符串,result转化为QByteArray
 	QJsonDocument jsonDoc = QJsonDocument::fromJson(result.toUtf8());    // 把后端返回的JSON字符串转换为Qt可操作的JSON文档对象，便于后续提取数据
 	if (jsonDoc.isNull()) {
-		showTip(tr("json解析失败"), false);   // 用中文就会报错，不知道是为什么
+		showTip(tr("注册模块json解析失败"), false);   // 用中文就会报错，不知道是为什么
 		return;
 	}
 
 	// json解析失败
 	if (!jsonDoc.isObject()) {                                           // 检查解析后的QJsonDocument是否包含一个JSON对象
-		showTip(tr("json解析失败"), false);
+		showTip(tr("注册模块json解析失败"), false);
 		return;
 	}
 
@@ -189,7 +189,7 @@ void Register::initHttpHandlers()
 	_handlers.insert(ReqId::ID_GET_VARIFY_CODE, [this](QJsonObject jsonObj){
 		int error = jsonObj["error"].toInt();
 		if (error != ErrorCodes::SUCCESS) {
-			showTip(tr("参数错误"), false);
+			showTip(tr("获取验证码失败，参数错误，错误码: ") + QString::number(error), false);
 			return;
 		}
 
@@ -202,7 +202,7 @@ void Register::initHttpHandlers()
 	_handlers.insert(ReqId::ID_REG_USER, [this](QJsonObject jsonObj) {
 		int error = jsonObj["error"].toInt();
 		if (error != ErrorCodes::SUCCESS) {
-			showTip(tr("参数错误"), false);
+			showTip(tr("注册失败，参数错误，错误码: ") + QString::number(error), false);
 			return;
 		}
 

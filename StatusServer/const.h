@@ -1,4 +1,6 @@
 #pragma once
+#include <grpcpp/grpcpp.h>
+
 #include <boost/beast/http.hpp>
 #include <boost/beast.hpp>
 #include <boost/asio.hpp>
@@ -13,12 +15,13 @@
 #include <json//value.h>
 #include <json/reader.h>
 
-#include <grpcpp/grpcpp.h>
-
 #include <hiredis/hiredis.h>
 #include <sw/redis++/redis++.h>
 
 #include <memory>
+#include <mutex>
+#include <string>
+#include <thread>
 #include <iostream>
 #include <functional>
 #include <map>

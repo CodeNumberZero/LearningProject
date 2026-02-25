@@ -3,6 +3,7 @@
 #include "VarifyGrpcClient.h"
 #include "RedisMgr.h"
 #include "MysqlMgr.h"
+#include "StatusGrpcClient.h"
 
 LogicSystem::~LogicSystem()
 {
@@ -74,6 +75,7 @@ LogicSystem::LogicSystem()
 		return true;                                                                             // C++允许"返回值可忽略的可调用对象"适配"返回void的函数类型".在本例中std::function要求的调用签名是「返回void」,那么它可以接受任何返回类型的可调用对象(如返回bool/int/std::string的Lambda/函数),因为C++会自动忽略可调用对象的返回值,仅执行其逻辑.所以返回bool值不会出错.
 	});
 
+	// 注册用户的逻辑
 	RegPost("/user_register", [](std::shared_ptr<HttpConnection> connection) {
 		auto body_str = boost::beast::buffers_to_string(connection->_request.body().data());
 		std::cout << "User_register mod recive body is " << body_str << std::endl;
@@ -129,7 +131,7 @@ LogicSystem::LogicSystem()
 		return true;
 	});
 
-	// 重置回调逻辑
+	// 重置密码的逻辑
 	RegPost("/reset_pwd", [](std::shared_ptr<HttpConnection> connection) {
 		auto body_str = boost::beast::buffers_to_string(connection->_request.body().data());
 		std::cout << "Reset_pwd mod receive body is " << body_str << std::endl;
@@ -151,7 +153,7 @@ LogicSystem::LogicSystem()
 		auto pwd = src_root["passwd"].asString();
 
 		// 先查找redis中email对应的验证码是否合理
-		std::string varify_code = RedisClient::GetInstance()->get(CODEPREFIX + src_root["email"].asString()).value();  // 这里要加个CODEPREFIX的前缀，因为在gRPC服务端设置key和value时key的值为为前缀+邮箱地址 
+		std::string varify_code = RedisClient::GetInstance()->get(CODEPREFIX + src_root["email"].asString()).value();  // 这里要加个CODEPREFIX的前缀，因为在gRPC服务端设置key和value时key的值为前缀+邮箱地址 
 		// redis++中通过key获取value或者弹出一个key失败时,函数返回值是一个空字符串(或者将其转换为bool类型，值为0，即false)
 		if (varify_code == "") {
 			std::cout << "Varify code expired or not existed!" << std::endl;
@@ -198,4 +200,57 @@ LogicSystem::LogicSystem()
 		boost::beast::ostream(connection->_response.body()) << jsonstr;
 		return true;
 	});
+
+	// 用户登录的逻辑
+	RegPost("/user_login", [](std::shared_ptr<HttpConnection> connection) {
+		auto body_str = boost::beast::buffers_to_string(connection->_request.body().data());
+		std::cout << "User_login mod receive body is " << body_str << std::endl;
+		connection->_response.set(boost::beast::http::field::content_type, "text/json");
+		Json::Value root;
+		Json::Reader reader;
+		Json::Value src_root;
+		bool parse_success = reader.parse(body_str, src_root);
+		if (!parse_success) {
+			std::cout << "User_login mod failed to parse JSON data!" << std::endl;
+			root["error"] = ErrorCodes::Error_Json;
+			std::string jsonstr = root.toStyledString();
+			boost::beast::ostream(connection->_response.body()) << jsonstr;
+			return true;
+		}
+
+		auto email = src_root["email"].asString();
+		auto pwd = src_root["passwd"].asString();
+		UserInfo userInfo;
+		//查询数据库判断用户名和密码是否匹配
+		bool pwd_valid = MysqlMgr::GetInstance()->CheckPwd(email, pwd, userInfo);                           // CheckPwd函数会将查询到的用户信息存入userInfo中
+		if (!pwd_valid) {
+			std::cout << " User pwd not match" << std::endl;
+			root["error"] = ErrorCodes::PasswdInvalid;
+			std::string jsonstr = root.toStyledString();
+			boost::beast::ostream(connection->_response.body()) << jsonstr;
+			return true;
+		}
+
+		//查询StatusServer找到合适的连接
+		auto reply = StatusGrpcClient::GetInstance()->GetChatServer(userInfo.uid);
+		if (reply.error()) {
+			std::cout << " Grpc get chat server failed, error is " << reply.error() << std::endl;
+			root["error"] = ErrorCodes::RPCFailed;
+			std::string jsonstr = root.toStyledString();
+			boost::beast::ostream(connection->_response.body()) << jsonstr;
+			return true;
+		}
+
+		std::cout << "Succeed to load userinfo uid is " << userInfo.uid << std::endl;
+		root["error"] = ErrorCodes::Success;
+		root["email"] = email;
+		root["uid"] = userInfo.uid;
+		root["token"] = reply.token();
+		root["host"] = reply.host();
+		root["port"] = reply.port();
+		std::string jsonstr = root.toStyledString();
+		boost::beast::ostream(connection->_response.body()) << jsonstr;
+		return true;
+	});
+
 }

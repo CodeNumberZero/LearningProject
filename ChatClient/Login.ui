@@ -41,15 +41,24 @@
       <number>5</number>
      </property>
      <item>
-      <widget class="QWidget" name="widget" native="true">
+      <widget class="QWidget" name="head_widget" native="true">
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">
-         <widget class="QLabel" name="label">
+         <widget class="QLabel" name="head_label">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>200</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>200</width>
+            <height>200</height>
+           </size>
+          </property>
           <property name="text">
            <string/>
-          </property>
-          <property name="pixmap">
-           <pixmap resource="MainWindow.qrc">:/image/resource/KamneRider.png</pixmap>
           </property>
           <property name="alignment">
            <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -73,9 +82,31 @@
       </spacer>
      </item>
      <item>
+      <widget class="QWidget" name="widget" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>362</width>
+         <height>33</height>
+        </size>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QLabel" name="err_tip">
+          <property name="text">
+           <string>错误提示</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QLabel" name="user_label">
+        <widget class="QLabel" name="email_label">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -83,12 +114,12 @@
           </size>
          </property>
          <property name="text">
-          <string>用户:</string>
+          <string>邮箱:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="user_lineEdit">
+        <widget class="QLineEdit" name="email_lineEdit">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -96,6 +127,22 @@
           </size>
          </property>
         </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Policy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </item>
@@ -123,6 +170,22 @@
           </size>
          </property>
         </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_7">
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Policy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </item>

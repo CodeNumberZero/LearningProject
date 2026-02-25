@@ -64,15 +64,15 @@ GetVarifyRsp VarifyGrpcClient::GetVarifyCode(std::string email)
 	GetVarifyRsp reply;																	 // 创建响应对象
 	request.set_email(email);
 
-	auto _stub = _pool->GetConnection();                                                 // 从连接池中获取一个gRPC连接(存根对象)
-	Status status = _stub->GetVarifyCode(&context, request, &reply);                     // 同步调用远程RPC方法(该调用是同步阻塞的,客户端会等待服务端返回结果后才继续执行),返回RPC调用状态
+	auto stub = _pool->GetConnection();                                                 // 从连接池中获取一个gRPC连接(存根对象)
+	Status status = stub->GetVarifyCode(&context, request, &reply);                     // 同步调用远程RPC方法(该调用是同步阻塞的,客户端会等待服务端返回结果后才继续执行),返回RPC调用状态
 	if (status.ok()) {
-		_pool->ReturnConnection(std::move(_stub));                                       // 调用成功后将连接放回连接池(这里使用std::move是因为：一般情况下实参传递给形参是通过值拷贝,这个过程本质是创建一个实例,初始化其值为实参的值;而unique_ptr不能被拷贝,只能通过std::move将实参的资源所有权转移给形参,实参变为空指针,不再持有资源)
+		_pool->ReturnConnection(std::move(stub));                                       // 调用成功后将连接放回连接池(这里使用std::move是因为：一般情况下实参传递给形参是通过值拷贝,这个过程本质是创建一个实例,初始化其值为实参的值;而unique_ptr不能被拷贝,只能通过std::move将实参的资源所有权转移给形参,实参变为空指针,不再持有资源)
 		return reply;                                                                    // 调用成功则直接返回服务端响应
 	}
 	else {
-		_pool->ReturnConnection(std::move(_stub));                                       // 调用成功后将连接放回连接池
-		std::cout << "gRPC 调用失败：" << std::endl;
+		_pool->ReturnConnection(std::move(stub));                                       // 调用成功后将连接放回连接池
+		std::cout << "gRPC 调用获取验证码失败：" << std::endl;
 		std::cout << "错误码(Code)：" << status.error_code() << std::endl;
 		std::cout << "错误信息(Message)：" << status.error_message() << std::endl;
 

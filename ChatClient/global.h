@@ -13,6 +13,9 @@
 #include <qfile.h>
 #include <qdir.h>
 #include <qsettings.h>
+#include <qpainter.h>
+#include <qpainterpath.h>
+#include <qjsonobject.h>
 
 #include <functional>
 #include <iostream>
@@ -59,5 +62,13 @@ enum TipErr {
 enum ClickLbState {
     Normal = 0,
     Selected = 1
+};
+
+struct ServerInfo
+{
+    QString Host;
+    QString Port;
+    QString Token;
+    int Uid;
 };
 

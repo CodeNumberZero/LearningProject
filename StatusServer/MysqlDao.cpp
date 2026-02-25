@@ -261,7 +261,6 @@ bool MysqlDao::CheckPwd(const std::string& email, const std::string& pwd, UserIn
     try {
         // 准备SQL语句
 		mysqlx::SqlResult res = conn->_con->sql("SELECT * FROM user WHERE email = ?").bind(email).execute();  // 直接执行查询语句，获取结果集
-        // * 表示获取满足条件的指定行的所有列
         // 或者这样写mysqlx::SqlResult res = conn->_con->sql("SELECT uid, name, pwd FROM user WHERE email = ?").bind(email).execute(); 明确各个列的顺序和类型
         std::string origin_pwd = "";
         if (!res.hasData()) {
@@ -270,8 +269,8 @@ bool MysqlDao::CheckPwd(const std::string& email, const std::string& pwd, UserIn
             return false;
         }
         mysqlx::Row row = res.fetchOne();
-        //std::cout << "row.colCount() = " << row.colCount() << std::endl;  // row.colCount() = 5
-        origin_pwd = row[4].get<std::string>();
+        std::cout << "row.colCount() = " << row.colCount() << std::endl;
+        origin_pwd = row[0].get<std::string>();
         std::cout << "Origin Password: " << origin_pwd << std::endl;
 
         // 验证密码
@@ -279,10 +278,10 @@ bool MysqlDao::CheckPwd(const std::string& email, const std::string& pwd, UserIn
             return false;
         }
         // 填充用户信息
-        userInfo.name = row[2].get<std::string>();
-        userInfo.email = email;
-        userInfo.uid = row[1].get<int>();
-        userInfo.pwd = origin_pwd;
+        //userInfo.name = row["name"].get<std::string>();
+        //userInfo.email = email;
+        //userInfo.uid = row["uid"].get<int>();
+        //userInfo.pwd = origin_pwd;
 
         return true;
     }

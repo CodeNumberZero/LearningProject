@@ -30,7 +30,7 @@ std::string SectionInfo::operator[](const std::string& key)
 ConfigMgr::ConfigMgr()
 {
     boost::filesystem::path current_path = boost::filesystem::current_path();                    // 获取当前工作目录   
-    boost::filesystem::path config_path = current_path / "GateServerConfig.ini";                           // 构建config.ini文件的完整路径 
+    boost::filesystem::path config_path = current_path / "StatusServerConfig.ini";                           // 构建config.ini文件的完整路径 
     std::cout << "Config path: " << config_path << std::endl;
     boost::property_tree::ptree pt;
     boost::property_tree::read_ini(config_path.string(), pt);                                    // 使用Boost.PropertyTree来读取INI文件  

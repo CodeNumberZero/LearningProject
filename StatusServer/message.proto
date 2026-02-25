@@ -19,11 +19,6 @@ message GetVarifyRsp {
   string code = 3;
 }
 
-service StatusService {
-    rpc GetChatServer (GetChatServerReq) returns (GetChatServerRsp) {}
-	rpc Login(LoginReq) returns(LoginRsp);
-}
-
 message GetChatServerReq {
   int32 uid = 1;
 }
@@ -44,4 +39,9 @@ message LoginRsp {
 	int32 error = 1;
 	int32 uid = 2;
 	string token = 3;
+}
+
+service StatusService {
+    rpc GetChatServer (GetChatServerReq) returns (GetChatServerRsp) {}
+	rpc Login(LoginReq) returns(LoginRsp);
 }
