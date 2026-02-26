@@ -1,5 +1,6 @@
 ﻿#include "Login.h"
 #include "HttpMgr.h"
+#include "TcpMgr.h"
 
 Login::Login(QWidget *parent)
 	: QDialog(parent)
@@ -18,14 +19,22 @@ Login::Login(QWidget *parent)
     initHead();
     initHttpHandlers();
 
+    /*
+    在 Qt 中，信号和槽的连接是基于函数签名的，虽然在connect语句中没有显式写出槽函数的参数，但编译器会根据信号和槽的函数声明自动进行参数匹配。简单来讲就是信号携带的参数会传递给槽函数
+    因此信号和槽的参数必须满足以下条件：
+        1、参数数量：槽函数的参数数量不能多于信号(可以有少于信号的参数)
+        2、参数类型：对应位置的参数类型必须兼容(可以隐式转换)
+        3、顺序一致：参数的顺序必须对应
+    */
+
     // 连接登录回包信号和槽函数
     connect(HttpMgr::GetInstance().get(), &HttpMgr::sig_login_mod_finish, this, &Login::slot_login_mod_finish);
- //   // 连接tcp连接请求的信号和槽函数
- //   connect(this, &Login::sigTcpConnect, TcpMgr::GetInstance().get(), &TcpMgr::slot_tcp_connect);
- //   // 连接tcp管理者发出的连接成功信号
- //   connect(TcpMgr::GetInstance().get(), &TcpMgr::sigConnectSuccess, this, &Login::slot_tcp_connect_finish);
-	//// 连接tcp管理者发出的连接失败信号
-	//connect(TcpMgr::GetInstance().get(), &TcpMgr::sigLoginFailed, this, &Login::slot_login_failed);
+    // 连接tcp连接请求的信号和槽函数
+    connect(this, &Login::sigTcpConnect, TcpMgr::GetInstance().get(), &TcpMgr::slot_tcp_connect);
+    // 连接tcp管理者发出的连接成功信号
+    connect(TcpMgr::GetInstance().get(), &TcpMgr::sigConnectSuccess, this, &Login::slot_tcp_connect_finish);
+	// 连接tcp管理者发出的连接失败信号
+	connect(TcpMgr::GetInstance().get(), &TcpMgr::sigLoginFailed, this, &Login::slot_login_failed);
 }
 
 Login::~Login()
@@ -66,7 +75,7 @@ void Login::initHttpHandlers() {
     _handlers.insert(ReqId::ID_LOGIN_USER, [this](QJsonObject jsonObj) {
         int error = jsonObj["error"].toInt();
         if (error != ErrorCodes::SUCCESS) {
-			showTip(tr("登陆失败，参数错误，错误码: ") + QString::number(error), false);
+			showTip(tr("登陆验证失败,参数错误,错误码: ") + QString::number(error), false);
             enableBtn(true);
             return;
         }
@@ -207,4 +216,31 @@ void Login::slot_login_mod_finish(ReqId id, QString result, ErrorCodes err)
 
     _handlers[id](jsonDoc.object());                                      // 根据请求ID分发业务逻辑
     return;
+}
+
+void Login::slot_tcp_connect_finish(bool b_success)
+{
+    if (b_success) {
+        showTip(tr("聊天服务连接成功，正在登录..."), true);
+        QJsonObject jsonObj;
+        jsonObj["uid"] = _uid;
+        jsonObj["token"] = _token;
+
+        QJsonDocument doc(jsonObj);
+        QString jsonString = doc.toJson(QJsonDocument::Indented);
+
+        //发送tcp请求给chat server
+        TcpMgr::GetInstance()->sigSendData(ReqId::ID_CHAT_LOGIN, jsonString); // tcp连接成功，发送sig_send_data信号通知TcpMgr将数据发送给服务器
+    }
+    else {
+        showTip(tr("网络异常，tcp连接失败"), false);
+        enableBtn(true);
+    }
+}
+
+void Login::slot_login_failed(int err)
+{
+    QString result = QString("tcp连接失败,登录失败,err is %1").arg(err);
+    showTip(result, false);
+    enableBtn(true);
 }

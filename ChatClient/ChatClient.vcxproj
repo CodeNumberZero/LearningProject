@@ -102,6 +102,7 @@
     <ClCompile Include="HttpMgr.cpp" />
     <ClCompile Include="Register.cpp" />
     <ClCompile Include="resetdialog.cpp" />
+    <ClCompile Include="TcpMgr.cpp" />
     <ClCompile Include="TimerBtn.cpp" />
     <QtRcc Include="MainWindow.qrc" />
     <QtUic Include="Login.ui" />
@@ -123,6 +124,7 @@
     <QtMoc Include="ClickedLabel.h" />
     <ClInclude Include="global.h" />
     <QtMoc Include="resetdialog.h" />
+    <QtMoc Include="TcpMgr.h" />
     <ClInclude Include="TimerBtn.h" />
     <QtMoc Include="HttpMgr.h" />
     <ClInclude Include="Singleton.h" />

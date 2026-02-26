@@ -24,6 +24,14 @@ ResetDialog::ResetDialog(QWidget *parent) :
          checkVarifyValid();
     });
 
+    /*
+    在 Qt 中，信号和槽的连接是基于函数签名的，虽然在connect语句中没有显式写出槽函数的参数，但编译器会根据信号和槽的函数声明自动进行参数匹配。简单来讲就是信号携带的参数会传递给槽函数
+    因此信号和槽的参数必须满足以下条件：
+        1、参数数量：槽函数的参数数量不能多于信号(可以有少于信号的参数)
+        2、参数类型：对应位置的参数类型必须兼容(可以隐式转换)
+        3、顺序一致：参数的顺序必须对应
+    */
+
     // 连接reset相关信号和注册处理回调
     initHandlers();
     connect(HttpMgr::GetInstance().get(), &HttpMgr::sig_reset_mod_finish, this,

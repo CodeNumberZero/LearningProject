@@ -1,26 +1,29 @@
 #pragma once
-#include <qwidget.h>
-#include <QtWidgets/QApplication>
-#include <qpushbutton.h>
-#include <qtimer.h>
-#include <qevent.h>
-#include <qcryptographichash.h>
-#include <qlabel.h>
-#include <qstyle.h>
-#include <qregularexpression.h>
-#include <qbytearray.h>
-#include <qstring.h>
-#include <qfile.h>
-#include <qdir.h>
-#include <qsettings.h>
-#include <qpainter.h>
-#include <qpainterpath.h>
-#include <qjsonobject.h>
-
 #include <functional>
 #include <iostream>
 #include <mutex>
 #include <memory>
+
+#include <qabstractsocket.h>
+#include <qbytearray.h>
+#include <qcryptographichash.h>
+#include <qdir.h>
+#include <qevent.h>
+#include <qfile.h>
+#include <qjsonobject.h>
+#include <qlabel.h>
+#include <qobject.h>
+#include <qpushbutton.h>
+#include <qpainter.h>
+#include <qpainterpath.h>
+#include <qregularexpression.h>
+#include <qstyle.h>
+#include <qstring.h>
+#include <qsettings.h>
+#include <qtimer.h>
+#include <QtWidgets/QApplication>
+#include <qtcpsocket.h>
+#include <qwidget.h>
 
 extern QString gate_url_prefix;                          // ǰ׺
 
