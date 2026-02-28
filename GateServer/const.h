@@ -1,4 +1,6 @@
 #pragma once
+#include <grpcpp/grpcpp.h>
+
 #include <boost/beast/http.hpp>
 #include <boost/beast.hpp>
 #include <boost/asio.hpp>
@@ -10,26 +12,23 @@
 #include <boost/uuid/uuid_io.hpp>
 
 #include <json/json.h>
-#include <json//value.h>
+#include <json/value.h>
 #include <json/reader.h>
 
-#include <grpcpp/grpcpp.h>
-
+#include <atomic>
+#include <cassert>
+#include <functional>
 #include <hiredis/hiredis.h>
 #include <sw/redis++/redis++.h>
-
-#include <memory>
 #include <iostream>
-#include <functional>
+#include <memory>
 #include <map>
-#include <unordered_map>
-#include <atomic>
 #include <queue>
-#include <cassert>
+#include <unordered_map>
 
 #include "Singleton.h"
 
-constexpr auto CODEPREFIX = "code_";
+constexpr auto CODEPREFIX = "code_";             // 编译期常量表达式，值在编译时就确定
 
 enum ErrorCodes {
 	Success = 0,

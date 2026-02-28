@@ -16,6 +16,7 @@ TcpMgr::TcpMgr() : _host(""), _port(0), _b_rece_pending(false), _message_id(0), 
 		// 读取所有数据并追加到缓冲区
 		_buffer.append(_socket.readAll());                                   // 在槽函数中，通常使用readAll()函数来读取所有当前可用的数据。它会返回一个QByteArray对象，包含所有尚未读取的字节
 
+        // 这两句存疑，可能要放到循环里
 		QDataStream stream(&_buffer, QIODevice::ReadOnly);
 		stream.setVersion(QDataStream::Qt_6_9);
 
