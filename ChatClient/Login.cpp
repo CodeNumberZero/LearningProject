@@ -230,7 +230,7 @@ void Login::slot_tcp_connect_finish(bool b_success)
         QString jsonString = doc.toJson(QJsonDocument::Indented);
 
         //发送tcp请求给chat server
-        TcpMgr::GetInstance()->sigSendData(ReqId::ID_CHAT_LOGIN, jsonString); // tcp连接成功，发送sig_send_data信号通知TcpMgr将数据发送给服务器
+        emit TcpMgr::GetInstance()->sigSendData(ReqId::ID_CHAT_LOGIN, jsonString); // tcp连接成功，发送sig_send_data信号通知TcpMgr将数据发送给服务器
     }
     else {
         showTip(tr("网络异常，tcp连接失败"), false);

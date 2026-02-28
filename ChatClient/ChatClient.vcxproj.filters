@@ -64,6 +64,9 @@
     <ClCompile Include="TcpMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="UserMgr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Login.h">
@@ -82,6 +85,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="TcpMgr.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="UserMgr.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

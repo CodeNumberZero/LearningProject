@@ -1,10 +1,11 @@
 #include "TcpMgr.h"
+#include "UserMgr.h"
 
 TcpMgr::TcpMgr() : _host(""), _port(0), _b_rece_pending(false), _message_id(0), _message_len(0)
 {
 	// 这句虽然看似只有三个参数，但实际上查看源码可以发现它的内部实现是调用常规的四个参数的connect函数版本，默认的信号接收方就是发送发自己
 	QObject::connect(&_socket, &QTcpSocket::connected, [&]() {               // connect信号在成功连接到远程主机后触发
-		qDebug() << "Connected to server!";
+		qDebug() << "Connected to server success!";
 		emit sigConnectSuccess(true);
 	});
 
@@ -113,9 +114,9 @@ void TcpMgr::initHandlers() {
             return;
         }
 
-        //UserMgr::GetInstance()->SetUid(jsonObj["uid"].toInt());
-        //UserMgr::GetInstance()->SetName(jsonObj["name"].toString());
-        //UserMgr::GetInstance()->SetToken(jsonObj["token"].toString());
+        UserMgr::GetInstance()->SetUid(jsonObj["uid"].toInt());
+        UserMgr::GetInstance()->SetName(jsonObj["name"].toString());
+        UserMgr::GetInstance()->SetToken(jsonObj["token"].toString());
         emit sigSwitchChat();
     });
 }
