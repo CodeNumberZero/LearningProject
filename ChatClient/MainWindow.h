@@ -5,6 +5,7 @@
 #include "Login.h"
 #include "Register.h"
 #include "resetdialog.h"
+#include "Chat.h"
 
 class MainWindow : public QMainWindow
 {
@@ -19,12 +20,13 @@ public slots:
     void SlotSwitchLogin();
     void SlotSwitchReset();
     void SlotSwitchLoginFromReset();
+    void SlotSwitchChat();
 
 private:
     Ui::MainWindowClass ui;
     Login* _login;
     Register* _register;
     ResetDialog* _reset;
-
+    Chat* _chat;
 };
 

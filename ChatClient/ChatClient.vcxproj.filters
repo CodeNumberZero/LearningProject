@@ -67,6 +67,12 @@
     <ClCompile Include="UserMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Chat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ClickedButton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Login.h">
@@ -90,6 +96,12 @@
     <QtMoc Include="UserMgr.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Chat.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ClickedButton.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="Login.ui">
@@ -99,6 +111,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="resetdialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="Chat.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

@@ -97,6 +97,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Chat.cpp" />
+    <ClCompile Include="ClickedButton.cpp" />
     <ClCompile Include="ClickedLabel.cpp" />
     <ClCompile Include="global.cpp" />
     <ClCompile Include="HttpMgr.cpp" />
@@ -106,6 +108,7 @@
     <ClCompile Include="TimerBtn.cpp" />
     <ClCompile Include="UserMgr.cpp" />
     <QtRcc Include="MainWindow.qrc" />
+    <QtUic Include="Chat.ui" />
     <QtUic Include="Login.ui" />
     <QtUic Include="MainWindow.ui" />
     <QtMoc Include="MainWindow.h" />
@@ -124,6 +127,8 @@
   <ItemGroup>
     <QtMoc Include="UserMgr.h" />
     <QtMoc Include="ClickedLabel.h" />
+    <QtMoc Include="Chat.h" />
+    <QtMoc Include="ClickedButton.h" />
     <ClInclude Include="global.h" />
     <QtMoc Include="resetdialog.h" />
     <QtMoc Include="TcpMgr.h" />

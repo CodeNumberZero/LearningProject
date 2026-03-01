@@ -10,8 +10,8 @@ void ClickedLabel::mousePressEvent(QMouseEvent* event)
         if (_curstate == ClickLbState::Normal) {
             qDebug() << "clicked , change to selected hover: " << _selected_hover;
             _curstate = ClickLbState::Selected;
-            setProperty("state", _selected_hover);
-            repolish(this);
+            setProperty("state", _selected_hover);                      // setProperty在样式表中的工作原理:1、Qt 样式系统解析样式表 2、当需要绘制控件时，检查该控件的所有属性 3、如果属性匹配选择器条件，应用相应的样式规则，最后应用自定义的repolish更新样式
+            repolish(this);  
             update();
         }
         else {
@@ -23,8 +23,13 @@ void ClickedLabel::mousePressEvent(QMouseEvent* event)
         }
         emit clicked();
     }
-    // 调用基类的mousePressEvent以保证正常的事件处理
+    // 调用基类的mousePressEvent以保证正常的事件处理(确保基类的默认行为得到执行)
     QLabel::mousePressEvent(event);
+    // 基类的处理会：
+    // 1. 设置按下状态
+    // 2. 触发 clicked 信号
+    // 3. 处理焦点变化
+    // 4. 更新 :pressed 伪状态
 }
 
 void ClickedLabel::enterEvent(QEnterEvent* event)

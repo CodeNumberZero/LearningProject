@@ -1,5 +1,5 @@
 #include "MainWindow.h"
-
+#include "TcpMgr.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -19,10 +19,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 连接登录界面注册信号
     connect(_login, &Login::sigSwitchRegister, this, &MainWindow::SlotSwitchReg);
+
     // 连接登录界面忘记密码信号
     connect(_login, &Login::sigSwitchReset, this, &MainWindow::SlotSwitchReset);
 
+    // 连接创建聊天界面信号
+    connect(TcpMgr::GetInstance().get(), &TcpMgr::sigSwitchChat, this, &MainWindow::SlotSwitchChat);
+
     setWindowIcon(QIcon(":/icon/resource/KamenRider.ico")); // :/是Qt资源文件的固定前缀。若想直接使用本地磁盘文件不嵌入资源，需传入完整本地路径
+
+    emit TcpMgr::GetInstance()->sigSwitchChat();
 }
 
 
@@ -81,4 +87,15 @@ void MainWindow::SlotSwitchLoginFromReset()
     connect(_login, &Login::sigSwitchRegister, this, &MainWindow::SlotSwitchReg);
     // 连接登录界面忘记密码信号
     connect(_login, &Login::sigSwitchReset, this, &MainWindow::SlotSwitchReset);
+}
+
+void MainWindow::SlotSwitchChat()
+{
+    _chat = new Chat(this);
+    _chat->setWindowFlags(Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
+    setCentralWidget(_chat);
+    _chat->show();
+    _login->hide();
+    this->setMinimumSize(QSize(1050, 900));
+    this->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
 }
