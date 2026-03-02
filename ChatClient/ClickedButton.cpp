@@ -24,7 +24,7 @@ void ClickedButton::enterEvent(QEnterEvent* event)
 	setProperty("state", _hover);
 	repolish(this);
 	update();
-	QPushButton::enterEvent(event);                                     // 调用基类的enterEvent以保证正常的事件处理(确保基类的默认行为得到执行)
+	QPushButton::enterEvent(event);                                    // 调用基类的enterEvent以保证正常的事件处理(确保基类的默认行为得到执行)
 }
 
 void ClickedButton::leaveEvent(QEvent* event)

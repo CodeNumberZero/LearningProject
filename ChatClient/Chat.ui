@@ -95,7 +95,7 @@
             </size>
            </property>
            <property name="text">
-            <string/>
+            <string>6的</string>
            </property>
           </widget>
          </item>
@@ -114,7 +114,7 @@
             </size>
            </property>
            <property name="text">
-            <string/>
+            <string>牛的</string>
            </property>
           </widget>
          </item>
@@ -133,7 +133,7 @@
             </size>
            </property>
            <property name="text">
-            <string/>
+            <string>666</string>
            </property>
           </widget>
          </item>
@@ -158,6 +158,12 @@
    </item>
    <item>
     <widget class="QWidget" name="chat_list" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="maximumSize">
       <size>
        <width>250</width>
@@ -211,7 +217,7 @@
           <number>9</number>
          </property>
          <item>
-          <widget class="QLineEdit" name="search_lineEdit">
+          <widget class="CustomizeEdit" name="search_lineEdit">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -265,10 +271,25 @@
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="chat_user_list"/>
+       <widget class="ChatUserList" name="chat_user_list"/>
       </item>
       <item>
-       <widget class="QListWidget" name="search_lsit"/>
+       <widget class="QListWidget" name="search_list">
+        <item>
+         <property name="text">
+          <string>search</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QListWidget" name="contact_user_list">
+        <item>
+         <property name="text">
+          <string>contact</string>
+         </property>
+        </item>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -566,6 +587,16 @@
    <class>ClickedButton</class>
    <extends>QPushButton</extends>
    <header location="global">clickedbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CustomizeEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">customizeedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ChatUserList</class>
+   <extends>QListWidget</extends>
+   <header location="global">chatuserlist.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

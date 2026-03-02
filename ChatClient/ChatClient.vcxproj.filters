@@ -73,6 +73,18 @@
     <ClCompile Include="ClickedButton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CustomizeEdit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatUserList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ListItemBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatUserWid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Login.h">
@@ -102,6 +114,18 @@
     <QtMoc Include="ClickedButton.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="CustomizeEdit.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ChatUserList.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ListItemBase.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ChatUserWid.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="Login.ui">
@@ -114,6 +138,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="Chat.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="ChatUserWid.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

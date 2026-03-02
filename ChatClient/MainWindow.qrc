@@ -39,6 +39,21 @@
         <file>resource/unvisible_hover.png</file>
         <file>resource/visible.png</file>
         <file>resource/visible_hover.png</file>
+        <file>resource/head_6.jpg</file>
+        <file>resource/head_7.jpg</file>
+        <file>resource/head_8.jpg</file>
+        <file>resource/head_9.jpg</file>
+        <file>resource/head_10.jpg</file>
+        <file>resource/head_11.jpg</file>
+        <file>resource/head_12.jpg</file>
+        <file>resource/head_13.jpg</file>
+        <file>resource/head_14.jpg</file>
+        <file>resource/head_15.jpg</file>
+        <file>resource/head_16.jpg</file>
+        <file>resource/head_17.jpg</file>
+        <file>resource/head_18.jpg</file>
+        <file>resource/head_19.jpg</file>
+        <file>resource/head_20.jpg</file>
     </qresource>
     <qresource prefix="/video">
         <file>resource/sword.mp4</file>
