@@ -1,10 +1,18 @@
 ﻿#include "Chat.h"
 #include "ChatUserWid.h"
+#include "LoadingDialog.h"
 
 Chat::Chat(QWidget *parent)
 	: QDialog(parent), _mode(ChatUIMode::ChatMode), _state(ChatUIMode::ChatMode), _b_loading(false)
 {
-	ui.setupUi(this);
+    /*
+    传递this指针可以设置父对象关系,创建的控件都以 Login 为父对象
+    这样做的目的是：
+       - 控件会显示在 Login 上
+       - 内存管理：当 Login 销毁时，子控件自动销毁
+       - 事件传递：事件可以正确传递给父对象
+    */
+	ui.setupUi(this);                                                              // 初始化ui,将 ui 文件中的界面设置到 this 对象上,之后可以访问界面上的控件(将设计师设计的界面(.ui 文件)实例化到当前对象上)
 	ui.add_Button->SetState("normal", "hover", "press");                           // 显式调用设置一下ClickedButton的三种状态
 	ui.search_lineEdit->SetMaxLength(50);                                          // 设置搜索框可输入的最大字节数
 
@@ -42,6 +50,9 @@ Chat::Chat(QWidget *parent)
     });
     
     ShowSearch(false);                                                            // 默认情况下也不显示搜索框
+
+    connect(ui.chat_user_list, &ChatUserList::sig_loading_chat_user, this, &Chat::slot_loading_chat_user);
+
     AddChatUserList();
 }
 
@@ -115,3 +126,19 @@ void Chat::ShowSearch(bool b_search)
     }
 }
 
+void Chat::slot_loading_chat_user() {
+    if (_b_loading) {                                                                  // 防止在数据加载过程中重复触发加载函数,避免多次弹出加载对话框
+        return;
+    }
+
+    _b_loading = true;
+    LoadingDialog* loadingDialog = new LoadingDialog(this);
+    loadingDialog->setModal(true);                                                     // 设置为模态对话框，阻塞用户对其他窗口的交互
+    loadingDialog->show();                                                             // 显示对话框，但不会阻塞代码执行
+    qDebug() << "add new data to list.....";
+    AddChatUserList();                
+    // 加载完成后关闭对话框
+    loadingDialog->deleteLater();                                                      // 在当前事件循环结束后才真正删除(对话框显示后立即开始加载，加载完成后立即删除)
+
+    _b_loading = false;
+}

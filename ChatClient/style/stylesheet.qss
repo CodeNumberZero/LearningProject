@@ -148,3 +148,116 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
 QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
     background: none; /* 页面滚动部分背景透明 */
 }
+
+LoadingDialog{
+    background: #f2eada;
+}
+
+#title_label{
+    font-family: "Microsoft YaHei";
+    font-size: 18px;
+    font-weight: normal;
+}
+
+#chat_textEdit{
+    background: #ffffff;
+    border: none; /* 隐藏边框 */
+    font-family: "Microsoft YaHei"; /* 设置字体 */
+    font-size: 18px; /* 设置字体大小 */
+    padding: 5px; /* 设置内边距 */
+}
+
+#send_wid{
+    background: #ffffff;
+    border: none; /* 隐藏边框 */
+}
+
+#add_Button[state='normal']{
+    border-image: url(:/image/resource/add_friend_normal.png);
+}
+
+#add_Button[state='hover']{
+    border-image: url(:/image/resource/add_friend_hover.png);
+
+}
+
+#add_Button[state='press']{
+    border-image: url(:/image/resource/add_friend_hover.png);
+}
+
+#receive_Button[state='normal']{
+   background: #f0f0f0;
+   color: #2cb46e;
+   font-size: 16px; /* 设置字体大小 */
+   font-family: "Microsoft YaHei"; /* 设置字体 */
+   border-radius: 20px; /* 设置圆角 */
+}
+
+#receive_Button[state='hover']{
+   background: #d2d2d2;
+   color: #2cb46e;
+   font-size: 16px; /* 设置字体大小 */
+   font-family: "Microsoft YaHei"; /* 设置字体 */
+   border-radius: 20px; /* 设置圆角 */
+}
+
+#receive_Button[state='press']{
+   background: #c6c6c6;
+   color: #2cb46e;
+   font-size: 16px; /* 设置字体大小 */
+   font-family: "Microsoft YaHei"; /* 设置字体 */
+   border-radius: 20px; /* 设置圆角 */
+}
+
+#send_Button[state='normal']{
+    background: #f0f0f0;
+    color: #2cb46e;
+    font-size: 16px; /* 设置字体大小 */
+    font-family: "Microsoft YaHei"; /* 设置字体 */
+    border-radius: 20px; /* 设置圆角 */
+}
+
+#send_Button[state='hover']{
+   background: #d2d2d2;
+   color: #2cb46e;
+   font-size: 16px; /* 设置字体大小 */
+   font-family: "Microsoft YaHei"; /* 设置字体 */
+   border-radius: 20px; /* 设置圆角 */
+}
+
+#send_Button[state='press']{
+   background: #c6c6c6;
+   color: #2cb46e;
+   font-size: 16px; /* 设置字体大小 */
+   font-family: "Microsoft YaHei"; /* 设置字体 */
+   border-radius: 20px; /* 设置圆角 */
+}
+
+#tool_bar{
+    background: #ffffff;
+    border-bottom: 0.5px solid #ececec; /* 设置下边框颜色和宽度 */
+}
+
+#emote_label[state='normal']{
+    border-image: url(:/image/resource/smile.png);
+}
+
+#emote_label[state='hover']{
+    border-image: url(:/image/resource/smile_hover.png);
+}
+
+#emote_label[state='press']{
+    border-image: url(:/image/resource/smile_press.png);
+}
+
+#file_label[state='normal']{
+    border-image: url(:/image/resource/filedir.png);
+}
+
+#file_label[state='hover']{
+    border-image: url(:/image/resource/filedir_hover.png);
+}
+
+#file_label[state='press']{
+    border-image: url(:/image/resource/filedir_press.png);
+}

@@ -7,6 +7,7 @@ class ClickedLabel : public QLabel
 public:
     ClickedLabel(QWidget* parent);
     virtual void mousePressEvent(QMouseEvent* event) override;                                // 处理鼠标点击事件;override的作用：让编译器帮助检查是否正确地重写了基类函数
+    virtual void mouseReleaseEvent(QMouseEvent* event) override;
     virtual void enterEvent(QEnterEvent* event) override;                                     // 处理鼠标悬停进入事件
     virtual void leaveEvent(QEvent* event) override;                                          // 处理鼠标悬停离开事件
     void SetState(QString normal = "", QString hover = "", QString press = "",

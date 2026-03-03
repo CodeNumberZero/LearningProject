@@ -5,7 +5,14 @@
 Login::Login(QWidget *parent)
 	: QDialog(parent)
 {
-    ui.setupUi(this);  // 初始化ui
+    /*
+    传递this指针可以设置父对象关系,创建的控件都以 Login 为父对象
+    这样做的目的是：
+       - 控件会显示在 Login 上
+       - 内存管理：当 Login 销毁时，子控件自动销毁
+       - 事件传递：事件可以正确传递给父对象
+    */
+    ui.setupUi(this);  // 初始化ui,将 ui 文件中的界面设置到 this 对象上,之后可以访问界面上的控件(将设计师设计的界面(.ui 文件)实例化到当前对象上)
     ui.err_tip->setProperty("state", "normal");
     repolish(ui.err_tip);
     ui.err_tip->clear(); // 隐藏默认的错误提示

@@ -8,20 +8,20 @@ void ClickedLabel::mousePressEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton) {
         if (_curstate == ClickLbState::Normal) {
-            qDebug() << "clicked , change to selected hover: " << _selected_hover;
+            qDebug() << "clicked , change to selected press: " << _selected_press;
             _curstate = ClickLbState::Selected;
-            setProperty("state", _selected_hover);                      // setProperty在样式表中的工作原理:1、Qt 样式系统解析样式表 2、当需要绘制控件时，检查该控件的所有属性 3、如果属性匹配选择器条件，应用相应的样式规则，最后应用自定义的repolish更新样式
+            setProperty("state", _selected_press);                      // setProperty在样式表中的工作原理:1、Qt 样式系统解析样式表 2、当需要绘制控件时，检查该控件的所有属性 3、如果属性匹配选择器条件，应用相应的样式规则，最后应用自定义的repolish更新样式
             repolish(this);  
             update();
         }
         else {
-            qDebug() << "clicked , change to normal hover: " << _normal_hover;
+            qDebug() << "clicked , change to normal press: " << _normal_press;
             _curstate = ClickLbState::Normal;
-            setProperty("state", _normal_hover);
+            setProperty("state", _normal_press);
             repolish(this);
             update();
         }
-        emit clicked();
+        return;
     }
     // 调用基类的mousePressEvent以保证正常的事件处理(确保基类的默认行为得到执行)
     QLabel::mousePressEvent(event);
@@ -30,6 +30,28 @@ void ClickedLabel::mousePressEvent(QMouseEvent* event)
     // 2. 触发 clicked 信号
     // 3. 处理焦点变化
     // 4. 更新 :pressed 伪状态
+}
+
+void ClickedLabel::mouseReleaseEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton) {
+        if (_curstate == ClickLbState::Normal) {
+            qDebug()<<"ReleaseEvent , change to normal hover: "<< _normal_hover;
+            setProperty("state", _normal_hover);
+            repolish(this);
+            update();
+        }
+        else {
+            qDebug()<<"ReleaseEvent , change to selected hover: "<< _selected_hover;
+            setProperty("state", _selected_hover);
+            repolish(this);
+            update();
+        }
+        emit clicked();
+        return;
+    }
+    // 调用基类的mousePressEvent以保证正常的事件处理
+    QLabel::mousePressEvent(event);
 }
 
 void ClickedLabel::enterEvent(QEnterEvent* event)

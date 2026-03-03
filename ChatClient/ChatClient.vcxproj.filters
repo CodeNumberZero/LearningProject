@@ -85,6 +85,12 @@
     <ClCompile Include="ChatUserWid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LoadingDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatPage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Login.h">
@@ -126,6 +132,12 @@
     <QtMoc Include="ChatUserWid.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="LoadingDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ChatPage.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="Login.ui">
@@ -141,6 +153,12 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="ChatUserWid.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="LoadingDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="ChatPage.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
