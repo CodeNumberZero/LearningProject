@@ -101,6 +101,7 @@
     <ClCompile Include="ChatPage.cpp" />
     <ClCompile Include="ChatUserList.cpp" />
     <ClCompile Include="ChatUserWid.cpp" />
+    <ClCompile Include="ChatView.cpp" />
     <ClCompile Include="ClickedButton.cpp" />
     <ClCompile Include="ClickedLabel.cpp" />
     <ClCompile Include="CustomizeEdit.cpp" />
@@ -142,6 +143,7 @@
     <QtMoc Include="ChatUserList.h" />
     <QtMoc Include="ChatUserWid.h" />
     <QtMoc Include="ChatPage.h" />
+    <QtMoc Include="ChatView.h" />
     <ClInclude Include="global.h" />
     <QtMoc Include="resetdialog.h" />
     <QtMoc Include="TcpMgr.h" />

@@ -15,10 +15,11 @@ ListItemType ListItemBase::GetItemType()
 	return _itemType;
 }
 
-void ListItemBase::paintEvent(QPaintEvent* event)
-{
-	QStyleOption opt;                                            // 创建样式选项对象,用于存储绘制控件所需的各种信息（状态、位置、大小等）
-	opt.initFrom(this);                                          // 从当前控件初始化选项
-	QPainter p(this);                                            // 创建画家对象,用于在控件上绘制,this 指定绘制的目标设备是当前控件
-	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);   // 绘制背景
-}
+// 重写这个函数后,左边聊天列表就没有悬浮，选中状态了
+//void ListItemBase::paintEvent(QPaintEvent* event)
+//{
+//	QStyleOption opt;                                            // 创建样式选项对象,用于存储绘制控件所需的各种信息（状态、位置、大小等）
+//	opt.initFrom(this);                                          // 从当前控件初始化选项
+//	QPainter p(this);                                            // 创建画家对象,用于在控件上绘制,this 指定绘制的目标设备是当前控件
+//	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);   // 绘制背景
+//}

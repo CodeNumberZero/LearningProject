@@ -11,7 +11,7 @@ public:
     ListItemType GetItemType();
 
 protected:
-    virtual void paintEvent(QPaintEvent* event) override;               // 因为ListItemBase继承了QWidget,而QWidget是很基本的组件,所以我们想实现样式更新，就需要重写paintEvent(主要作用是用于正确绘制自定义 QWidget 的背景样式,确保控件的外观与当前样式一致)
+    //virtual void paintEvent(QPaintEvent* event) override;               // 因为ListItemBase继承了QWidget,而QWidget是很基本的组件,所以我们想实现更复杂的样式更新，就需要重写paintEvent(主要作用是用于正确绘制自定义 QWidget 的背景样式,确保控件的外观与当前样式一致)
 
 private:
     ListItemType _itemType;

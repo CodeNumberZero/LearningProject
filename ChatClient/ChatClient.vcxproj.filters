@@ -91,6 +91,9 @@
     <ClCompile Include="ChatPage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ChatView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Login.h">
@@ -136,6 +139,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="ChatPage.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ChatView.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

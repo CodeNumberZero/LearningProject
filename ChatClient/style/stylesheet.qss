@@ -261,3 +261,15 @@ LoadingDialog{
 #file_label[state='press']{
     border-image: url(:/image/resource/filedir_press.png);
 }
+
+#chat_data_list{
+     background: #f0f0f0;
+}
+
+#chat_background{
+    background: #f0f0f0;
+}
+
+#chat_area{
+    border: none;
+}
