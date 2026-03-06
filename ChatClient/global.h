@@ -26,6 +26,7 @@
 #include <qstyle.h>
 #include <qstring.h>
 #include <qsettings.h>
+#include <qscrollbar.h>
 #include <qtimer.h>
 #include <qtextedit.h>
 #include <QtWidgets/QApplication>

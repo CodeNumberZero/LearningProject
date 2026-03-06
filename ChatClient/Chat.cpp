@@ -2,7 +2,6 @@
 #include "ChatUserWid.h"
 #include "LoadingDialog.h"
 
-// 
 /*
     定义一些全局的变量用来做测试；
     这些变量不能放到global.h中，因为globla.h在多个文件中被包含，变量放进去可能会出现重定义的问题；
@@ -47,6 +46,7 @@ Chat::Chat(QWidget *parent)
 	ui.add_Button->SetState("normal", "hover", "press");                           // 显式调用设置一下ClickedButton的三种状态
 	ui.search_lineEdit->SetMaxLength(50);                                          // 设置搜索框可输入的最大字节数
 
+    /* ----------------------------------------- 搜索栏设置 --------------------------------------------*/
     // 设置搜索框的默认状态和图标
     QAction* searchAction = new QAction(ui.search_lineEdit);                       // QAction 是 Qt 框架中用于表示用户命令或动作的类，代表一个可执行的操作，比如"新建文件"、"保存"、"复制"等
     searchAction->setIcon(QIcon(":/image/resource/search.png"));
@@ -59,8 +59,6 @@ Chat::Chat(QWidget *parent)
     // 初始时不显示清除图标
     // 将清除动作添加到LineEdit的末尾位置
     ui.search_lineEdit->addAction(clearAction, QLineEdit::TrailingPosition);
-
-
     // 当需要显示清除图标时，更改为实际的清除图标
     connect(ui.search_lineEdit, &QLineEdit::textChanged, [clearAction](const QString& text) {
         if (!text.isEmpty()) {
@@ -74,17 +72,45 @@ Chat::Chat(QWidget *parent)
     // 连接清除动作的触发信号到槽函数，用于清除文本
     connect(clearAction, &QAction::triggered, [this, clearAction]() {
         ui.search_lineEdit->clear();                                              // 清空文本
-        clearAction->setIcon(QIcon(":/res/close_transparent.png"));               // 清除文本后，切换回透明图标
+        clearAction->setIcon(QIcon(":/image/resource/close_transparent.png"));    // 清除文本后，切换回透明图标
         ui.search_lineEdit->clearFocus();                                         // 清除焦点
         //清除按钮被按下则不显示搜索框
         ShowSearch(false);
     });
     
-    ShowSearch(false);                                                            // 默认情况下也不显示搜索框
+    ShowSearch(false);                                                            // 默认情况下不显示搜索框
 
+    // 这种写法要输入文本才会加载新页面(这里的slot_text_changed槽可能会覆盖之前同一对象同一信号的connect函数,解决方法是可以将两个connect函数合并起来解决)
+    connect(ui.search_lineEdit, &QLineEdit::textChanged, this, &Chat::slot_text_changed); // 链接搜索框输入变化;textChanged 信号会传递一个 QString 参数，包含输入框当前的文本内容
+    
+    // 这种写法只要鼠标点击搜索栏就会加载新页面
+    //connect(ui.search_lineEdit, &CustomizeEdit::sig_mouse_clicked, this, [this]() {
+    //    QString text = ui.search_lineEdit->text();                                // 获取当前输入框的内容
+    //    slot_text_changed(text);                                                  // 调用槽函数
+    //});
+
+    /* ---------------------------------------------- 列表设置 ----------------------------------*/
     connect(ui.chat_user_list, &ChatUserList::sig_loading_chat_user, this, &Chat::slot_loading_chat_user);
-
     AddChatUserList();
+
+    /* ---------------------------------------------- 侧边栏设置 --------------------------------*/
+    QPixmap pixmap(":/image/resource/head_6.jpg");
+    ui.side_head_label->setPixmap(pixmap);                                        // 将图片设置到QLabel上
+    QPixmap scaledPixmap = pixmap.scaled(ui.side_head_label->size(), Qt::KeepAspectRatio); // 将图片缩放到label的大小
+    ui.side_head_label->setPixmap(scaledPixmap);                                  // 将缩放后的图片设置到QLabel上
+    ui.side_head_label->setScaledContents(true);                                  // 设置QLabel自动缩放图片内容以适应大小
+
+    ui.side_chat_label->setProperty("state", "normal");
+    ui.side_chat_label->SetState("normal", "hover", "pressed", "selected_normal", "selected_hover", "selected_pressed");
+    ui.side_contact_label->SetState("normal", "hover", "pressed", "selected_normal", "selected_hover", "selected_pressed");
+
+    AddLBGroup(ui.side_chat_label);
+    AddLBGroup(ui.side_contact_label);
+
+    connect(ui.side_chat_label, &StateWidget::clicked, this, &Chat::slot_side_chat);
+    connect(ui.side_contact_label, &StateWidget::clicked, this, &Chat::slot_side_contact);
+
+
 }
 
 Chat::~Chat()
@@ -131,6 +157,23 @@ void Chat::ShowSearch(bool b_search)
     }
 }
 
+void Chat::AddLBGroup(StateWidget* lb)
+{
+    _lb_list.push_back(lb);
+}
+
+// 清除其他标签选中状态，只将被点击的标签设置为选中的效果
+void Chat::ClearLabelState(StateWidget* lb)
+{
+    for (auto& ele : _lb_list) {
+        if (ele == lb) {
+            continue;
+        }
+
+        ele->ClearState();
+    }
+}
+
 void Chat::slot_loading_chat_user() {
     if (_b_loading) {                                                                  // 防止在数据加载过程中重复触发加载函数,避免多次弹出加载对话框
         return;
@@ -141,9 +184,38 @@ void Chat::slot_loading_chat_user() {
     loadingDialog->setModal(true);                                                     // 设置为模态对话框，阻塞用户对其他窗口的交互
     loadingDialog->show();                                                             // 显示对话框，但不会阻塞代码执行
     qDebug() << "add new data to list.....";
-    AddChatUserList();                
+    AddChatUserList();
     // 加载完成后关闭对话框
     loadingDialog->deleteLater();                                                      // 在当前事件循环结束后才真正删除(对话框显示后立即开始加载，加载完成后立即删除)
 
     _b_loading = false;
+}
+
+void Chat::slot_side_chat()
+{
+    qDebug() << "receive side chat clicked";
+    ClearLabelState(ui.side_chat_label);                                               // 清除其他标签选中状态，只将被点击的标签设置为选中的效果
+    ui.stackedWidget->setCurrentWidget(ui.chat_page);
+    _state = ChatUIMode::ChatMode;
+    ShowSearch(false);
+}
+
+void Chat::slot_side_contact()
+{
+    qDebug() << "receive side contact clicked";
+    ClearLabelState(ui.side_contact_label);                                            // 清除其他标签选中状态，只将被点击的标签设置为选中的效果
+    //设置
+    ui.stackedWidget->setCurrentWidget(ui.friend_apply_page);
+    _state = ChatUIMode::ContactMode;
+    ShowSearch(false);
+}
+
+void Chat::slot_text_changed(const QString& str)
+{
+    //qDebug()<< "receive slot text changed str is " << str;
+    if (!str.isEmpty()) {                                                              // 搜索栏只要不为空则显示搜索列表
+        ShowSearch(true);
+        return;
+    }
+    ShowSearch(false);
 }

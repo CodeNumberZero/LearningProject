@@ -84,23 +84,23 @@
           <widget class="QLabel" name="side_head_label">
            <property name="minimumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>30</width>
-             <height>30</height>
+             <width>35</width>
+             <height>35</height>
             </size>
            </property>
            <property name="text">
-            <string>6的</string>
+            <string/>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="size_chat_label">
+          <widget class="StateWidget" name="side_chat_label" native="true">
            <property name="minimumSize">
             <size>
              <width>30</width>
@@ -113,13 +113,10 @@
              <height>30</height>
             </size>
            </property>
-           <property name="text">
-            <string>牛的</string>
-           </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="side_contact_label">
+          <widget class="StateWidget" name="side_contact_label" native="true">
            <property name="minimumSize">
             <size>
              <width>30</width>
@@ -131,9 +128,6 @@
              <width>30</width>
              <height>30</height>
             </size>
-           </property>
-           <property name="text">
-            <string>666</string>
            </property>
           </widget>
          </item>
@@ -274,13 +268,7 @@
        <widget class="ChatUserList" name="chat_user_list"/>
       </item>
       <item>
-       <widget class="QListWidget" name="search_list">
-        <item>
-         <property name="text">
-          <string>search</string>
-         </property>
-        </item>
-       </widget>
+       <widget class="SearchList" name="search_list"/>
       </item>
       <item>
        <widget class="QListWidget" name="contact_user_list">
@@ -327,6 +315,17 @@
    <extends>QWidget</extends>
    <header location="global">chatpage.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StateWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">statewidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SearchList</class>
+   <extends>QListWidget</extends>
+   <header location="global">searchlist.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

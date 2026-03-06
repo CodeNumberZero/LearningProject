@@ -1,5 +1,6 @@
 #include "ChatItemBase.h"
 
+// 注意：在声明中已经给了parent的默认值，定义中就不需要再写了，否则会报错
 ChatItemBase::ChatItemBase(ChatRole role, QWidget* parent) : QWidget(parent), m_role(role)
 {
     m_pNameLabel = new QLabel();

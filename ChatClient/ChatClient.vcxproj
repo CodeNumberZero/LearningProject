@@ -97,6 +97,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AddUserItem.cpp" />
     <ClCompile Include="BubbleFrame.cpp" />
     <ClCompile Include="Chat.cpp" />
     <ClCompile Include="ChatItemBase.cpp" />
@@ -115,11 +116,15 @@
     <ClCompile Include="PictureBubble.cpp" />
     <ClCompile Include="Register.cpp" />
     <ClCompile Include="resetdialog.cpp" />
+    <ClCompile Include="SearchList.cpp" />
+    <ClCompile Include="StateWidget.cpp" />
     <ClCompile Include="TcpMgr.cpp" />
     <ClCompile Include="TextBubble.cpp" />
     <ClCompile Include="TimerBtn.cpp" />
+    <ClCompile Include="UserData.cpp" />
     <ClCompile Include="UserMgr.cpp" />
     <QtRcc Include="MainWindow.qrc" />
+    <QtUic Include="AddUserItem.ui" />
     <QtUic Include="Chat.ui" />
     <QtUic Include="ChatPage.ui" />
     <QtUic Include="ChatUserWid.ui" />
@@ -140,6 +145,9 @@
     <QtMoc Include="Register.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="SearchList.h" />
+    <QtMoc Include="AddUserItem.h" />
+    <ClInclude Include="UserData.h" />
     <QtMoc Include="UserMgr.h" />
     <QtMoc Include="ClickedLabel.h" />
     <QtMoc Include="Chat.h" />
@@ -159,6 +167,7 @@
     <QtMoc Include="TextBubble.h" />
     <QtMoc Include="PictureBubble.h" />
     <QtMoc Include="MessageTextEdit.h" />
+    <QtMoc Include="StateWidget.h" />
     <ClInclude Include="TimerBtn.h" />
     <QtMoc Include="HttpMgr.h" />
     <ClInclude Include="Singleton.h" />

@@ -109,6 +109,18 @@
     <ClCompile Include="MessageTextEdit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="StateWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UserData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SearchList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AddUserItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Login.h">
@@ -174,6 +186,15 @@
     <QtMoc Include="MessageTextEdit.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="StateWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SearchList.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="AddUserItem.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="Login.ui">
@@ -197,6 +218,9 @@
     <QtUic Include="ChatPage.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="AddUserItem.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="global.h">
@@ -206,6 +230,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TimerBtn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UserData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
