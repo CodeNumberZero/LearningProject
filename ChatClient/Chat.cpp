@@ -2,6 +2,37 @@
 #include "ChatUserWid.h"
 #include "LoadingDialog.h"
 
+// 
+/*
+    定义一些全局的变量用来做测试；
+    这些变量不能放到global.h中，因为globla.h在多个文件中被包含，变量放进去可能会出现重定义的问题；
+    例如BubbleFrame.h和TextBubble.h都包含了global.h，而TextBubble.h又包含了BubbleFrame.h，这种出现了TextBubble.h包含两次global.h,导致在链接时出错
+*/
+const std::vector<QString>  strs = { "hello world !",
+                             "nice to meet u",
+                             "New year，new life",
+                            "You have to love yourself",
+                            "My love is written in the wind ever since the whole world is you" };
+
+const std::vector<QString> heads = {
+    ":/image/resource/head_1.jpg",
+    ":/image/resource/head_6.jpg",
+    ":/image/resource/head_7.jpg",
+    ":/image/resource/head_19.jpg",
+    ":/image/resource/head_6.jpg"
+};
+
+const std::vector<QString> names = {
+    "zero-one",
+    "saber",
+    "revice",
+    "geat",
+    "gavv",
+    "zzz",
+    "python",
+    "rust"
+};
+
 Chat::Chat(QWidget *parent)
 	: QDialog(parent), _mode(ChatUIMode::ChatMode), _state(ChatUIMode::ChatMode), _b_loading(false)
 {
@@ -58,32 +89,6 @@ Chat::Chat(QWidget *parent)
 
 Chat::~Chat()
 {}
-
-// 定义一些全局的变量用来做测试
-std::vector<QString>  strs = { "hello world !",
-                             "nice to meet u",
-                             "New year，new life",
-                            "You have to love yourself",
-                            "My love is written in the wind ever since the whole world is you" };
-
-std::vector<QString> heads = {
-    ":/image/resource/head_1.jpg",
-    ":/image/resource/head_6.jpg",
-    ":/image/resource/head_7.jpg",
-    ":/image/resource/head_19.jpg",
-    ":/image/resource/head_6.jpg"
-};
-
-std::vector<QString> names = {
-    "zero-one",
-    "saber",
-    "revice",
-    "geat",
-    "gavv",
-    "zzz",
-    "python",
-    "rust"
-};
 
 void Chat::AddChatUserList()
 {

@@ -1,15 +1,19 @@
-#include "ChatPage.h"
+ï»¿#include "ChatPage.h"
 #include <qstyleoption.h>
+#include "ChatItemBase.h"
+#include "MessageTextEdit.h"
+#include "TextBubble.h"
+#include "PictureBubble.h"
 
 ChatPage::ChatPage(QWidget *parent)
 	: QWidget(parent)
 {
 	ui.setupUi(this);
 
-    //ÉèÖÃ°´Å¥ÑùÊ½
+    //è®¾ç½®æŒ‰é’®æ ·å¼
     ui.receive_Button->SetState("normal", "hover", "press");
     ui.send_Button->SetState("normal", "hover", "press");
-    //ÉèÖÃÍ¼±êÑùÊ½
+    //è®¾ç½®å›¾æ ‡æ ·å¼
     ui.emote_label ->SetState("normal", "hover", "press", "normal", "hover", "press");
     ui.file_label->SetState("normal", "hover", "press", "normal", "hover", "press");
 }
@@ -17,12 +21,46 @@ ChatPage::ChatPage(QWidget *parent)
 ChatPage::~ChatPage()
 {}
 
-// Èç¹û²»ÖØĞ´paintEvent¿ÉÄÜÎŞ·¨¼ÓÔØÑùÊ½±í,±³¾°¿ÉÄÜ²»ÏÔÊ¾£¬»òÕßÏÔÊ¾²»ÕıÈ·
+// å¦‚æœä¸é‡å†™paintEventå¯èƒ½æ— æ³•åŠ è½½æ ·å¼è¡¨,èƒŒæ™¯å¯èƒ½ä¸æ˜¾ç¤ºï¼Œæˆ–è€…æ˜¾ç¤ºä¸æ­£ç¡®
 void ChatPage::paintEvent(QPaintEvent * event)
 {
-    QStyleOption opt;                                            // ´´½¨ÑùÊ½Ñ¡Ïî¶ÔÏó,ÓÃÓÚ´æ´¢»æÖÆ¿Ø¼şËùĞèµÄ¸÷ÖÖĞÅÏ¢£¨×´Ì¬¡¢Î»ÖÃ¡¢´óĞ¡µÈ£©
-    opt.initFrom(this);                                          // ´Óµ±Ç°¿Ø¼ş³õÊ¼»¯Ñ¡Ïî
-    QPainter p(this);                                            // ´´½¨»­¼Ò¶ÔÏó,ÓÃÓÚÔÚ¿Ø¼şÉÏ»æÖÆ,this Ö¸¶¨»æÖÆµÄÄ¿±êÉè±¸ÊÇµ±Ç°¿Ø¼ş
-    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);   // »æÖÆ±³¾°
+    QStyleOption opt;                                            // åˆ›å»ºæ ·å¼é€‰é¡¹å¯¹è±¡,ç”¨äºå­˜å‚¨ç»˜åˆ¶æ§ä»¶æ‰€éœ€çš„å„ç§ä¿¡æ¯ï¼ˆçŠ¶æ€ã€ä½ç½®ã€å¤§å°ç­‰ï¼‰
+    opt.initFrom(this);                                          // ä»å½“å‰æ§ä»¶åˆå§‹åŒ–é€‰é¡¹
+    QPainter p(this);                                            // åˆ›å»ºç”»å®¶å¯¹è±¡,ç”¨äºåœ¨æ§ä»¶ä¸Šç»˜åˆ¶,this æŒ‡å®šç»˜åˆ¶çš„ç›®æ ‡è®¾å¤‡æ˜¯å½“å‰æ§ä»¶
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);   // ç»˜åˆ¶èƒŒæ™¯
 }
 
+// ç‚¹å‡»å‘é€æŒ‰é’®æ ¹æ®ä¸åŒçš„ç±»å‹åˆ›å»ºä¸åŒçš„æ°”æ³¡æ¶ˆæ¯
+void ChatPage::on_send_Button_clicked() {
+    auto pTextEdit = ui.chat_textEdit;
+    ChatRole role = ChatRole::Self;
+    QString userName = QStringLiteral("èµ¤çŸ³è‹±é›„");
+    QString userIcon = ":/image/resource/head_19.jpg";
+
+    const QVector<MsgInfo>& msgList = pTextEdit->getMsgList();
+    for (int i = 0; i < msgList.size(); ++i)
+    {
+        QString type = msgList[i].msgFlag;
+        ChatItemBase* pChatItem = new ChatItemBase(role);
+        pChatItem->setUserName(userName);
+        pChatItem->setUserIcon(QPixmap(userIcon));
+        QWidget* pBubble = nullptr;
+        if (type == "text")
+        {
+            pBubble = new TextBubble(role, msgList[i].content);
+        }
+        else if (type == "image")
+        {
+            pBubble = new PictureBubble(QPixmap(msgList[i].content), role);
+        }
+        else if (type == "file")
+        {
+
+        }
+        if (pBubble != nullptr)
+        {
+            pChatItem->setWidget(pBubble);
+            ui.chat_data_list->appendChatItem(pChatItem);
+        }
+    }
+}

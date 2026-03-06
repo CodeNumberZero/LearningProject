@@ -97,7 +97,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BubbleFrame.cpp" />
     <ClCompile Include="Chat.cpp" />
+    <ClCompile Include="ChatItemBase.cpp" />
     <ClCompile Include="ChatPage.cpp" />
     <ClCompile Include="ChatUserList.cpp" />
     <ClCompile Include="ChatUserWid.cpp" />
@@ -109,9 +111,12 @@
     <ClCompile Include="HttpMgr.cpp" />
     <ClCompile Include="ListItemBase.cpp" />
     <ClCompile Include="LoadingDialog.cpp" />
+    <ClCompile Include="MessageTextEdit.cpp" />
+    <ClCompile Include="PictureBubble.cpp" />
     <ClCompile Include="Register.cpp" />
     <ClCompile Include="resetdialog.cpp" />
     <ClCompile Include="TcpMgr.cpp" />
+    <ClCompile Include="TextBubble.cpp" />
     <ClCompile Include="TimerBtn.cpp" />
     <ClCompile Include="UserMgr.cpp" />
     <QtRcc Include="MainWindow.qrc" />
@@ -144,11 +149,16 @@
     <QtMoc Include="ChatUserWid.h" />
     <QtMoc Include="ChatPage.h" />
     <QtMoc Include="ChatView.h" />
+    <QtMoc Include="ChatItemBase.h" />
+    <QtMoc Include="BubbleFrame.h" />
     <ClInclude Include="global.h" />
     <QtMoc Include="resetdialog.h" />
     <QtMoc Include="TcpMgr.h" />
     <QtMoc Include="ListItemBase.h" />
     <QtMoc Include="LoadingDialog.h" />
+    <QtMoc Include="TextBubble.h" />
+    <QtMoc Include="PictureBubble.h" />
+    <QtMoc Include="MessageTextEdit.h" />
     <ClInclude Include="TimerBtn.h" />
     <QtMoc Include="HttpMgr.h" />
     <ClInclude Include="Singleton.h" />

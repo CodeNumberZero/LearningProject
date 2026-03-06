@@ -11,8 +11,10 @@
 #include <qdir.h>
 #include <qevent.h>
 #include <qfile.h>
+#include <qframe.h>
 #include <qjsonobject.h>
 #include <qlabel.h>
+#include <qlayout.h>
 #include <qlineedit.h>
 #include <qlistwidget.h>
 #include <qobject.h>
@@ -25,6 +27,7 @@
 #include <qstring.h>
 #include <qsettings.h>
 #include <qtimer.h>
+#include <qtextedit.h>
 #include <QtWidgets/QApplication>
 #include <qtcpsocket.h>
 #include <qwidget.h>
@@ -96,3 +99,18 @@ enum ListItemType {
     INVALID_ITEM,                                        // 不可点击条目
     GROUP_TIP_ITEM,                                      // 分组提示条目
 };
+
+// 聊天角色
+enum class ChatRole
+{
+    Self,
+    Other
+};
+
+// 消息类型
+struct MsgInfo {
+    QString msgFlag;                                     // "text,image,file"
+    QString content;                                     // 表示文件和图像的url,文本信息
+    QPixmap pixmap;                                      // 文件和图片的缩略图
+};
+
