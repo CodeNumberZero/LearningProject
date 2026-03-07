@@ -17,6 +17,5 @@ private:
     int _max_len;
 signals:
     void sig_foucus_out();
-    void sig_mouse_clicked();
 };
 

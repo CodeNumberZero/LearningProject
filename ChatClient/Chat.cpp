@@ -80,14 +80,16 @@ Chat::Chat(QWidget *parent)
     
     ShowSearch(false);                                                            // 默认情况下不显示搜索框
 
-    // 这种写法要输入文本才会加载新页面(这里的slot_text_changed槽可能会覆盖之前同一对象同一信号的connect函数,解决方法是可以将两个connect函数合并起来解决)
+    // 这种写法要输入文本才会加载新页面,还有种写法是只要鼠标点击搜索栏就会加载新页面(这里的slot_text_changed槽可能会覆盖之前同一对象同一信号的connect函数,解决方法是可以将两个connect函数合并起来解决)
     connect(ui.search_lineEdit, &QLineEdit::textChanged, this, &Chat::slot_text_changed); // 链接搜索框输入变化;textChanged 信号会传递一个 QString 参数，包含输入框当前的文本内容
-    
-    // 这种写法只要鼠标点击搜索栏就会加载新页面
-    //connect(ui.search_lineEdit, &CustomizeEdit::sig_mouse_clicked, this, [this]() {
-    //    QString text = ui.search_lineEdit->text();                                // 获取当前输入框的内容
-    //    slot_text_changed(text);                                                  // 调用槽函数
-    //});
+
+    // 检测鼠标点击位置判断是否要清空搜索框
+    /* 
+        1、安装事件过滤器:将一个对象(filterObj)安装为另一个对象的事件监视器; 被安装的对象的所有事件都会被filterObj先看到; filterObj可以在事件到达目标对象之前拦截和处理事件
+        2、如果将当前对象安装为某个对象的事件过滤器,当前对象就必须重写eventFilter,因为installEventFilter只是注册了过滤器,但真正的过滤逻辑必须在eventFilter函数中实现;
+           如果没有重写eventFilter,过滤器存在但没有实际作用,所有事件都不会被过滤，直接传递给目标对象
+    */
+    this->installEventFilter(this);                                               // 将当前对象安装为自身的事件过滤器,让Chat对象监视自己的所有事件,当有事件发生时,会先调用Chat::eventFilter函数
 
     /* ---------------------------------------------- 列表设置 ----------------------------------*/
     connect(ui.chat_user_list, &ChatUserList::sig_loading_chat_user, this, &Chat::slot_loading_chat_user);
@@ -110,6 +112,7 @@ Chat::Chat(QWidget *parent)
     connect(ui.side_chat_label, &StateWidget::clicked, this, &Chat::slot_side_chat);
     connect(ui.side_contact_label, &StateWidget::clicked, this, &Chat::slot_side_contact);
 
+    ui.side_chat_label->SetSelected(true);                                        // 设置聊天label选中状态
 
 }
 
@@ -171,6 +174,32 @@ void Chat::ClearLabelState(StateWidget* lb)
         }
 
         ele->ClearState();
+    }
+}
+
+bool Chat::eventFilter(QObject* watched, QEvent* event)
+{
+    if (event->type() == QEvent::MouseButtonPress) {
+        QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+        handleGlobalMousePress(mouseEvent);
+    }
+    return QDialog::eventFilter(watched, event);
+}
+
+void Chat::handleGlobalMousePress(QMouseEvent* event)
+{
+    // 实现点击位置的判断和处理逻辑
+    // 先判断是否处于搜索模式，如果不处于搜索模式则直接返回
+    if (_mode != ChatUIMode::SearchMode) {
+        return;
+    }
+    // 将鼠标点击位置(全局坐标)转换为搜索列表自身坐标系中的位置
+    QPoint posInSearchList = (ui.search_list->mapFromGlobal(event->globalPosition())).toPoint(); // qt6中globalPos()已经弃用,需要使用globalPosition()替代；如果需要QPoint(整数),还可以转换
+    // 判断点击位置是否在聊天列表的范围内
+    if (!ui.search_list->rect().contains(posInSearchList)) {
+        // 如果不在聊天列表内，清空输入框
+        ui.search_lineEdit->clear();
+        ShowSearch(false);
     }
 }
 

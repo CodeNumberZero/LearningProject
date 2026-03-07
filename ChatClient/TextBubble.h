@@ -9,7 +9,7 @@ class TextBubble : public BubbleFrame
 public:
     TextBubble(ChatRole role, const QString& text, QWidget* parent = nullptr);
 protected:
-    bool eventFilter(QObject* o, QEvent* e);
+    bool eventFilter(QObject* o, QEvent* e);                  // 返回值含义：true表示事件已处理，不再传递给目标对象；false表示事件继续正常传递
 private:
     void adjustTextHeight();
     void setPlainText(const QString& text);

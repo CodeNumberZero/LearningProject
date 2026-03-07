@@ -12,7 +12,7 @@ public:
     void prependChatItem(QWidget* item);                // 头插
     void insertChatItem(QWidget* before, QWidget* item);// 中间插
 protected:
-    bool eventFilter(QObject* o, QEvent* e) override;
+    bool eventFilter(QObject* o, QEvent* e) override;   // 返回值含义：true表示事件已处理，不再传递给目标对象；false表示事件继续正常传递
     void paintEvent(QPaintEvent* event) override;
 private slots:
     void onVScrollBarMoved(int min, int max);

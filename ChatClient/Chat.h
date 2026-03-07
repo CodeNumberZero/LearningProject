@@ -18,12 +18,16 @@ private:
 	ChatUIMode _mode;
 	ChatUIMode _state;
 	bool _b_loading;
-	QList<StateWidget*> _lb_list;                      // QList既有链表的性能，又有随机存取的性能
+	QList<StateWidget*> _lb_list;                               // QList既有链表的性能，又有随机存取的性能
 
 	void AddChatUserList();
-	void ShowSearch(bool b_search = false);            // 根据参数决定是否显示搜索列表，默认不显示搜索列表
+	void ShowSearch(bool b_search = false);                     // 根据参数决定是否显示搜索列表，默认不显示搜索列表
 	void AddLBGroup(StateWidget* lb);
 	void ClearLabelState(StateWidget* lb);
+
+protected:
+	bool eventFilter(QObject* watched, QEvent* event) override; // 返回值含义：true表示事件已处理，不再传递给目标对象；false表示事件继续正常传递
+	void handleGlobalMousePress(QMouseEvent* event);
 
 private slots:
 	void slot_loading_chat_user();

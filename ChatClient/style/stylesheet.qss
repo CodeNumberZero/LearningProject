@@ -372,3 +372,36 @@ LoadingDialog{
   font-family: "Microsoft YaHei";
   font-size: 12pt;
 }
+
+#FindSuccessDialog{
+   background-color: #ffffff;
+}
+
+#name_label{
+    font-size: 14px;
+    font-family: "Microsoft YaHei";
+}
+
+#add_friend_Button[state='normal']{
+    background: #07c160;
+    color: #ffffff;
+    font-size: 14px; /* 设置字体大小 */
+    font-family: "Microsoft YaHei"; /* 设置字体 */
+    border-radius: 20px; /* 设置圆角 */
+}
+
+#add_friend_Button[state='hover']{
+    background: #3bbb4b;
+    color: #ffffff;
+    font-size: 14px; /* 设置字体大小 */
+    font-family: "Microsoft YaHei"; /* 设置字体 */
+    border-radius: 20px; /* 设置圆角 */
+}
+
+#add_friend_Button[state='press']{
+   background: #07c160;
+   color: #ffffff;
+   font-size: 14px; /* 设置字体大小 */
+   font-family: "Microsoft YaHei"; /* 设置字体 */
+   border-radius: 20px; /* 设置圆角 */
+}

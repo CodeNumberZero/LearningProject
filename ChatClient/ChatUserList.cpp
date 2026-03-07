@@ -5,8 +5,13 @@ ChatUserList::ChatUserList(QWidget* parent) : QListWidget(parent)
     Q_UNUSED(parent);
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);                            // 隐藏水平滚动条
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);                              // 隐藏垂直滚动条
-    // 安装事件过滤器
-    this->viewport()->installEventFilter(this);
+    
+    /*
+        1、安装事件过滤器:将一个对象(filterObj)安装为另一个对象的事件监视器; 被安装的对象的所有事件都会被filterObj先看到; filterObj可以在事件到达目标对象之前拦截和处理事件
+        2、如果将当前对象安装为某个对象的事件过滤器,当前对象就必须重写eventFilter,因为installEventFilter只是注册了过滤器,但真正的过滤逻辑必须在eventFilter函数中实现;
+           如果没有重写eventFilter,过滤器存在但没有实际作用,所有事件都不会被过滤，直接传递给目标对象
+    */
+    this->viewport()->installEventFilter(this);                                            // 将当前对象安装为是视口的事件过滤器,让ChatUserList对象监视视口的所有事件,当有事件发生时,会先调用ChatUserList::eventFilter函数
 }
 
 ChatUserList::~ChatUserList()

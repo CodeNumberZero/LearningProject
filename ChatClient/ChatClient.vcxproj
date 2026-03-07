@@ -65,7 +65,8 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)ClientConfig.ini" "$(OutDir)"</Command>
+      <Command>copy /Y "$(ProjectDir)ClientConfig.ini" "$(OutDir)"
+xcopy /Y /E /I "$(ProjectDir)static" "$(TargetDir)static\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -108,6 +109,7 @@
     <ClCompile Include="ClickedButton.cpp" />
     <ClCompile Include="ClickedLabel.cpp" />
     <ClCompile Include="CustomizeEdit.cpp" />
+    <ClCompile Include="FindSuccessDialog.cpp" />
     <ClCompile Include="global.cpp" />
     <ClCompile Include="HttpMgr.cpp" />
     <ClCompile Include="ListItemBase.cpp" />
@@ -128,6 +130,7 @@
     <QtUic Include="Chat.ui" />
     <QtUic Include="ChatPage.ui" />
     <QtUic Include="ChatUserWid.ui" />
+    <QtUic Include="FindSuccessDialog.ui" />
     <QtUic Include="LoadingDialog.ui" />
     <QtUic Include="Login.ui" />
     <QtUic Include="MainWindow.ui" />
@@ -147,6 +150,7 @@
   <ItemGroup>
     <QtMoc Include="SearchList.h" />
     <QtMoc Include="AddUserItem.h" />
+    <QtMoc Include="FindSuccessDialog.h" />
     <ClInclude Include="UserData.h" />
     <QtMoc Include="UserMgr.h" />
     <QtMoc Include="ClickedLabel.h" />
