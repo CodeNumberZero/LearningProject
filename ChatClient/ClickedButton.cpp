@@ -1,8 +1,9 @@
-#include "ClickedButton.h"
+ï»¿#include "ClickedButton.h"
 
-ClickedButton::ClickedButton(QWidget* parent) : QPushButton(parent)     // Ã»ÓĞµ÷ÓÃ¸¸Àà¹¹Ôìº¯Êı
+ClickedButton::ClickedButton(QWidget* parent) : QPushButton(parent)     // æ²¡æœ‰è°ƒç”¨çˆ¶ç±»æ„é€ å‡½æ•°
 {
-	setCursor(Qt::PointingHandCursor);                                  // ÉèÖÃ¹â±êÎªĞ¡ÊÖ
+	setCursor(Qt::PointingHandCursor);                                  // è®¾ç½®å…‰æ ‡ä¸ºå°æ‰‹
+	//setFocusPolicy(Qt::NoFocus);                                        // Qt ä¸­ç”¨äºè®¾ç½®æ§ä»¶çš„ç„¦ç‚¹ç­–ç•¥çš„æ–¹æ³•ï¼Œå‘Šè¯‰æ§ä»¶ä¸æ¥å—é”®ç›˜ç„¦ç‚¹
 }
 
 ClickedButton::~ClickedButton()
@@ -14,7 +15,7 @@ void ClickedButton::SetState(QString normal, QString hover, QString press)
 	_normal = normal;
 	_hover = hover;
 	_press = press;
-	setProperty("state", normal);                                      // setPropertyÔÚÑùÊ½±íÖĞµÄ¹¤×÷Ô­Àí:1¡¢Qt ÑùÊ½ÏµÍ³½âÎöÑùÊ½±í 2¡¢µ±ĞèÒª»æÖÆ¿Ø¼şÊ±£¬¼ì²é¸Ã¿Ø¼şµÄËùÓĞÊôĞÔ 3¡¢Èç¹ûÊôĞÔÆ¥ÅäÑ¡ÔñÆ÷Ìõ¼ş£¬Ó¦ÓÃÏàÓ¦µÄÑùÊ½¹æÔò£¬×îºóÓ¦ÓÃ×Ô¶¨ÒåµÄrepolish¸üĞÂÑùÊ½
+	setProperty("state", normal);                                      // setPropertyåœ¨æ ·å¼è¡¨ä¸­çš„å·¥ä½œåŸç†:1ã€Qt æ ·å¼ç³»ç»Ÿè§£ææ ·å¼è¡¨ 2ã€å½“éœ€è¦ç»˜åˆ¶æ§ä»¶æ—¶ï¼Œæ£€æŸ¥è¯¥æ§ä»¶çš„æ‰€æœ‰å±æ€§ 3ã€å¦‚æœå±æ€§åŒ¹é…é€‰æ‹©å™¨æ¡ä»¶ï¼Œåº”ç”¨ç›¸åº”çš„æ ·å¼è§„åˆ™ï¼Œæœ€ååº”ç”¨è‡ªå®šä¹‰çš„repolishæ›´æ–°æ ·å¼
 	repolish(this);
 	update();
 }
@@ -24,7 +25,7 @@ void ClickedButton::enterEvent(QEnterEvent* event)
 	setProperty("state", _hover);
 	repolish(this);
 	update();
-	QPushButton::enterEvent(event);                                    // µ÷ÓÃ»ùÀàµÄenterEventÒÔ±£Ö¤Õı³£µÄÊÂ¼ş´¦Àí(È·±£»ùÀàµÄÄ¬ÈÏĞĞÎªµÃµ½Ö´ĞĞ)
+	QPushButton::enterEvent(event);                                    // è°ƒç”¨åŸºç±»çš„enterEventä»¥ä¿è¯æ­£å¸¸çš„äº‹ä»¶å¤„ç†(ç¡®ä¿åŸºç±»çš„é»˜è®¤è¡Œä¸ºå¾—åˆ°æ‰§è¡Œ)
 }
 
 void ClickedButton::leaveEvent(QEvent* event)
@@ -41,11 +42,11 @@ void ClickedButton::mousePressEvent(QMouseEvent* e)
 	repolish(this);
 	update();
 	QPushButton::mousePressEvent(e);
-	// »ùÀàµÄ´¦Àí»á£º
-	// 1. ÉèÖÃ°´ÏÂ×´Ì¬
-	// 2. ´¥·¢ clicked ĞÅºÅ
-	// 3. ´¦Àí½¹µã±ä»¯
-	// 4. ¸üĞÂ :pressed Î±×´Ì¬
+	// åŸºç±»çš„å¤„ç†ä¼šï¼š
+	// 1. è®¾ç½®æŒ‰ä¸‹çŠ¶æ€
+	// 2. è§¦å‘ clicked ä¿¡å·
+	// 3. å¤„ç†ç„¦ç‚¹å˜åŒ–
+	// 4. æ›´æ–° :pressed ä¼ªçŠ¶æ€
 }
 
 void ClickedButton::mouseReleaseEvent(QMouseEvent* e)
@@ -54,8 +55,8 @@ void ClickedButton::mouseReleaseEvent(QMouseEvent* e)
 	repolish(this);
 	update();
 	QPushButton::mouseReleaseEvent(e);
-	// »ùÀàµÄ´¦Àí»á£º
-	// 1. Çå³ı°´ÏÂ×´Ì¬
-	// 2. Èç¹ûÊó±êÔÚ°´Å¥·¶Î§ÄÚ£¬·¢Éä clicked() ĞÅºÅ
-	// 3. ¸üĞÂ½çÃæ×´Ì¬
+	// åŸºç±»çš„å¤„ç†ä¼šï¼š
+	// 1. æ¸…é™¤æŒ‰ä¸‹çŠ¶æ€
+	// 2. å¦‚æœé¼ æ ‡åœ¨æŒ‰é’®èŒƒå›´å†…ï¼Œå‘å°„ clicked() ä¿¡å·
+	// 3. æ›´æ–°ç•Œé¢çŠ¶æ€
 }

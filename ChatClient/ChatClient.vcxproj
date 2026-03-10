@@ -99,6 +99,7 @@ xcopy /Y /E /I "$(ProjectDir)static" "$(TargetDir)static\"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AddUserItem.cpp" />
+    <ClCompile Include="ApplyFriend.cpp" />
     <ClCompile Include="BubbleFrame.cpp" />
     <ClCompile Include="Chat.cpp" />
     <ClCompile Include="ChatItemBase.cpp" />
@@ -108,8 +109,10 @@ xcopy /Y /E /I "$(ProjectDir)static" "$(TargetDir)static\"</Command>
     <ClCompile Include="ChatView.cpp" />
     <ClCompile Include="ClickedButton.cpp" />
     <ClCompile Include="ClickedLabel.cpp" />
+    <ClCompile Include="ClickedOnceLabel.cpp" />
     <ClCompile Include="CustomizeEdit.cpp" />
     <ClCompile Include="FindSuccessDialog.cpp" />
+    <ClCompile Include="FriendLabel.cpp" />
     <ClCompile Include="global.cpp" />
     <ClCompile Include="HttpMgr.cpp" />
     <ClCompile Include="ListItemBase.cpp" />
@@ -127,10 +130,12 @@ xcopy /Y /E /I "$(ProjectDir)static" "$(TargetDir)static\"</Command>
     <ClCompile Include="UserMgr.cpp" />
     <QtRcc Include="MainWindow.qrc" />
     <QtUic Include="AddUserItem.ui" />
+    <QtUic Include="ApplyFriend.ui" />
     <QtUic Include="Chat.ui" />
     <QtUic Include="ChatPage.ui" />
     <QtUic Include="ChatUserWid.ui" />
     <QtUic Include="FindSuccessDialog.ui" />
+    <QtUic Include="FriendLabel.ui" />
     <QtUic Include="LoadingDialog.ui" />
     <QtUic Include="Login.ui" />
     <QtUic Include="MainWindow.ui" />
@@ -151,6 +156,9 @@ xcopy /Y /E /I "$(ProjectDir)static" "$(TargetDir)static\"</Command>
     <QtMoc Include="SearchList.h" />
     <QtMoc Include="AddUserItem.h" />
     <QtMoc Include="FindSuccessDialog.h" />
+    <QtMoc Include="ApplyFriend.h" />
+    <QtMoc Include="ClickedOnceLabel.h" />
+    <QtMoc Include="FriendLabel.h" />
     <ClInclude Include="UserData.h" />
     <QtMoc Include="UserMgr.h" />
     <QtMoc Include="ClickedLabel.h" />

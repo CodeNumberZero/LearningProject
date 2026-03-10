@@ -11,7 +11,7 @@ ChatUserList::ChatUserList(QWidget* parent) : QListWidget(parent)
         2、如果将当前对象安装为某个对象的事件过滤器,当前对象就必须重写eventFilter,因为installEventFilter只是注册了过滤器,但真正的过滤逻辑必须在eventFilter函数中实现;
            如果没有重写eventFilter,过滤器存在但没有实际作用,所有事件都不会被过滤，直接传递给目标对象
     */
-    this->viewport()->installEventFilter(this);                                            // 将当前对象安装为是视口的事件过滤器,让ChatUserList对象监视视口的所有事件,当有事件发生时,会先调用ChatUserList::eventFilter函数
+    this->viewport()->installEventFilter(this);                                            // 将当前对象安装为视口的事件过滤器,让ChatUserList对象监视视口的所有事件,当有事件发生时,会先调用ChatUserList::eventFilter函数
 }
 
 ChatUserList::~ChatUserList()

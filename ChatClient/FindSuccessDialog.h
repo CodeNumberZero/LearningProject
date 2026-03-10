@@ -10,7 +10,7 @@ class FindSuccessDialog : public QDialog
 	Q_OBJECT
 
 public:
-	FindSuccessDialog(QWidget *parent = nullptr);
+	explicit FindSuccessDialog(QWidget *parent = nullptr);
 	~FindSuccessDialog();
 	void SetSearchInfo(std::shared_ptr<SearchInfo> si);
 

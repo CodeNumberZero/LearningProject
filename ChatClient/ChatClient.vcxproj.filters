@@ -124,6 +124,15 @@
     <ClCompile Include="FindSuccessDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ApplyFriend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ClickedOnceLabel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FriendLabel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Login.h">
@@ -201,6 +210,15 @@
     <QtMoc Include="FindSuccessDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="ApplyFriend.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ClickedOnceLabel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="FriendLabel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="Login.ui">
@@ -228,6 +246,12 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="FindSuccessDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="ApplyFriend.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="FriendLabel.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

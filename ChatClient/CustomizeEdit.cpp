@@ -1,8 +1,8 @@
-#include "CustomizeEdit.h"
+ï»¿#include "CustomizeEdit.h"
 
 CustomizeEdit::CustomizeEdit(QWidget* parent) : QLineEdit(parent), _max_len(0)
 {
-    connect(this, &QLineEdit::textChanged, this, &CustomizeEdit::limitTextLength); // µ±ĞĞ±à¼­¿òÀïµÄÎÄ±¾ÄÚÈİ·¢ÉúÈÎºÎ±ä»¯Ê±£¬×Ô¶¯·¢ÉätextChangedĞÅºÅ
+    connect(this, &QLineEdit::textChanged, this, &CustomizeEdit::limitTextLength); // å½“è¡Œç¼–è¾‘æ¡†é‡Œçš„æ–‡æœ¬å†…å®¹å‘ç”Ÿä»»ä½•å˜åŒ–æ—¶ï¼Œè‡ªåŠ¨å‘å°„textChangedä¿¡å·
 }
 
 CustomizeEdit::~CustomizeEdit()
@@ -16,11 +16,11 @@ void CustomizeEdit::SetMaxLength(int maxLen)
 
 void CustomizeEdit::focusOutEvent(QFocusEvent* event)
 {
-    // Ö´ĞĞÊ§È¥½¹µãÊ±µÄ´¦ÀíÂß¼­
+    // æ‰§è¡Œå¤±å»ç„¦ç‚¹æ—¶çš„å¤„ç†é€»è¾‘
     // qDebug() << "CustomizeEdit focusout";
-    // µ÷ÓÃ»ùÀàµÄfocusOutEvent()·½·¨£¬±£Ö¤»ùÀàµÄĞĞÎªµÃµ½Ö´ĞĞ
+    // è°ƒç”¨åŸºç±»çš„focusOutEvent()æ–¹æ³•ï¼Œä¿è¯åŸºç±»çš„è¡Œä¸ºå¾—åˆ°æ‰§è¡Œ
     QLineEdit::focusOutEvent(event);
-    //·¢ËÍÊ§È¥½¹µãµÄĞÅºÅ
+    //å‘é€å¤±å»ç„¦ç‚¹çš„ä¿¡å·
     emit sig_foucus_out();
 }
 
@@ -29,9 +29,9 @@ void CustomizeEdit::limitTextLength(QString text) {
         return;
     }
 
-    QByteArray byteArray = text.toUtf8();                  // ²»Í¬Çé¿öÏÂÒ»¸öºº×Ö»ò×ÖÄ¸ËùÕ¼ÓÃµÄ×Ö½ÚÊı¿ÉÄÜ²»Í¬£¬Òò´ËÍ³Ò»×ªÎª×Ö½ÚÊı×é½øĞĞ¼ÆÊı
+    QByteArray byteArray = text.toUtf8();                  // ä¸åŒæƒ…å†µä¸‹ä¸€ä¸ªæ±‰å­—æˆ–å­—æ¯æ‰€å ç”¨çš„å­—èŠ‚æ•°å¯èƒ½ä¸åŒï¼Œå› æ­¤ç»Ÿä¸€è½¬ä¸ºå­—èŠ‚æ•°ç»„è¿›è¡Œè®¡æ•°
 
-    if (byteArray.size() > _max_len) {                     // Èç¹ûÊäÈë³¬¹ı×î´ó³¤¶ÈÏŞÖÆÔò½øĞĞ½ØÈ¡
+    if (byteArray.size() > _max_len) {                     // å¦‚æœè¾“å…¥è¶…è¿‡æœ€å¤§é•¿åº¦é™åˆ¶åˆ™è¿›è¡Œæˆªå–
         byteArray = byteArray.left(_max_len);
         this->setText(QString::fromUtf8(byteArray));
     }
