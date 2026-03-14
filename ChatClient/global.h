@@ -47,6 +47,48 @@ const QString add_prefix = "添加标签 ";
 
 const int tip_offset = 5;
 
+const int CHAT_COUNT_PER_PAGE = 13;                      // 列表每一页的显示数量
+
+
+/*
+    定义一些全局的变量用来做测试；
+    1、这些变量如果放到global.h中，必须加extern关键字表明这是声明，然后在global.cpp中给出具体定义.
+        因为如果不加extern,即使不初始化，容器也会调用默认构造，分配内存形成定义，又因为globla.h在多个文件中被包含，变量放进去可能会出现重定义的问题；
+        例如BubbleFrame.h和TextBubble.h都包含了global.h，而TextBubble.h又包含了BubbleFrame.h，这种出现了TextBubble.h包含两次global.h,导致在链接时出错
+    2、另一种方法：如果想在global.h中完成初始化又不想出现重定义问题，只需要在每个变量前添加inline关键字即可,如下：
+        inline const std::vector<QString>  strs = {...};
+        inline const std::vector<QString> heads = {...};
+        inline const std::vector<QString> names = {...};
+*/
+//extern const std::vector<QString>  strs;
+//extern const std::vector<QString> heads;
+//extern const std::vector<QString> names;
+
+inline const std::vector<QString>  strs = { "hello world !",
+                             "nice to meet u",
+                             "New year，new life",
+                            "You have to love yourself",
+                            "My love is written in the wind ever since the whole world is you" };
+
+inline const std::vector<QString> heads = {
+    ":/image/resource/head_1.jpg",
+    ":/image/resource/head_6.jpg",
+    ":/image/resource/head_7.jpg",
+    ":/image/resource/head_19.jpg",
+    ":/image/resource/head_6.jpg"
+};
+
+inline const std::vector<QString> names = {
+    "zero-one",
+    "saber",
+    "revice",
+    "geat",
+    "gavv",
+    "zzz",
+    "python",
+    "rust"
+};
+
 enum ReqId {
     ID_GET_VARIFY_CODE = 1001,                           // 获取验证码
     ID_REG_USER = 1002,                                  // 注册用户
@@ -115,6 +157,8 @@ enum ListItemType {
     ADD_USER_TIP_ITEM,                                   // 提示添加用户
     INVALID_ITEM,                                        // 不可点击条目
     GROUP_TIP_ITEM,                                      // 分组提示条目
+    LINE_ITEM,                                           // 分割线
+    APPLY_FRIEND_ITEM,                                   // 好友申请
 };
 
 // 聊天角色

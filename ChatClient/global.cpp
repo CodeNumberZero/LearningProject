@@ -25,3 +25,31 @@ QString md5Encrypt(const QString& input)
 	return QString(hash.toHex());                                                   // 返回十六进制格式的加密结果
 }
 
+
+/*
+    定义一些全局的变量用来做测试；
+*/
+//const std::vector<QString>  strs = { "hello world !",
+//                             "nice to meet u",
+//                             "New year，new life",
+//                            "You have to love yourself",
+//                            "My love is written in the wind ever since the whole world is you" };
+//
+//const std::vector<QString> heads = {
+//    ":/image/resource/head_1.jpg",
+//    ":/image/resource/head_6.jpg",
+//    ":/image/resource/head_7.jpg",
+//    ":/image/resource/head_19.jpg",
+//    ":/image/resource/head_6.jpg"
+//};
+//
+//const std::vector<QString> names = {
+//    "zero-one",
+//    "saber",
+//    "revice",
+//    "geat",
+//    "gavv",
+//    "zzz",
+//    "python",
+//    "rust"
+//};

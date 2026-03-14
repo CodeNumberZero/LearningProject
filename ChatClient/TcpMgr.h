@@ -32,5 +32,8 @@ signals:
 	void sigSwitchChat();
 	void sigLoginFailed(int err);
 	void sigUserSearch(std::shared_ptr<SearchInfo> si);
+	void sigFriendApply(std::shared_ptr<AddFriendApply>);
+	void sigAddFriendAuth(std::shared_ptr<AuthInfo>);
+	void sigAuthRsp(std::shared_ptr<AuthRsp>);
 };
 

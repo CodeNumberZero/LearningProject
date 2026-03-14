@@ -55,6 +55,7 @@
         <file>resource/head_19.jpg</file>
         <file>resource/head_20.jpg</file>
         <file>resource/red_point.png</file>
+        <file>resource/add_friend.png</file>
     </qresource>
     <qresource prefix="/video">
         <file>resource/sword.mp4</file>

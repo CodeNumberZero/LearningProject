@@ -133,6 +133,15 @@
     <ClCompile Include="FriendLabel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ContactUserList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ContactUserItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GroupTipItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Login.h">
@@ -219,6 +228,15 @@
     <QtMoc Include="FriendLabel.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="ContactUserList.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ContactUserItem.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="GroupTipItem.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="Login.ui">
@@ -254,6 +272,12 @@
     <QtUic Include="FriendLabel.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="ContactUserItem.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="GroupTipItem.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="global.h">
@@ -266,6 +290,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UserData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
