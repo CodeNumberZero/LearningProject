@@ -628,7 +628,7 @@ LoadingDialog{
     border: none;
 }
 
-#friend_apply_lb {
+#friend_apply_label {
     font-family: "Microsoft YaHei";
     font-size: 18px;
     font-weight: normal;
@@ -680,4 +680,17 @@ ApplyFriendItem #addBtn[state='press'] {
     font-size: 16px; /* 设置字体大小 */
     font-family: "Microsoft YaHei"; /* 设置字体 */
     border-radius: 20px; /* 设置圆角 */
+}
+
+#already_add_lb{
+    color:rgb(153,153,153);
+    font-size: 12px;
+    font-family: "Microsoft YaHei";
+}
+
+#user_name_lb{
+    color:rgb(0,0,0);
+    font-size: 16px;
+    font-weight: normal;
+    font-family: "Microsoft YaHei";
 }

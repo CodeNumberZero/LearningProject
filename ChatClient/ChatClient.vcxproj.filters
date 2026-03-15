@@ -142,6 +142,15 @@
     <ClCompile Include="GroupTipItem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ApplyFriendPage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ApplyFriendItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ApplyFriendList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Login.h">
@@ -237,6 +246,15 @@
     <QtMoc Include="GroupTipItem.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="ApplyFriendPage.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ApplyFriendItem.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ApplyFriendList.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="Login.ui">
@@ -276,6 +294,12 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="GroupTipItem.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="ApplyFriendPage.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="ApplyFriendItem.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
