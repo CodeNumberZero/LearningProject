@@ -93,14 +93,19 @@ LogicSystem::LogicSystem()
 		}
 
 		// 先查找redis中email对应的验证码是否合理
-		std::string varify_code = RedisClient::GetInstance()->get(CODEPREFIX + src_root["email"].asString()).value();  // 这里要加个CODEPREFIX的前缀，因为在gRPC服务端设置key和value时key的值为为前缀+邮箱地址 
-		if (varify_code == "") {
+		//std::string varify_code = RedisClient::GetInstance()->get(CODEPREFIX + src_root["email"].asString()).value();  
+		// redis++中通过key获取value或者弹出一个key失败时,函数返回值是一个OptionalString类型，其内是空值(将其转换为bool类型,值为0，即false),不能直接使用value()方法或*运算符进行操作,所以需要先判断是否为空
+		auto val = RedisClient::GetInstance()->get(CODEPREFIX + src_root["email"].asString());   // 这里要加个CODEPREFIX的前缀，因为在gRPC服务端设置key和value时key的值为为前缀+邮箱地址 
+		//if (varify_code == "") {
+		if (!val) {                                                                               // OptionalString重载了bool()运算符,可以直接进行布尔判断
 			std::cout << "Varify code expired or not existed!" << std::endl;
 			root["error"] = ErrorCodes::VarifyCodeExpired;
 			std::string jsonstr = root.toStyledString();
 			boost::beast::ostream(connection->_response.body()) << jsonstr;
 			return true;
 		}
+
+		std::string varify_code = val.value();                                                   // 使用value()方法或*运算符获取对应的值
 		if (varify_code != src_root["varifycode"].asString()) {
 			std::cout << "Varify code error!" << std::endl;
 			root["error"] = ErrorCodes::VarifyCodeError;
@@ -153,15 +158,19 @@ LogicSystem::LogicSystem()
 		auto pwd = src_root["passwd"].asString();
 
 		// 先查找redis中email对应的验证码是否合理
-		std::string varify_code = RedisClient::GetInstance()->get(CODEPREFIX + src_root["email"].asString()).value();  // 这里要加个CODEPREFIX的前缀，因为在gRPC服务端设置key和value时key的值为前缀+邮箱地址 
-		// redis++中通过key获取value或者弹出一个key失败时,函数返回值是一个空字符串(或者将其转换为bool类型，值为0，即false)
-		if (varify_code == "") {
+		//std::string varify_code = RedisClient::GetInstance()->get(CODEPREFIX + src_root["email"].asString()).value(); 
+		// redis++中通过key获取value或者弹出一个key失败时,函数返回值是一个OptionalString类型，其内是空值(将其转换为bool类型,值为0，即false),不能直接使用value()方法或*运算符进行操作,所以需要先判断是否为空
+		auto val = RedisClient::GetInstance()->get(CODEPREFIX + src_root["email"].asString());       // 这里要加个CODEPREFIX的前缀，因为在gRPC服务端设置key和value时key的值为前缀+邮箱地址 
+		//if (varify_code == "") {
+		if (!val) {                                                                                   // OptionalString重载了bool()运算符,可以直接进行布尔判断
 			std::cout << "Varify code expired or not existed!" << std::endl;
 			root["error"] = ErrorCodes::VarifyCodeExpired;
 			std::string jsonstr = root.toStyledString();
 			boost::beast::ostream(connection->_response.body()) << jsonstr;
 			return true;
 		}
+
+		std::string varify_code = val.value();                                                       // 使用value()方法或*运算符获取对应的值
 		if (varify_code != src_root["varifycode"].asString()) {
 			std::cout << "Varify code error!" << std::endl;
 			root["error"] = ErrorCodes::VarifyCodeError;
@@ -184,7 +193,7 @@ LogicSystem::LogicSystem()
 		bool b_up = MysqlMgr::GetInstance()->UpdatePwd(name, pwd);
 		if (!b_up) {
 			std::cout << " update pwd failed" << std::endl;
-			root["error"] = ErrorCodes::PasswdUpdataFailed;
+			root["error"] = ErrorCodes::PasswdUpdateFailed;
 			std::string jsonstr = root.toStyledString();
 			boost::beast::ostream(connection->_response.body()) << jsonstr;
 			return true;
@@ -221,7 +230,7 @@ LogicSystem::LogicSystem()
 		auto email = src_root["email"].asString();
 		auto pwd = src_root["passwd"].asString();
 		UserInfo userInfo;
-		//查询数据库判断用户名和密码是否匹配
+		// 查询数据库判断用户名和密码是否匹配
 		bool pwd_valid = MysqlMgr::GetInstance()->CheckPwd(email, pwd, userInfo);                           // CheckPwd函数会将查询到的用户信息存入userInfo中
 		if (!pwd_valid) {
 			std::cout << " User pwd not match" << std::endl;

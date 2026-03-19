@@ -27,6 +27,14 @@ std::string SectionInfo::operator[](const std::string& key)
     return _section_datas[key];
 }
 
+std::string SectionInfo::GetValue(const std::string& key)
+{
+    if (_section_datas.find(key) == _section_datas.end()) {
+        return "";
+    }
+    return _section_datas[key];
+}
+
 ConfigMgr::ConfigMgr()
 {
     boost::filesystem::path current_path = boost::filesystem::current_path();                    // 获取当前工作目录   
@@ -74,4 +82,12 @@ SectionInfo ConfigMgr::operator[](const std::string& section)
 ConfigMgr& ConfigMgr::GetInstance() {                                       
     static ConfigMgr cfg_mgr;
     return cfg_mgr;
+}
+
+std::string ConfigMgr::GetValue(const std::string& section, const std::string& key)
+{
+    if (_config_map.find(section) == _config_map.end()) {
+        return "";
+    }
+    return _config_map[section].GetValue(key);
 }

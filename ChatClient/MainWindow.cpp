@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     setWindowIcon(QIcon(":/icon/resource/KamenRider.ico")); // :/是Qt资源文件的固定前缀。若想直接使用本地磁盘文件不嵌入资源，需传入完整本地路径
 
-    emit TcpMgr::GetInstance()->sigSwitchChat();
+    //emit TcpMgr::GetInstance()->sigSwitchChat();
 }
 
 

@@ -61,7 +61,7 @@ void MysqlPool::checkConnectionAlive()
             // Ö´ÐÐ±£»îÓï¾ä£ºSELECT 1
             conn->_con->sql("SELECT 1").execute();
             conn->_last_oper_time = timestamp;
-            std::cout << "execute timer alive query , cur is " << timestamp << std::endl;
+            //std::cout << "execute timer alive query , cur is " << timestamp << std::endl;
         }
         catch (const mysqlx::Error& e) {
             std::cerr << "Connection keep alive failed: " << e.what() << std::endl;

@@ -24,6 +24,7 @@
 #include <memory>
 #include <map>
 #include <queue>
+#include <thread>
 #include <unordered_map>
 
 #include "Singleton.h"
@@ -39,7 +40,7 @@ enum ErrorCodes {
 	UserExist = 1005,                            // 用户已存在
 	PasswdErr = 1006,                            // 密码错误
 	EmailNotMatch = 1007,                        // 邮箱不匹配
-	PasswdUpdataFailed = 1008,                   // 密码更新失败(重置失败)
+	PasswdUpdateFailed = 1008,                   // 密码更新失败(重置失败)
 	PasswdInvalid = 1009,                        // 密码不合法
 	TokenInvalid = 1010,                         // Token失效
 	UidInvalid = 1011,                           // uid无效

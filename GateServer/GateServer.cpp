@@ -21,8 +21,8 @@ void TestRedisPlusPlus() {
     std::string value;
     assert(RedisClient::GetInstance()->set("blogWebsite", "llfc.club"));
     assert(RedisClient::GetInstance()->get("blogWebsite").value() == "llfc.club");                 // redis++中相关的操作接口(例如get,rpop等)返回的是一个Optional<string>类型，需要通过value()方法或者*运算符获取实际的string值
-    assert(RedisClient::GetInstance()->hset("blogInfo", "blogWebsite", "llfc.club"));
-    assert(RedisClient::GetInstance()->hget("blogInfo", "blogWebsite").value() == "llfc.club");
+    assert(RedisClient::GetInstance()->hset("blogInfo", "blogWebsite", "llfc.club"));              // hset 就是用来向哈希表中设置键值,三个参数分别为key,field,value
+    assert(RedisClient::GetInstance()->hget("blogInfo", "blogWebsite").value() == "llfc.club");    // hget 就是用来从哈希表中提取特定字段的值
     assert(RedisClient::GetInstance()->exists("blogInfo") == 1);
     assert(RedisClient::GetInstance()->del("blogInfo") == 1);
     assert(RedisClient::GetInstance()->del("blogInfo") == 0);

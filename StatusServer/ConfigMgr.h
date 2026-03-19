@@ -8,6 +8,7 @@ struct SectionInfo {
 	SectionInfo(const SectionInfo& src);                                       // 拷贝构造
 	SectionInfo& operator=(const SectionInfo& src);                            // 重载=运算符
 	std::string operator[](const std::string& key);                            // 重载[]运算符
+	std::string GetValue(const std::string& key);
 
 	std::map<std::string, std::string> _section_datas;
 };
@@ -26,5 +27,6 @@ public:
 	~ConfigMgr();
 	SectionInfo operator[](const std::string& section);                      // 重载[]运算符以通过section名称访问配置
 	static ConfigMgr& GetInstance();                                         // 获取单例实例;C++11之后使用静态局部变量实现单例的方式(属于懒汉单例)
+	std::string GetValue(const std::string& section, const std::string& key);
 };
 

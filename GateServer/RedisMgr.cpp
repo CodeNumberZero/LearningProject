@@ -35,6 +35,7 @@ std::shared_ptr<sw::redis::Redis>& RedisClient::GetInstance() {
 	return instance._redis;
 }
 
+/*-----------------------------------------------------------------------下面都是基于hiredis库封装的对redis的操作函数和连接池--------------------------------------------------------*/
 
 RedisConnectionPool::RedisConnectionPool(size_t poolSize, const char* host, int port, const char* pwd)
 	: poolSize_(poolSize), host_(host), port_(port), b_stop_(false) {

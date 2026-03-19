@@ -35,7 +35,7 @@ async function GetVarifyCode(call, callback) {
             if (uniqueId.length > 4) {
                 uniqueId = uniqueId.substring(0, 4);
             } 
-            let bres = await redis_module.SetRedisExpire(const_module.code_prefix + call.request.email, uniqueId,180)
+            let bres = await redis_module.SetRedisExpire(const_module.code_prefix + call.request.email, uniqueId, 180)
             if(!bres){
                 callback(null, { email:  call.request.email,
                     error:const_module.Errors.RedisErr
@@ -45,7 +45,7 @@ async function GetVarifyCode(call, callback) {
         }
 
         console.log("uniqueId is ", uniqueId)
-        let text_str =  '您的验证码为:'+ uniqueId +',请三分钟内完成注册'
+        let text_str =  '您的验证码为: '+ uniqueId +', 请三分钟内完成注册'
         //发送邮件
         let mailOptions = {
             from: 'feng_pengxi@163.com',
@@ -75,9 +75,10 @@ async function GetVarifyCode(call, callback) {
 function main() {
     var server = new grpc.Server()
     server.addService(message_proto.VarifyService.service, { GetVarifyCode: GetVarifyCode })
-    server.bindAsync('0.0.0.0:50050', grpc.ServerCredentials.createInsecure(), (err, port) => {
+    // 监听的是50050端口,其他服务器的配置文件要确保准确
+    server.bindAsync('0.0.0.0:50050', grpc.ServerCredentials.createInsecure(), (err, port) => { // 如果50050可用,port就是50050;如果50050被占用且使用了端口0(随机端口),系统会分配一个空闲端口,port参数就是实际成功绑定的端口号
         // console.log('grpc server started')   
-        if (err) {
+        if (err) {                                                                              // 如果 bind 操作失败，err 参数会包含错误信息
             console.error('[gRPC服务端]启动失败,无法监听端口:', err);
             return;
         }

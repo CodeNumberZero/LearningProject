@@ -12,27 +12,30 @@
 #include <boost/uuid/uuid_io.hpp>
 
 #include <json/json.h>
-#include <json//value.h>
+#include <json/value.h>
 #include <json/reader.h>
 
+#include <atomic>
+#include <cassert>
+#include <functional>
 #include <hiredis/hiredis.h>
 #include <sw/redis++/redis++.h>
-
-#include <memory>
-#include <mutex>
-#include <string>
-#include <thread>
 #include <iostream>
-#include <functional>
+#include <memory>
 #include <map>
-#include <unordered_map>
-#include <atomic>
 #include <queue>
-#include <cassert>
+#include <thread>
+#include <unordered_map>
 
 #include "Singleton.h"
 
 constexpr auto CODEPREFIX = "code_";
+
+constexpr auto USERIP_PREFIX = "uip_";       // 编译期常量表达式，值在编译时就确定
+constexpr auto USERTOKEN_PREFIX = "utoken_";
+constexpr auto IPCOUNT_PREFIX = "ipcount_";
+constexpr auto USER_BASE_INFO = "ubaseinfo_";
+constexpr auto LOGIN_COUNT = "logincount";
 
 enum ErrorCodes {
 	Success = 0,
@@ -43,7 +46,7 @@ enum ErrorCodes {
 	UserExist = 1005,                            // 用户已存在
 	PasswdErr = 1006,                            // 密码错误
 	EmailNotMatch = 1007,                        // 邮箱不匹配
-	PasswdUpdataFailed = 1008,                   // 密码更新失败(重置失败)
+	PasswdUpdateFailed = 1008,                   // 密码更新失败(重置失败)
 	PasswdInvalid = 1009,                        // 密码不合法
 	TokenInvalid = 1010,                         // Token失效
 	UidInvalid = 1011,                           // uid无效

@@ -135,7 +135,9 @@ xcopy "$(ProjectDir)*.lib"   "$(SolutionDir)$(Platform)\$(Configuration)\"   /y<
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ChatGrpcClient.cpp" />
     <ClCompile Include="ChatServer.cpp" />
+    <ClCompile Include="ChatServiceImpl.cpp" />
     <ClCompile Include="ConfigMgr.cpp" />
     <ClCompile Include="CServer.cpp" />
     <ClCompile Include="CSession.cpp" />
@@ -146,9 +148,13 @@ xcopy "$(ProjectDir)*.lib"   "$(SolutionDir)$(Platform)\$(Configuration)\"   /y<
     <ClCompile Include="MsgNode.cpp" />
     <ClCompile Include="MysqlDao.cpp" />
     <ClCompile Include="MysqlMgr.cpp" />
+    <ClCompile Include="RedisMgr.cpp" />
     <ClCompile Include="StatusGrpcClient.cpp" />
+    <ClCompile Include="UserMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ChatGrpcClient.h" />
+    <ClInclude Include="ChatServiceImpl.h" />
     <ClInclude Include="ConfigMgr.h" />
     <ClInclude Include="const.h" />
     <ClInclude Include="CServer.h" />
@@ -161,8 +167,10 @@ xcopy "$(ProjectDir)*.lib"   "$(SolutionDir)$(Platform)\$(Configuration)\"   /y<
     <ClInclude Include="MsgNode.h" />
     <ClInclude Include="MysqlDao.h" />
     <ClInclude Include="MysqlMgr.h" />
+    <ClInclude Include="RedisMgr.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="StatusGrpcClient.h" />
+    <ClInclude Include="UserMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ChatServerConfig.ini" />

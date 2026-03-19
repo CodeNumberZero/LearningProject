@@ -2,15 +2,15 @@
 #include "const.h"
 #include "message.grpc.pb.h"
 
-//using grpc::Server;
-//using grpc::ServerBuilder;
-//using grpc::ServerContext;
-//using grpc::Status;
-//using message::GetChatServerReq;
-//using message::GetChatServerRsp;
-//using message::LoginReq;
-//using message::LoginRsp;
-//using message::StatusService;
+using grpc::Server;
+using grpc::ServerBuilder;
+using grpc::ServerContext;
+using grpc::Status;
+using message::GetChatServerReq;
+using message::GetChatServerRsp;
+using message::LoginReq;
+using message::LoginRsp;
+using message::StatusService;
 
 // 用于存储聊天服务器信息的结构体
 struct ChatServer {
@@ -32,7 +32,5 @@ private:
 	ChatServer getChatServer();                                   // 获取连接数最少的聊天服务器
 	std::unordered_map<std::string, ChatServer> _servers;         // 存储聊天服务器信息的哈希表，键为服务器名称，值为ChatServer结构体
 	std::mutex _server_mtx;
-	std::unordered_map<int, std::string> _tokens;                 // 存储用户ID和对应Token的哈希表，键为用户ID，值为Token字符串
-	std::mutex _token_mtx;
 };
 
