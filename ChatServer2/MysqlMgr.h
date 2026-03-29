@@ -17,8 +17,12 @@ public:
 	bool CheckEmail(const std::string& name, const std::string& email);                       // 检查邮箱
 	bool UpdatePwd(const std::string& name, const std::string& new_pwd);                      // 更新(重置)密码
 	bool CheckPwd(const std::string& email, const std::string& pwd, UserInfo& userInfo);      // 检查密码(登录)
+	bool AddFriendApply(const int& from, const int& to);
+	bool AddFriend(const int& from, const int& to, std::string back_name);
+	
 	bool TestProcedure(const std::string& email, int& uid, std::string& name);
 
 	std::shared_ptr<UserInfo> GetUser(int uid);                                               // 根据用户id获取用户信息
+	std::shared_ptr<UserInfo> GetUser(std::string name);                                      // 根据用户name获取用户信息
 };
 

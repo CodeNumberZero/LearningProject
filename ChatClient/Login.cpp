@@ -234,10 +234,10 @@ void Login::slot_tcp_connect_finish(bool b_success)
         jsonObj["token"] = _token;
 
         QJsonDocument doc(jsonObj);
-        QString jsonString = doc.toJson(QJsonDocument::Indented);
+        QByteArray jsonData = doc.toJson(QJsonDocument::Indented);                  // Indented格式有缩进，可读性更好
 
         //发送tcp请求给chat server
-        emit TcpMgr::GetInstance()->sigSendData(ReqId::ID_CHAT_LOGIN, jsonString); // tcp连接成功，发送sig_send_data信号通知TcpMgr将数据发送给服务器
+        emit TcpMgr::GetInstance()->sigSendData(ReqId::ID_CHAT_LOGIN, jsonData); // tcp连接成功，发送sig_send_data信号通知TcpMgr将数据发送给服务器
     }
     else {
         showTip(tr("网络异常，tcp连接失败"), false);

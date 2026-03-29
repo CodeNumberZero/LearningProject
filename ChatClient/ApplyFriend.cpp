@@ -10,9 +10,9 @@ ApplyFriend::ApplyFriend(QWidget *parent) : QDialog(parent), _label_point(2, 6)
 
     this->setObjectName("ApplyFriend");
     this->setModal(true);
-    ui.apply_lineEdit->setPlaceholderText(tr("中国好学生"));                         // 设置搜索框中的默认文本
+    ui.apply_lineEdit->setPlaceholderText(tr("成电电兵"));                         // 设置搜索框中的默认文本
     ui.label_lineEdit->setPlaceholderText("搜索、添加标签");                         // 设置文本框中的默认文本
-    ui.remark_lineEdit->setPlaceholderText("四大天王");
+    ui.remark_lineEdit->setPlaceholderText("你电电兵");
     ui.label_lineEdit->SetMaxLength(21);
     ui.label_lineEdit->move(2, 2);
     ui.label_lineEdit->setFixedHeight(20);
@@ -439,30 +439,30 @@ void ApplyFriend::SlotAddFirendLabelByClickTip(QString text)
 void ApplyFriend::SlotApplySure()
 {
     qDebug() << "Slot Apply Sure called";
-    //发送请求逻辑
-    //QJsonObject jsonObj;
-    //auto uid = UserMgr::GetInstance()->GetUid();
-    //jsonObj["uid"] = uid;
-    //auto name = ui.apply_lineEdit->text();
-    //if (name.isEmpty()) {
-    //    name = ui.apply_lineEdit->placeholderText();
-    //}
+    // 发送请求逻辑
+    QJsonObject jsonObj;
+    auto uid = UserMgr::GetInstance()->GetUid();
+    jsonObj["uid"] = uid;
+    auto name = ui.apply_lineEdit->text();
+    if (name.isEmpty()) {
+        name = ui.apply_lineEdit->placeholderText();                    // 如果用户输入的name为空,返回输入框中显示的灰色提示文字(即第13行设置的默认文本),当输入框为空时显示,用户输入时自动消失
+    }
 
-    //jsonObj["applyname"] = name;
+    jsonObj["applyname"] = name;
 
-    //auto bakname = ui.remark_lineEdit->text();
-    //if (bakname.isEmpty()) {
-    //    bakname = ui.remark_lineEdit->placeholderText();
-    //}
+    auto bakname = ui.remark_lineEdit->text();
+    if (bakname.isEmpty()) {
+        bakname = ui.remark_lineEdit->placeholderText();                // 如果用户输入的备注名为空,返回输入框中显示的灰色提示文字(即第15行设置的默认文本)
+    }
 
-    //jsonObj["bakname"] = bakname;
-    //jsonObj["touid"] = _si->_uid;
+    jsonObj["bakname"] = bakname;
+    jsonObj["touid"] = _si->_uid;                                       // 好友申请要发送给对方的用户的uid
 
-    //QJsonDocument doc(jsonObj);
-    //QString jsonString = doc.toJson(QJsonDocument::Indented);
+    QJsonDocument doc(jsonObj);
+    QByteArray jsonData = doc.toJson(QJsonDocument::Compact);
 
-    ////发送tcp请求给chat server
-    //emit TcpMgr::GetInstance()->sigSendData(ReqId::ID_ADD_FRIEND_REQ, jsonString);
+    // 发送tcp请求给chat server
+    emit TcpMgr::GetInstance()->sigSendData(ReqId::ID_ADD_FRIEND_REQ, jsonData);
     this->hide();
     deleteLater();
 }

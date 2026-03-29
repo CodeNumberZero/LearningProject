@@ -59,6 +59,6 @@ public:
 private:
 	ChatGrpcClient();                                                                 // 如果单例的子类不写构造函数,系统会生成默认构造,而默认构造函数是public的,会导致单例模式被破坏
 	//std::unique_ptr<ChatConnectionPool> _pool;                                        // gRPC连接池对象指针
-	std::unordered_map<std::string, std::unique_ptr<ChatConnectionPool>> _pools;
+	std::unordered_map<std::string, std::unique_ptr<ChatConnectionPool>> _pools;      // key为聊天服务器,value为服务器对应的gRPC聊天服务连接池
 };
 

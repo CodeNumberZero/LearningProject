@@ -23,7 +23,7 @@ void Server::StartAccept() {
 	_acceptor.async_accept(new_session->GetSocket(), 
 		std::bind(&Server::HandleAccept, this, new_session, std::placeholders::_1));     // 服务器监听到连接后，后续该连接都交给刚刚创建的Session类处理
 	/*
-		一、绑定成员函数需要对象指针或引用,因此第二个参数传this指针
+		一、绑定类成员函数需要对象指针或引用,因此第二个参数传this指针
 		二、使用了一个占位符留给错误码。在boost::asio内部大致流程是：
 			1、首先std::bind创建了一个函数对象func,这个对象已经存储了this指针和new_session智能指针,预留了一个位置给error_code
 			2、之后asio发起异步操作async_accept,当操作完成时，操作系统会返回错误码error_code

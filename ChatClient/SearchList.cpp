@@ -3,6 +3,8 @@
 #include "AddUserItem.h"
 #include "FindSuccessDialog.h"
 #include "CustomizeEdit.h"
+#include "FindFailDialog.h"
+#include "UserMgr.h"
 
 SearchList::SearchList(QWidget* parent) : QListWidget(parent), _find_dlg(nullptr), _search_edit(nullptr), _send_pending(false)
 {
@@ -68,13 +70,13 @@ void SearchList::waitPending(bool pending)
 {
     if (pending) {
         _loadingDialog = new LoadingDialog(this);
-        _loadingDialog->setModal(true);
-        _loadingDialog->show();
+        _loadingDialog->setModal(true);                        // 设置为模态对话框，阻塞用户对其他窗口的交互
+        _loadingDialog->show();                                // 显示对话框，但不会阻塞代码执行
         _send_pending = pending;
     }
     else {
-        _loadingDialog->hide();
-        _loadingDialog->deleteLater();
+        _loadingDialog->hide();                                // 隐藏对话框
+        _loadingDialog->deleteLater();                         // 在当前事件循环结束后才真正删除(对话框显示后立即开始加载，加载完成后立即删除)
         _send_pending = pending;
     }
 }
@@ -101,6 +103,25 @@ void SearchList::addTipItem()
 
 void SearchList::slot_user_search(std::shared_ptr<SearchInfo> si)
 {
+    waitPending(false);
+    if (si == nullptr) {
+        _find_dlg = std::make_shared<FindFailDialog>(this);
+    }
+    else {
+        // 此处分两种情况:一种是搜索到已经是自己的朋友了,一种是未添加好友
+        // 查找是否已经是好友
+        bool b_exist = UserMgr::GetInstance()->CheckFriendById(si->_uid);
+        if (b_exist) {
+            // 此处处理已经添加的好友,实现页面跳转
+            // 跳转到聊天界面指定的item中
+            emit sigJumpChatItem(si);
+            return;
+        }
+        // 此处先处理为添加的好友
+        _find_dlg = std::make_shared<FindSuccessDialog>(this);
+        std::dynamic_pointer_cast<FindSuccessDialog>(_find_dlg)->SetSearchInfo(si);
+    }
+    _find_dlg->show();
 }
 
 void SearchList::slot_item_clicked(QListWidgetItem* item) {
@@ -124,27 +145,33 @@ void SearchList::slot_item_clicked(QListWidgetItem* item) {
     }
 
     if (itemType == ListItemType::ADD_USER_TIP_ITEM) {
+        if (_send_pending) {                                                                 // 搜索好友的时候网络会有延迟,为了防止在搜索过程中重复触发加载函数,避免多次弹出加载对话框 用一个变量来控制是否加载页面(加载界面即LoadingDialog页面,图形为转圈的图片)
+            return;
+        }
 
-        //if (_send_pending) {
-        //    return;
-        //}
-        //waitPending(true);
-        //auto search_edit = dynamic_cast<CustomizeEdit*>(_search_edit);
-        //auto uid_str = search_edit->text();
-        ////此处发送请求给server
-        //QJsonObject jsonObj;
-        //jsonObj["uid"] = uid_str;
+        if (!_search_edit) {
+            return;
+        }
 
-        //QJsonDocument doc(jsonObj);
-        //QString jsonString = doc.toJson(QJsonDocument::Indented);
+        waitPending(true);
+        auto search_edit = dynamic_cast<CustomizeEdit*>(_search_edit);
+        auto uid_str = search_edit->text();      
+        //此处发送请求给server
+        QJsonObject jsonObj;
+        jsonObj["uid"] = uid_str;                                                            // 这里虽然变量名用的是uid,但是用户在search_lineedit输入信息搜索用户时可能输入的是uid,也可能是name(见Chat.cpp第92行).因此后续服务器在处理逻辑时要先判断是uid还是name,根据不同类型分开处理(见ChatServer项目LogicSystem.cpp文件SearchInfo函数的150行)
 
-        ////发送tcp请求给chat server
-        //emit TcpMgr::GetInstance()->sig_send_data(ReqId::ID_SEARCH_USER_REQ, jsonString);
+        QJsonDocument doc(jsonObj);
+        //QString jsonString = doc.toJson(QJsonDocument::Indented);                            
+        QByteArray jsonData = doc.toJson(QJsonDocument::Compact);                             // 紧凑格式，没有多余空格(Indented格式有缩进，可读性高）)
 
-        _find_dlg = std::make_shared<FindSuccessDialog>(this);                               // 有成功也有失败，用基类指针承接，需要判断是否成功时再转换成具体的派生类
-        auto si = std::make_shared<SearchInfo>(0, "远古织影者", "远古织影者", "hello , my friend!", 0);
-        (std::dynamic_pointer_cast<FindSuccessDialog>(_find_dlg))->SetSearchInfo(si);        // 需要调用派生类特有的 SetSearchInfo 方法，所以必须向下转型
-        _find_dlg->show();
+        // 发送tcp请求给chat server
+        emit TcpMgr::GetInstance()->sigSendData(ReqId::ID_SEARCH_USER_REQ, jsonData);
+
+        //_find_dlg = std::make_shared<FindSuccessDialog>(this);                               // 有成功也有失败，用基类指针承接，需要判断是否成功时再转换成具体的派生类
+        //auto si = std::make_shared<SearchInfo>(0, "远古织影者", "远古织影者", "hello , my friend!", 0);
+        //(std::dynamic_pointer_cast<FindSuccessDialog>(_find_dlg))->SetSearchInfo(si);        // 需要调用派生类特有的 SetSearchInfo 方法，所以必须向下转型
+        //_find_dlg->show();
+
         return;
     }
 

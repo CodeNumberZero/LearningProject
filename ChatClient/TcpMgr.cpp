@@ -86,6 +86,8 @@ void TcpMgr::initHandlers() {
 	// auto self = shared_from_this();  
     // 这里不能使用self，不能将self传到lambda表达式中，因为shared_from_this()的使用前提是对象已经构造完成且是使用智能指针进行管理
     // 而initHandlers是在TcpMgr的构造函数中调用的，此时对象还没有完全构造完成，因此在构造函数中shared_from_this()是不可用的，如果在构造函数中调用shared_from_this()，会抛出std::bad_weak_ptr异常。解决方法是在initHandlers中直接使用this指针来捕获当前对象的成员函数，这样就可以避免在构造函数中调用shared_from_this()的问题。
+    
+    // 对应ChatServer中LogicSystem.cpp文件LoginHandler方法中发送的MSG_CHAT_LOGIN_RSP的回包信号(待解决:为什么信号不相同？)
     _handlers.insert(ID_CHAT_LOGIN_RSP, [this](ReqId id, int len, QByteArray data) {
         Q_UNUSED(len);
         qDebug() << "handle id is " << id << ", data is " << data;
@@ -94,7 +96,7 @@ void TcpMgr::initHandlers() {
 
         // 检查转换是否成功
         if (jsonDoc.isNull()) {
-            qDebug() << "TcpMgr Failed to create QJsonDocument.";
+            qDebug() << "TcpMgr's ID_CHAT_LOGIN_RSP Failed to create QJsonDocument.";
             return;
         }
 
@@ -119,6 +121,118 @@ void TcpMgr::initHandlers() {
         UserMgr::GetInstance()->SetToken(jsonObj["token"].toString());
         emit sigSwitchChat();
     });
+
+    // 当我们发送数据后服务器会处理，返回ID_SEARCH_USER_RSP包，所以客户端要实现对ID_SEARCH_USER_RSP包的处理
+    // 对应ChatServer中LogicSystem.cpp文件SearchInfo方法中发送的ID_SEARCH_USER_RSP的回包信号
+    _handlers.insert(ID_SEARCH_USER_RSP, [this](ReqId id, int len, QByteArray data) {
+        Q_UNUSED(len);
+        qDebug() << "handle id is " << id << " data is " << data;
+        // 将QByteArray转换为QJsonDocument
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+        // 检查转换是否成功
+        if (jsonDoc.isNull()) {
+            qDebug() << "TcpMgr's ID_SEARCH_USER_RSP Failed to create QJsonDocument.";
+            return;
+        }
+
+        QJsonObject jsonObj = jsonDoc.object();
+
+        if (!jsonObj.contains("error")) {                                          // 验证服务器返回的JSON数据结构是否符合预期;如果服务器返回的数据不符合协议,缺少必要的 error 字段
+            int err = ErrorCodes::ERR_JSON;
+            qDebug() << "TcpMgr Search User Failed, err is Json Parse Err, error code is" << err;
+            emit sigUserSearch(nullptr);
+            return;
+        }
+
+        int err = jsonObj["error"].toInt();
+        if (err != ErrorCodes::SUCCESS) {
+            qDebug() << "TcpMgr Search User Failed, err is " << err;
+            emit sigUserSearch(nullptr);
+            return;
+        }
+
+        auto search_info = std::make_shared<SearchInfo>(jsonObj["uid"].toInt(), jsonObj["name"].toString(),
+                                                        jsonObj["nick"].toString(), jsonObj["desc"].toString(),
+                                                        jsonObj["sex"].toInt(), jsonObj["icon"].toString());
+
+        emit sigUserSearch(search_info);
+    });
+
+    // 对应ChatServer中LogicSystem.cpp文件AddFriendApply方法中发送的ID_ADD_FRIEND_RSP的回包信号
+    _handlers.insert(ID_ADD_FRIEND_RSP, [this](ReqId id, int len, QByteArray data) {
+        Q_UNUSED(len);
+        qDebug() << "handle id is " << id << " data is " << data;
+        // 将QByteArray转换为QJsonDocument
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+        // 检查转换是否成功
+        if (jsonDoc.isNull()) {
+            qDebug() << "TcpMgr's ID_ADD_FRIEND_RSP Failed to create QJsonDocument.";
+            return;
+        }
+
+        QJsonObject jsonObj = jsonDoc.object();
+
+        if (!jsonObj.contains("error")) {
+            int err = ErrorCodes::ERR_JSON;
+            qDebug() << "TcpMgr Add Friend Failed, err is Json Parse Err, error code is" << err;
+            return;
+        }
+
+        int err = jsonObj["error"].toInt();
+        if (err != ErrorCodes::SUCCESS) {
+            qDebug() << "TcpMgr Add Friend Failed, err is " << err;
+            return;
+        }
+
+        qDebug() << "TcpMgr Add Friend Success ";
+    });
+
+    // 一个客户端发送申请后,另一个客户端会收到服务器通知添加好友的请求,所以在TcpMgr里监听这个请求
+    // 对应ChatServer中LogicSystem.cpp文件AddFriendApply方法中发送的ID_NOTIFY_ADD_FRIEND_REQ信号以及ChatServer中ChatServiceImpl.cpp文件NotifyAddFriend方法中发送的ID_NOTIFY_ADD_FRIEND_REQ
+    _handlers.insert(ID_NOTIFY_ADD_FRIEND_REQ, [this](ReqId id, int len, QByteArray data) {
+        Q_UNUSED(len);
+        qDebug() << "handle id is " << id << " data is " << data;
+        // 将QByteArray转换为QJsonDocument
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+        // 检查转换是否成功
+        if (jsonDoc.isNull()) {
+            qDebug() << "TcpMgr's ID_NOTIFY_ADD_FRIEND_REQ Failed to create QJsonDocument.";
+            return;
+        }
+
+        QJsonObject jsonObj = jsonDoc.object();
+        if (!jsonObj.contains("error")) {
+            int err = ErrorCodes::ERR_JSON;
+            qDebug() << "TcpMgr Notify Add Friend Failed, err is Json Parse Err, error code is" << err;
+            emit sigUserSearch(nullptr);
+            return;
+        }
+
+        int err = jsonObj["error"].toInt();
+        if (err != ErrorCodes::SUCCESS) {
+            qDebug() << "TcpMgr Notify Add Friend Failed, err is " << err;
+            emit sigUserSearch(nullptr);
+            return;
+        }
+
+        // 收到回包后,获取相应信息(以便得知是谁发送的申请),在己方客户端进行展示
+        int from_uid = jsonObj["applyuid"].toInt();
+        QString name = jsonObj["name"].toString();
+        QString desc = jsonObj["desc"].toString();
+        QString icon = jsonObj["icon"].toString();
+        QString nick = jsonObj["nick"].toString();
+        int sex = jsonObj["sex"].toInt();
+
+        auto apply_info = std::make_shared<AddFriendApply>(
+            from_uid, name, desc,
+            icon, nick, sex);
+
+        emit sigFriendApply(apply_info);
+    });
+
 }
 
 void TcpMgr::HandleMsg(ReqId id, int len, QByteArray data)
@@ -143,18 +257,15 @@ void TcpMgr::slot_tcp_connect(ServerInfo si)
 }
 
 // 因为客户端发送数据可能在任何线程，为了保证线程安全，我们在要发送数据时发送TcpMgr的sig_send_data信号，然后实现接受这个信号的槽函数slot_send_data，在这个槽函数中进行数据的发送。这样就可以保证数据发送的线程安全性，因为Qt的信号和槽机制会自动处理跨线程的信号传递。
-void TcpMgr::slot_send_data(ReqId reqId, QString data)
+void TcpMgr::slot_send_data(ReqId reqId, QByteArray dataBytes)
 {
     // QDataStream是Qt提供的用于二进制数据序列化的类,简单的工作原理:
     // 写入过程:类型T -> QDataStream -> QByteArray
     // 读取过程:QByteArray -> QDataStream -> 类型T
     uint16_t id = reqId;
 
-    // 将字符串转换为UTF-8编码的字节数组
-    QByteArray dataBytes = data.toUtf8();
-
     // 计算长度（使用网络字节序转换）
-    //quint16 len = static_cast<quint16>(data.size());
+    //quint16 len = static_cast<quint16>(dataBytes.size());
     quint16 len = dataBytes.size();
 
     // 创建一个QByteArray用于存储要发送的所有数据

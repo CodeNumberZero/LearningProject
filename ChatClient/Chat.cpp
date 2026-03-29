@@ -89,6 +89,8 @@ Chat::Chat(QWidget *parent)
     */
     this->installEventFilter(this);                                               // 将当前对象安装为自身的事件过滤器,让Chat对象监视自己的所有事件,当有事件发生时,会先调用Chat::eventFilter函数
 
+    ui.search_list->SetSearchEdit(ui.search_lineEdit);                            // 为SearchList设置search edit
+
     /* ---------------------------------------------- 列表设置 ----------------------------------*/
     connect(ui.chat_user_list, &ChatUserList::sig_loading_chat_user, this, &Chat::slot_loading_chat_user);
     AddChatUserList();
@@ -111,7 +113,6 @@ Chat::Chat(QWidget *parent)
     connect(ui.side_contact_label, &StateWidget::clicked, this, &Chat::slot_side_contact);
 
     ui.side_chat_label->SetSelected(true);                                        // 设置聊天label选中状态
-
 }
 
 Chat::~Chat()

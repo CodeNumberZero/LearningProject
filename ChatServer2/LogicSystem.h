@@ -18,6 +18,12 @@ private:
 	void DealMsg();                                       // 处理函数，由工作线程调用
 	void RegisterCallBack();                              // 注册回调函数
 	void LoginHandler(std::shared_ptr<Session> session, const short& msg_id, const std::string& msg_data);
+	void SearchInfo(std::shared_ptr<Session> session, const short& msg_id, const std::string& msg_data);
+	void AddFriendApply(std::shared_ptr<Session> session, const short& msg_id, const std::string& msg_data);
+
+	bool isPureDigit(const std::string& str);             // 判断字符串中是否是纯数字
+	void GetUserByUid(std::string uid_str, Json::Value& rtvalue);                                // 根据uid查找用户
+	void GetUserByName(std::string name, Json::Value& rtvalue);                                  // 根据name查找用户
 	bool GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo>& userinfo);
 
 	std::queue<std::shared_ptr<LogicNode>> _msg_queue;    // 逻辑队列

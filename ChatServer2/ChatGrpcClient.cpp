@@ -67,7 +67,7 @@ ChatGrpcClient::ChatGrpcClient() {
 		if (cfg[word]["Name"].empty()) {
 			continue;
 		}
-		_pools[cfg[word]["Name"]] = std::make_unique<ChatConnectionPool>(5, cfg[word]["Host"], cfg[word]["Port"]);
+		_pools[cfg[word]["Name"]] = std::make_unique<ChatConnectionPool>(5, cfg[word]["Host"], cfg[word]["Port"]); // 每个服务器都构造一个对应其地址和端口的gRPC聊天服务连接池
 	}
 }
 
@@ -77,9 +77,34 @@ ChatGrpcClient::~ChatGrpcClient() {
 
 /*关于gRPC同一方法的不同参数的相关说明:查看StatusGrpcClient.cpp文件第59行*/
 
+// 添加好友时若对方与自己处于不同服务器,则调用此gRPC方法与对方所处服务器通信
 AddFriendRsp ChatGrpcClient::NotifyAddFriend(std::string server_ip, const AddFriendReq& req)
 {
 	AddFriendRsp rsp;
+	Defer defer([&rsp, &req]() {
+		rsp.set_error(ErrorCodes::Success);
+		rsp.set_applyuid(req.applyuid());
+		rsp.set_touid(req.touid());
+	});
+
+	auto find_iter = _pools.find(server_ip);                              // 根据聊天服务器查找并获取其对应的gRPC连接池
+	if (find_iter == _pools.end()) {
+		return rsp;
+	}
+
+	auto& pool = find_iter->second;
+	ClientContext context;
+	auto stub = pool->GetConnection();                                    // 从池子中获取一个连接
+	Status status = stub->NotifyAddFriend(&context, req, &rsp);
+	Defer defercon([&stub, this, &pool]() {
+		pool->ReturnConnection(std::move(stub));
+	});
+
+	if (!status.ok()) {
+		rsp.set_error(ErrorCodes::RPCFailed);
+		return rsp;
+	}
+
 	return rsp;
 }
 

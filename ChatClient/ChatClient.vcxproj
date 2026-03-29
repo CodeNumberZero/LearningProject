@@ -116,6 +116,7 @@ xcopy /Y /E /I "$(ProjectDir)static" "$(TargetDir)static\"</Command>
     <ClCompile Include="ContactUserItem.cpp" />
     <ClCompile Include="ContactUserList.cpp" />
     <ClCompile Include="CustomizeEdit.cpp" />
+    <ClCompile Include="FindFailDialog.cpp" />
     <ClCompile Include="FindSuccessDialog.cpp" />
     <ClCompile Include="FriendLabel.cpp" />
     <ClCompile Include="global.cpp" />
@@ -143,6 +144,7 @@ xcopy /Y /E /I "$(ProjectDir)static" "$(TargetDir)static\"</Command>
     <QtUic Include="ChatPage.ui" />
     <QtUic Include="ChatUserWid.ui" />
     <QtUic Include="ContactUserItem.ui" />
+    <QtUic Include="FindFailDialog.ui" />
     <QtUic Include="FindSuccessDialog.ui" />
     <QtUic Include="FriendLabel.ui" />
     <QtUic Include="GroupTipItem.ui" />
@@ -175,6 +177,7 @@ xcopy /Y /E /I "$(ProjectDir)static" "$(TargetDir)static\"</Command>
     <QtMoc Include="ApplyFriendPage.h" />
     <QtMoc Include="ApplyFriendItem.h" />
     <QtMoc Include="ApplyFriendList.h" />
+    <QtMoc Include="FindFailDialog.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="UserData.h" />
     <QtMoc Include="UserMgr.h" />

@@ -292,6 +292,42 @@ bool MysqlDao::CheckPwd(const std::string& email, const std::string& pwd, UserIn
     }
 }
 
+bool MysqlDao::AddFriendApply(const int& from, const int& to) {
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) {
+        return false;
+    }
+
+    // 离开作用域后自动执行该语句
+    Defer defer([this, &conn]() {
+        _pool->returnConnection(std::move(conn));
+        });
+
+    try {
+        // 准备SQL语句
+        mysqlx::SqlResult res = conn->_con->sql(                                                          // 直接执行查询语句,获取结果集;
+            "INSERT INTO friend_apply (from_uid, to_uid) VALUES (?, ?) "                                  // 尝试向 friend_apply 表中插入一条新记录，只插入 from_uid 和 to_uid 两个字段
+            "ON DUPLICATE KEY UPDATE from_uid = from_uid, to_uid = to_uid"                                // 重复键时更新;当插入操作触发唯一键冲突时，执行更新操作;要触发 ON DUPLICATE KEY UPDATE，表中必须存在唯一索引或主键
+        ).bind(from, to).execute();
+        
+        int rowAffected = res.getAffectedItemsCount();                                                    // 获取受影响的行数
+        // 注意：ON DUPLICATE KEY UPDATE 时，如果更新成功，受影响行数可能为 0 或 2
+        // 实际插入成功返回 1，更新成功返回 2，无变化返回 0(无变化表示记录已存在,可以视为成功)
+        if (rowAffected < 0) {
+            return false;
+        }
+        return true;
+    }
+    catch (const mysqlx::Error& e) {
+        std::cerr << "AddFriendApply's SQLException: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+bool MysqlDao::AddFriend(const int& from, const int& to, std::string back_name) {
+    return true;
+}
+
 bool MysqlDao::TestProcedure(const std::string& email, int& uid, std::string& name) {
     return true;
 }
@@ -309,7 +345,7 @@ std::shared_ptr<UserInfo> MysqlDao::GetUser(int uid)
 
     try {
         // 准备SQL语句
-        mysqlx::SqlResult res = conn->_con->sql("SELECT * FROM user WHERE uid = ?").bind(uid).execute();  // 直接执行查询语句，获取结果集
+        mysqlx::SqlResult res = conn->_con->sql("SELECT * FROM user WHERE uid = ?").bind(uid).execute();  // 直接执行查询语句，获取结果集; * 表示获取满足条件的指定行的所有列
         std::shared_ptr<UserInfo> user_ptr = nullptr;
         if (!res.hasData()) {
             // 未查询到数据，返回nullptr
@@ -319,15 +355,58 @@ std::shared_ptr<UserInfo> MysqlDao::GetUser(int uid)
         mysqlx::Row row = res.fetchOne();
 
         user_ptr.reset(new UserInfo);
-        user_ptr->pwd = row[4].get<std::string>();
-		user_ptr->email = row[3].get<std::string>();
-		user_ptr->name = row[2].get<std::string>();
 		user_ptr->uid = row[1].get<int>();
+        user_ptr->name = row[2].get<std::string>();
+        user_ptr->email = row[3].get<std::string>();
+        user_ptr->pwd = row[4].get<std::string>();
+        user_ptr->nick = row[5].get<std::string>();
+        user_ptr->desc = row[6].get<std::string>();
+        user_ptr->sex = row[7].get<int>();
+        user_ptr->icon = row[8].get<std::string>();
 
         return user_ptr;
     }
     catch (const mysqlx::Error& e) {
-        std::cerr << "GetUser's SQLException: " << e.what() << std::endl;
+        std::cerr << "GetUserByUid's SQLException: " << e.what() << std::endl;
+        return nullptr;
+    }
+}
+
+std::shared_ptr<UserInfo> MysqlDao::GetUser(std::string name) {
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) {
+        return nullptr;
+    }
+
+    Defer defer([this, &conn]() {
+        _pool->returnConnection(std::move(conn));
+    });
+
+    try {
+        // 准备SQL语句
+        mysqlx::SqlResult res = conn->_con->sql("SELECT * FROM user WHERE name = ?").bind(name).execute();  // 直接执行查询语句，获取结果集; * 表示获取满足条件的指定行的所有列
+        std::shared_ptr<UserInfo> user_ptr = nullptr;
+        if (!res.hasData()) {
+            // 未查询到数据，返回nullptr
+            std::cerr << "GetUser name : " << name << " not found!" << std::endl;
+            return nullptr;
+        }
+        mysqlx::Row row = res.fetchOne();
+        
+        user_ptr.reset(new UserInfo);
+        user_ptr->uid = row[1].get<int>();
+        user_ptr->name = row[2].get<std::string>();
+        user_ptr->email = row[3].get<std::string>();
+        user_ptr->pwd = row[4].get<std::string>();
+        user_ptr->nick = row[5].get<std::string>();
+        user_ptr->desc = row[6].get<std::string>();
+        user_ptr->sex = row[7].get<int>();
+        user_ptr->icon = row[8].get<std::string>();
+
+        return user_ptr;
+    }
+    catch (const mysqlx::Error& e) {
+        std::cerr << "GetUserByName's SQLException: " << e.what() << std::endl;
         return nullptr;
     }
 }

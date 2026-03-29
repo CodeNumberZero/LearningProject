@@ -25,10 +25,10 @@ private:
 	void HandleMsg(ReqId id, int len, QByteArray data);
 public slots:
 	void slot_tcp_connect(ServerInfo si);
-	void slot_send_data(ReqId id, QString data);
+	void slot_send_data(ReqId id, QByteArray dataBytes);
 signals:
 	void sigConnectSuccess(bool b_success);
-	void sigSendData(ReqId id, QString data);
+	void sigSendData(ReqId id, QByteArray data);
 	void sigSwitchChat();
 	void sigLoginFailed(int err);
 	void sigUserSearch(std::shared_ptr<SearchInfo> si);
