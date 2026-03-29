@@ -26,6 +26,6 @@ struct ApplyInfo {
 	std::string _icon;
 	std::string _nick;
 	int _sex;
-	int _status;
+	int _status;                 // 状态变量,0表示待处理,1表示已处理
 };
 

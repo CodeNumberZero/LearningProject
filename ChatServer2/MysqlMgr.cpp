@@ -38,6 +38,11 @@ bool MysqlMgr::AddFriend(const int& from, const int& to, std::string back_name)
 	return _mysql_dao.AddFriend(from, to, back_name);
 }
 
+bool MysqlMgr::GetApplyList(int touid, std::vector<std::shared_ptr<ApplyInfo>>& applyList, int begin, int limit)
+{
+	return _mysql_dao.GetApplyList(touid, applyList, begin, limit);
+}
+
 bool MysqlMgr::TestProcedure(const std::string& email, int& uid, std::string& name)
 {
 	return _mysql_dao.TestProcedure(email, uid, name);

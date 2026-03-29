@@ -72,7 +72,7 @@ void LogicSystem::LoginHandler(std::shared_ptr<Session> session, const short& ms
 			  << " \nuser token  is "<< token << std::endl;
 
 	Json::Value rtvalue;
-	Defer defer([this, &rtvalue, session] {
+	Defer defer([this, &rtvalue, session] {                                  // 函数执行结束后无论是走哪个分支结束的都会把数据发送给客户端
 		std::string return_str = rtvalue.toStyledString();
 		session->Send(return_str, MSG_CHAT_LOGIN_RSP);
 	});
@@ -112,6 +112,21 @@ void LogicSystem::LoginHandler(std::shared_ptr<Session> session, const short& ms
 	rtvalue["icon"] = user_info->icon;
 
 	// 从数据库获取申请列表
+	std::vector<std::shared_ptr<ApplyInfo>> apply_list;
+	auto b_apply = GetFriendApplyInfo(uid, apply_list);
+	if (b_apply) {
+		for (auto& apply : apply_list) {
+			Json::Value obj;
+			obj["name"] = apply->_name;
+			obj["uid"] = apply->_uid;
+			obj["icon"] = apply->_icon;
+			obj["nick"] = apply->_nick;
+			obj["sex"] = apply->_sex;
+			obj["desc"] = apply->_desc;
+			obj["status"] = apply->_status;
+			rtvalue["apply_list"].append(obj);
+		}
+	}
 
 	// 获取好友列表
 
@@ -431,6 +446,12 @@ bool LogicSystem::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<Use
 		RedisClient::GetInstance()->set(base_key, redis_root.toStyledString());
 		return true;
 	}
+}
+
+bool LogicSystem::GetFriendApplyInfo(int to_uid, std::vector<std::shared_ptr<ApplyInfo>>& list)
+{
+	// 从mysql获取好友申请列表
+	return MysqlMgr::GetInstance()->GetApplyList(to_uid, list, 0, 10);
 }
 
 LogicSystem::~LogicSystem()

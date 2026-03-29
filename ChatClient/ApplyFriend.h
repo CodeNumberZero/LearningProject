@@ -12,6 +12,7 @@ class ApplyFriend : public QDialog
 public:
 	ApplyFriend(QWidget *parent = nullptr);
 	~ApplyFriend();
+
 	void InitTipLbs();
 	void AddTipLbs(ClickedLabel* lb, QPoint cur_point, QPoint& next_point, int text_width, int text_height);
 	bool eventFilter(QObject* obj, QEvent* event);
@@ -19,16 +20,17 @@ public:
 
 private:
 	Ui::ApplyFriendClass ui;
-    void resetLabels();
     QMap<QString, ClickedLabel*> _add_labels;                   // 使用QMap存储已经创建好的标签
     std::vector<QString> _add_label_keys;
     QPoint _label_point;
     QMap<QString, FriendLabel*> _friend_labels;                 // 用来在输入框显示添加新好友的标签
     std::vector<QString> _friend_label_keys;
-    void addLabel(QString name);
     std::vector<QString> _tip_data;
     QPoint _tip_cur_point;
     std::shared_ptr<SearchInfo> _si;
+
+    void addLabel(QString name);
+    void resetLabels();
 
 public slots:
     void ShowMoreLabel();                                       // 显示更多label标签

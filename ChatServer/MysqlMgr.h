@@ -19,6 +19,7 @@ public:
 	bool CheckPwd(const std::string& email, const std::string& pwd, UserInfo& userInfo);      // 检查密码(登录)
 	bool AddFriendApply(const int& from, const int& to);
 	bool AddFriend(const int& from, const int& to, std::string back_name);
+	bool GetApplyList(int touid, std::vector<std::shared_ptr<ApplyInfo>>& applyList, int begin, int limit = 10); // 从数据库中获取好友申请列表
 	
 	bool TestProcedure(const std::string& email, int& uid, std::string& name);
 

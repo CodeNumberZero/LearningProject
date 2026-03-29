@@ -13,9 +13,9 @@ private:
 	QString _token;
 	int _chat_loaded;
 	int _contact_loaded;
-	std::shared_ptr<UserInfo> _user_info;
-	std::vector<std::shared_ptr<ApplyInfo>> _apply_list;
-	std::vector<std::shared_ptr<FriendInfo>> _friend_list;
+	std::shared_ptr<UserInfo> _user_info;                                         // 存储从服务器接收的用户信息
+	std::vector<std::shared_ptr<ApplyInfo>> _apply_list;                          // 存储从服务器接收的好友申请列表
+	std::vector<std::shared_ptr<FriendInfo>> _friend_list;                        // 存储从服务器接收的好友列表
 	QMap<int, std::shared_ptr<FriendInfo>> _friend_map;
 
 public:
@@ -40,6 +40,8 @@ public:
 	bool CheckFriendById(int uid);
 	void AddFriend(std::shared_ptr<AuthRsp> auth_rsp);
 	void AddFriend(std::shared_ptr<AuthInfo> auth_info);
+	bool IsAlreadyApply(int uid);                                                // 根据uid判断是否已经申请过了,避免重复添加同一条好友申请记录
+	void AddApplyToList(std::shared_ptr<ApplyInfo> apply);                         // 添加好友申请记录到申请列表中
 
 public slots:
 	void SlotAddFriendRsp(std::shared_ptr<AuthRsp> rsp);

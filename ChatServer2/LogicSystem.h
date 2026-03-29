@@ -25,6 +25,7 @@ private:
 	void GetUserByUid(std::string uid_str, Json::Value& rtvalue);                                // 根据uid查找用户
 	void GetUserByName(std::string name, Json::Value& rtvalue);                                  // 根据name查找用户
 	bool GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo>& userinfo);
+	bool GetFriendApplyInfo(int to_uid, std::vector<std::shared_ptr<ApplyInfo>>& list);          // 获取好友申请信息列表
 
 	std::queue<std::shared_ptr<LogicNode>> _msg_queue;    // 逻辑队列
 	std::mutex _logic_mtx;                                // 保证逻辑队列线程安全性

@@ -4,6 +4,7 @@
 #include "ui_Chat.h"
 #include "global.h"
 #include "StateWidget.h"
+#include "UserData.h"
 
 class Chat : public QDialog
 {
@@ -29,10 +30,11 @@ protected:
 	bool eventFilter(QObject* watched, QEvent* event) override; // 返回值含义：true表示事件已处理，不再传递给目标对象；false表示事件继续正常传递
 	void handleGlobalMousePress(QMouseEvent* event);
 
-private slots:
+public slots:
 	void slot_loading_chat_user();
 	void slot_side_chat();
 	void slot_side_contact();
 	void slot_text_changed(const QString& str);
+	void slot_friend_apply(std::shared_ptr<AddFriendApply> apply);
 };
 

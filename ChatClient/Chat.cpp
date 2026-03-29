@@ -1,6 +1,8 @@
 ﻿#include "Chat.h"
 #include "ChatUserWid.h"
 #include "LoadingDialog.h"
+#include "TcpMgr.h"
+#include "UserMgr.h"
 
 /*
     定义一些全局的变量用来做测试；
@@ -42,7 +44,8 @@ Chat::Chat(QWidget *parent)
     */
 	ui.setupUi(this);                                                              // 初始化ui,将 ui 文件中的界面设置到 this 对象上,之后可以访问界面上的控件(将设计师设计的界面(.ui 文件)实例化到当前对象上)
 	ui.add_Button->SetState("normal", "hover", "press");                           // 显式调用设置一下ClickedButton的三种状态
-	ui.search_lineEdit->SetMaxLength(50);                                          // 设置搜索框可输入的最大字节数
+    //ui.add_Button->setProperty("state", "normal");
+    ui.search_lineEdit->SetMaxLength(50);                                          // 设置搜索框可输入的最大字节数
 
     /* ----------------------------------------- 搜索栏设置 --------------------------------------------*/
     // 设置搜索框的默认状态和图标
@@ -113,6 +116,10 @@ Chat::Chat(QWidget *parent)
     connect(ui.side_contact_label, &StateWidget::clicked, this, &Chat::slot_side_contact);
 
     ui.side_chat_label->SetSelected(true);                                        // 设置聊天label选中状态
+
+    /* ---------------------------------------------- 好友申请 --------------------------------*/
+    connect(TcpMgr::GetInstance().get(), &TcpMgr::sigFriendApply, this, &Chat::slot_friend_apply);   // 连接申请添加好友信号
+
 }
 
 Chat::~Chat()
@@ -246,4 +253,21 @@ void Chat::slot_text_changed(const QString& str)
         return;
     }
     ShowSearch(false);
+}
+
+void Chat::slot_friend_apply(std::shared_ptr<AddFriendApply> apply)
+{
+    qDebug() << "Receive apply friend slot, applyuid is " << apply->_from_uid 
+             << " name is " << apply->_name 
+             << " desc is " << apply->_desc;
+
+	bool b_already = UserMgr::GetInstance()->IsAlreadyApply(apply->_from_uid);           // 先检查是否已经存在相同的申请，如果已经存在则不再添加，避免重复添加同一条申请记录
+    if (b_already) {
+        return;
+    }
+
+	UserMgr::GetInstance()->AddApplyToList(std::make_shared<ApplyInfo>(apply));          // 不存在相同的申请记录，则将新的申请记录添加到申请列表中
+    ui.side_contact_label->ShowRedPoint(true);                                           // 自己的想法:可以把展示红点的功能封装为槽函数,然后这里发送一个信号触发槽函数(同时也可以配合TcpMgr.cpp文件130行发出的信号)
+    ui.contact_user_list->ShowRedPoint(true);
+    ui.friend_apply_page->AddNewApply(apply);
 }

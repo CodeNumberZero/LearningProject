@@ -2,6 +2,7 @@
 #include "ApplyFriendList.h"
 #include "TcpMgr.h"
 #include "UserMgr.h"
+#include "AuthenFriend.h"
 
 ApplyFriendPage::ApplyFriendPage(QWidget *parent)
 	: QWidget(parent)
@@ -35,12 +36,13 @@ void ApplyFriendPage::AddNewApply(std::shared_ptr<AddFriendApply> apply)
 	ui.apply_friend_list->setItemWidget(item, apply_item);
 	apply_item->ShowAddBtn(true);
 
-	// 收到审核好友信号
+    // 每当有item放到申请页面时都要把itenm对应的信号和槽连接好,便于每个item在处理自己的点击事件时能正常触发回调
+	// 收到审核好友信号(A向B发送了好友申请,B这边显示了申请信息并点击了"添加"按钮后发送sig_friend_auth信号,根据该信号触发对应的回调函数)
 	connect(apply_item, &ApplyFriendItem::sig_friend_auth, [this](std::shared_ptr<ApplyInfo> apply_info) {
-		//auto* authFriend = new AuthenFriend(this);
-		//authFriend->setModal(true);
-		//authFriend->SetApplyInfo(apply_info);
-		//authFriend->show();
+		auto* authFriend = new AuthenFriend(this);
+		authFriend->setModal(true);
+		authFriend->SetApplyInfo(apply_info);
+		authFriend->show();
 	});
 }
 
@@ -80,12 +82,13 @@ void ApplyFriendPage::loadApplyList()
             _unauth_items[uid] = apply_item;
         }
 
-        //收到审核好友信号
+        // 每当有item放到申请页面时都要把itenm对应的信号和槽连接好,便于每个item在处理自己的点击事件时能正常触发回调
+        // 收到审核好友信号(A向B发送了好友申请,B这边显示了申请信息并点击了"添加"按钮后发送sig_friend_auth信号,根据该信号触发对应的回调函数)
         connect(apply_item, &ApplyFriendItem::sig_friend_auth, [this](std::shared_ptr<ApplyInfo> apply_info) {
-            //auto* authFriend = new AuthenFriend(this);
-            //authFriend->setModal(true);
-            //authFriend->SetApplyInfo(apply_info);
-            //authFriend->show();
+            auto* authFriend = new AuthenFriend(this);
+            authFriend->setModal(true);
+            authFriend->SetApplyInfo(apply_info);
+            authFriend->show();
         });
     }
 
@@ -107,12 +110,13 @@ void ApplyFriendPage::loadApplyList()
         ui.apply_friend_list->addItem(item);
         ui.apply_friend_list->setItemWidget(item, apply_item);
 
-        //收到审核好友信号
+        // 每当有item放到申请页面时都要把itenm对应的信号和槽连接好,便于每个item在处理自己的点击事件时能正常触发回调
+        // 收到审核好友信号(A向B发送了好友申请,B这边显示了申请信息并点击了"添加"按钮后发送sig_friend_auth信号,根据该信号触发对应的回调函数)
         connect(apply_item, &ApplyFriendItem::sig_friend_auth, [this](std::shared_ptr<ApplyInfo> apply_info) {
-            //auto* authFriend = new AuthenFriend(this);
-            //authFriend->setModal(true);
-            //authFriend->SetApplyInfo(apply_info);
-            //authFriend->show();
+            auto* authFriend = new AuthenFriend(this);
+            authFriend->setModal(true);
+            authFriend->SetApplyInfo(apply_info);
+            authFriend->show();
         });
     }
 }

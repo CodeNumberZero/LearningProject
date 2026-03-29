@@ -6,7 +6,7 @@ ApplyFriendItem::ApplyFriendItem(QWidget *parent) : ListItemBase(parent), _added
     SetItemType(ListItemType::APPLY_FRIEND_ITEM);
     ui.addBtn->SetState("normal", "hover", "press");
     ui.addBtn->hide();
-    connect(ui.addBtn, &ClickedButton::clicked, [this]() {
+    connect(ui.addBtn, &ClickedButton::clicked, [this]() {                       // 在好友申请列表中点击"添加"按钮后发送相应的信号
         emit this->sig_friend_auth(_apply_info);
     });
 }

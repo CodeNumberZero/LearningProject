@@ -154,6 +154,9 @@
     <ClCompile Include="FindFailDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AuthenFriend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Login.h">
@@ -261,6 +264,9 @@
     <QtMoc Include="FindFailDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="AuthenFriend.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="Login.ui">
@@ -309,6 +315,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="FindFailDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="AuthenFriend.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

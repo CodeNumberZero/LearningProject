@@ -116,9 +116,26 @@ void TcpMgr::initHandlers() {
             return;
         }
 
-        UserMgr::GetInstance()->SetUid(jsonObj["uid"].toInt());
-        UserMgr::GetInstance()->SetName(jsonObj["name"].toString());
+        auto uid = jsonObj["uid"].toInt();
+        auto name = jsonObj["name"].toString();
+        auto nick = jsonObj["nick"].toString();
+        auto icon = jsonObj["icon"].toString();
+        auto sex = jsonObj["sex"].toInt();
+        //auto desc = jsonObj["desc"].toString();
+        auto user_info = std::make_shared<UserInfo>(uid, name, nick, icon, sex);
+        UserMgr::GetInstance()->SetUserInfo(user_info);
         UserMgr::GetInstance()->SetToken(jsonObj["token"].toString());
+
+        // 加载好友申请列表(自己的想法:这里可以发送一个信号通知客户端显示红点)
+        if (jsonObj.contains("apply_list")) {
+            UserMgr::GetInstance()->AppendApplyList(jsonObj["apply_list"].toArray());
+        }
+
+        // 加载好友列表
+        if (jsonObj.contains("friend_list")) {
+            UserMgr::GetInstance()->AppendFriendList(jsonObj["friend_list"].toArray());
+        }
+
         emit sigSwitchChat();
     });
 

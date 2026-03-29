@@ -301,7 +301,7 @@ bool MysqlDao::AddFriendApply(const int& from, const int& to) {
     // 离开作用域后自动执行该语句
     Defer defer([this, &conn]() {
         _pool->returnConnection(std::move(conn));
-        });
+    });
 
     try {
         // 准备SQL语句
@@ -326,6 +326,59 @@ bool MysqlDao::AddFriendApply(const int& from, const int& to) {
 
 bool MysqlDao::AddFriend(const int& from, const int& to, std::string back_name) {
     return true;
+}
+
+bool MysqlDao::GetApplyList(int touid, std::vector<std::shared_ptr<ApplyInfo>>& applyList, int begin, int limit) {
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) {
+        return false;
+    }
+
+    // 离开作用域后自动执行该语句
+    Defer defer([this, &conn]() {
+        _pool->returnConnection(std::move(conn));
+        });
+
+    try {
+        // 准备SQL语句(这段MySQL语句的功能是查询指定用户(to_uid)收到的好友申请，返回申请者的基本信息和申请状态，按申请ID升序排序，并支持分页)
+        mysqlx::SqlResult result = conn->_con->sql(
+            "SELECT apply.from_uid, apply.status, user.name, "
+            "user.nick, user.sex FROM friend_apply AS apply "          // 主表是friend_apply,别名apply简化后续引用
+            "JOIN user ON apply.from_uid = user.uid "                  // 关联条件:apply.from_uid = user.uid;INNER JOIN(默认):只返回两个表都能匹配上的记录;作用:通过申请者的UID，获取该用户的详细信息
+            "WHERE apply.to_uid = ? AND apply.id > ? "                 // apply.to_uid = ?：查询指定接收者的申请;apply.id > ?：起始ID条件，用于分页(只查询ID大于某个值的记录)
+            "ORDER BY apply.id ASC LIMIT ?"                            // 按申请的ID升序排列;限制最多返回多少条记录
+        ).bind(touid, begin, limit).execute();
+
+        // 检查是否有数据
+        if (!result.hasData()) {
+            return true; 
+        }
+
+        /*
+           遍历多行结果集的方法:
+             (1)直接对结果集res使用范围for循环和迭代器
+             (2)对结果集res调用fetchAll()方法后得到rows,再对rows使用范围for循环和迭代器
+             (3)使用hasData()和fetchOne()逐行提取(fetchOne()会消耗结果集的行,即调用fetchOne()后结果集的游标会移动到下一行,也就是说,每次调用fetchOne()都会获取下一行,通过此方法可以遍历结果集;可以通过调用res的hasData()方法常查看是否还有数据)
+        */
+        // 遍历结果集
+        // 使用列索引获取数据（按SELECT顺序）
+        // 索引: 0-from_uid, 1-status, 2-name, 3-nick, 4-sex
+        for (auto row : result) {
+            auto uid = row[0].get<int>();
+            auto status = row[1].get<int>();
+            auto name = row[2].get<std::string>();
+            auto nick = row[3].get<std::string>();
+			auto sex = row[4].get<int>();
+            auto apply_ptr = std::make_shared<ApplyInfo>(uid, name, "", "", nick, sex, status);
+            applyList.push_back(apply_ptr);
+		}
+
+        return true;
+    }
+    catch (const mysqlx::Error& e) {
+        std::cerr << "GetApplyList's SQLException: " << e.what() << std::endl;
+        return false;
+    }
 }
 
 bool MysqlDao::TestProcedure(const std::string& email, int& uid, std::string& name) {

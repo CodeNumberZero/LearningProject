@@ -5,7 +5,7 @@ ContactUserItem::ContactUserItem(QWidget *parent) : ListItemBase(parent)
 	ui.setupUi(this);
 	SetItemType(ListItemType::CONTACT_USER_ITEM);
 	ui.red_point->raise();                            // 将红点置于顶层
-	ShowRedPoint(true);                               // 默认不显示红点
+	ShowRedPoint(false);                               // 默认不显示红点
 }
 
 ContactUserItem::~ContactUserItem()

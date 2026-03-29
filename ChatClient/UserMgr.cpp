@@ -33,14 +33,14 @@ void UserMgr::SetUserInfo(std::shared_ptr<UserInfo> user_info)
 
 int UserMgr::GetUid()
 {
-    return _uid;
-    //return _user_info->_uid;
+    //return _uid;
+    return _user_info->_uid;
 }
 
 QString UserMgr::GetName()
 {
-    return _name;
-    //return _user_info->_name;
+    //return _name;
+    return _user_info->_name;
 }
 
 QString UserMgr::GetIcon()
@@ -197,6 +197,21 @@ void UserMgr::AddFriend(std::shared_ptr<AuthInfo> auth_info)
 {
     auto friend_info = std::make_shared<FriendInfo>(auth_info);
     _friend_map[friend_info->_uid] = friend_info;
+}
+
+bool UserMgr::IsAlreadyApply(int uid)
+{
+    for (auto& apply : _apply_list) {
+        if (apply->_uid == uid) {
+            return true;
+		}
+    }
+    return false;
+}
+
+void UserMgr::AddApplyToList(std::shared_ptr<ApplyInfo> apply)
+{
+    _apply_list.push_back(apply);
 }
 
 void UserMgr::SlotAddFriendRsp(std::shared_ptr<AuthRsp> rsp) {
