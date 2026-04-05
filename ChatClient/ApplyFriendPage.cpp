@@ -36,6 +36,14 @@ void ApplyFriendPage::AddNewApply(std::shared_ptr<AddFriendApply> apply)
 	ui.apply_friend_list->setItemWidget(item, apply_item);
 	apply_item->ShowAddBtn(true);
 
+    /*
+        截取自弹幕：在AddNewApply里把新uid进入map就行了
+        待解决,对应的具体问题为:
+        当双方都在线时，a向b发送申请，b同意后，a的聊天列表和联系人列表会更新，但是b的不会，且b的申请列表也不会更新为"已添加"
+    */
+    auto uid = apply_item->GetUid(); // 这两句不能少,否则会因为这里的添加item项函数没有把item加到map里导致好友认证方完成认证后不会将界面刷新为"已添加"(load初始化的时候加了这两句的逻辑,和88行对比着看)
+    _unauth_items[uid] = apply_item;
+
     // 每当有item放到申请页面时都要把itenm对应的信号和槽连接好,便于每个item在处理自己的点击事件时能正常触发回调
 	// 收到审核好友信号(A向B发送了好友申请,B这边显示了申请信息并点击了"添加"按钮后发送sig_friend_auth信号,根据该信号触发对应的回调函数)
 	connect(apply_item, &ApplyFriendItem::sig_friend_auth, [this](std::shared_ptr<ApplyInfo> apply_info) {
@@ -78,7 +86,7 @@ void ApplyFriendPage::loadApplyList()
         }
         else {
             apply_item->ShowAddBtn(true);
-            auto uid = apply_item->GetUid();
+            auto uid = apply_item->GetUid(); // 有了这两句就可以：当b不在线，a向b发送申请后，b上线后同意申请会更新ui，且申请列表会刷新为"已添加"(和43行对比着看)
             _unauth_items[uid] = apply_item;
         }
 

@@ -127,12 +127,12 @@ void TcpMgr::initHandlers() {
         UserMgr::GetInstance()->SetToken(jsonObj["token"].toString());
 
         // 加载好友申请列表(自己的想法:这里可以发送一个信号通知客户端显示红点)
-        if (jsonObj.contains("apply_list")) {
+        if (jsonObj.contains("apply_list")) {      // 对应ChatServer中LogicSystem.cpp文件中第129行
             UserMgr::GetInstance()->AppendApplyList(jsonObj["apply_list"].toArray());
         }
 
         // 加载好友列表
-        if (jsonObj.contains("friend_list")) {
+        if (jsonObj.contains("friend_list")) {    // 对应ChatServer中LogicSystem.cpp文件中第145行
             UserMgr::GetInstance()->AppendFriendList(jsonObj["friend_list"].toArray());
         }
 
@@ -193,7 +193,7 @@ void TcpMgr::initHandlers() {
 
         if (!jsonObj.contains("error")) {
             int err = ErrorCodes::ERR_JSON;
-            qDebug() << "TcpMgr Add Friend Failed, err is Json Parse Err, error code is" << err;
+            qDebug() << "TcpMgr Add Friend Failed, err is Json Parse Err, error code is " << err;
             return;
         }
 
@@ -223,7 +223,7 @@ void TcpMgr::initHandlers() {
         QJsonObject jsonObj = jsonDoc.object();
         if (!jsonObj.contains("error")) {
             int err = ErrorCodes::ERR_JSON;
-            qDebug() << "TcpMgr Notify Add Friend Failed, err is Json Parse Err, error code is" << err;
+            qDebug() << "TcpMgr Notify Add Friend Failed, err is Json Parse Err, error code is " << err;
             emit sigUserSearch(nullptr);
             return;
         }
@@ -250,6 +250,81 @@ void TcpMgr::initHandlers() {
         emit sigFriendApply(apply_info);
     });
 
+	// A向B发出好友申请后，需要B在客户端进行好友认证,B完成认证后再发出sigAddFriendAuth信号通知A客户端刷新相关界面
+    // (服务器将消息转发给B，B收到服务器的通知后会触发ID_NOTIFY_AUTH_FRIEND_REQ的处理函数，在这个函数中解析服务器发送的数据，并将好友申请的信息封装成AuthInfo对象，然后通过sigAddFriendAuth信号将这个对象发送给UI层，UI层接收到这个信号后就可以在界面上显示好友认证的相关信息了)
+    _handlers.insert(ID_NOTIFY_AUTH_FRIEND_REQ, [this](ReqId id, int len, QByteArray data) {
+        Q_UNUSED(len);
+        qDebug() << "handle id is " << id << " data is " << data;
+        // 将QByteArray转换为QJsonDocument
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+        // 检查转换是否成功
+        if (jsonDoc.isNull()) {
+            qDebug() << "TcpMgr's ID_NOTIFY_AUTH_FRIEND_REQ Failed to create QJsonDocument.";
+            return;
+        }
+
+        QJsonObject jsonObj = jsonDoc.object();
+        if (!jsonObj.contains("error")) {
+            int err = ErrorCodes::ERR_JSON;
+            qDebug() << "TcpMgr Notify Authen Friend Failed, err is Json Parse Err, error code is " << err;
+            return;
+        }
+
+        int err = jsonObj["error"].toInt();
+        if (err != ErrorCodes::SUCCESS) {
+            qDebug() << "TcpMgr Notify Authen Friend Failed, err is " << err;
+            return;
+        }
+
+        int from_uid = jsonObj["fromuid"].toInt();
+        QString name = jsonObj["name"].toString();
+        QString nick = jsonObj["nick"].toString();
+        QString icon = jsonObj["icon"].toString();
+        int sex = jsonObj["sex"].toInt();
+
+        auto auth_info = std::make_shared<AuthInfo>(from_uid, name, nick, icon, sex);
+
+        emit sigAddFriendAuth(auth_info);
+    });
+
+    // B处理了A发过来的好友申请后(完成了好友认证后,即点击确认同意他人的申请后)，发送sigAuthRsp信号实现B客户端相关界面的刷新
+    _handlers.insert(ID_AUTH_FRIEND_RSP, [this](ReqId id, int len, QByteArray data) {
+        Q_UNUSED(len);
+        qDebug() << "handle id is " << id << " data is " << data;
+        // 将QByteArray转换为QJsonDocument
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+        // 检查转换是否成功
+        if (jsonDoc.isNull()) {
+            qDebug() << "TcpMgr's ID_AUTH_FRIEND_RSP Failed to create QJsonDocument.";
+            return;
+        }
+
+        QJsonObject jsonObj = jsonDoc.object();
+
+        if (!jsonObj.contains("error")) {
+            int err = ErrorCodes::ERR_JSON;
+            qDebug() << "TcpMgr Authen Friend Failed, err is Json Parse Err, error code is " << err;
+            return;
+        }
+
+        int err = jsonObj["error"].toInt();
+        if (err != ErrorCodes::SUCCESS) {
+            qDebug() << "TcpMgr Authen Friend Failed, err is " << err;
+            return;
+        }
+
+        auto name = jsonObj["name"].toString();
+        auto nick = jsonObj["nick"].toString();
+        auto icon = jsonObj["icon"].toString();
+        auto sex = jsonObj["sex"].toInt();
+        auto uid = jsonObj["uid"].toInt();
+        auto rsp = std::make_shared<AuthRsp>(uid, name, nick, icon, sex);
+        emit sigAuthRsp(rsp);
+
+        qDebug() << "Auth Friend Success ";
+    });
 }
 
 void TcpMgr::HandleMsg(ReqId id, int len, QByteArray data)

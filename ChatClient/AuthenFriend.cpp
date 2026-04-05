@@ -12,7 +12,7 @@ AuthenFriend::AuthenFriend(QWidget *parent) : QDialog(parent), _label_point(2, 6
     this->setModal(true);
     //ui.apply_lineEdit->setPlaceholderText(tr("nox"));                         // 设置搜索框中的默认文本
     ui.label_lineEdit->setPlaceholderText("搜索、添加标签");                         // 设置文本框中的默认文本
-    ui.remark_lineEdit->setPlaceholderText("zzz");
+    ui.remark_lineEdit->setPlaceholderText("五彩斑斓的黑");
     ui.label_lineEdit->SetMaxLength(21);
     ui.label_lineEdit->move(2, 2);                                            // move的作用是设置控件在其父控件中的位置的函数;move(2, 2)将label_lineEdit控件移动到其父控件的 (2, 2) 坐标位置
     ui.label_lineEdit->setFixedHeight(20);

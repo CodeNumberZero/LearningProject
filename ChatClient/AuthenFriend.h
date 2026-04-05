@@ -6,7 +6,7 @@
 #include "UserData.h"
 #include "FriendLabel.h"
 
-// 好友认证界面与好友申请界面(ApplyFriend的ui文件和源文件)非常类似,主要改动SlotApplySure和SlotApplyCancel这两个函数即可
+// 好友认证界面和好友申请界面(ApplyFriend的ui文件和源文件)非常类似,主要改动SlotApplySure和SlotApplyCancel这两个函数即可
 class AuthenFriend : public QDialog
 {
 	Q_OBJECT

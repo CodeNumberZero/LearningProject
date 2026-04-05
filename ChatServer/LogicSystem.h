@@ -20,12 +20,16 @@ private:
 	void LoginHandler(std::shared_ptr<Session> session, const short& msg_id, const std::string& msg_data);
 	void SearchInfo(std::shared_ptr<Session> session, const short& msg_id, const std::string& msg_data);
 	void AddFriendApply(std::shared_ptr<Session> session, const short& msg_id, const std::string& msg_data);
+	void AuthFriendApply(std::shared_ptr<Session> session, const short& msg_id, const std::string& msg_data);
+	void DealChatTextMsg(std::shared_ptr<Session> session, const short& msg_id, const std::string& msg_data);
+	void HeartBeatHandler(std::shared_ptr<Session> session, const short& msg_id, const std::string& msg_data);
 
 	bool isPureDigit(const std::string& str);             // 判断字符串中是否是纯数字
 	void GetUserByUid(std::string uid_str, Json::Value& rtvalue);                                // 根据uid查找用户
 	void GetUserByName(std::string name, Json::Value& rtvalue);                                  // 根据name查找用户
 	bool GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo>& userinfo);
 	bool GetFriendApplyInfo(int to_uid, std::vector<std::shared_ptr<ApplyInfo>>& list);          // 获取好友申请信息列表
+	bool GetFriendList(int self_id, std::vector<std::shared_ptr<UserInfo>>& user_list);
 
 	std::queue<std::shared_ptr<LogicNode>> _msg_queue;    // 逻辑队列
 	std::mutex _logic_mtx;                                // 保证逻辑队列线程安全性

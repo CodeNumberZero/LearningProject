@@ -325,7 +325,68 @@ bool MysqlDao::AddFriendApply(const int& from, const int& to) {
 }
 
 bool MysqlDao::AddFriend(const int& from, const int& to, std::string back_name) {
-    return true;
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) {
+        return false;
+    }
+
+    // 离开作用域后自动执行该语句
+    Defer defer([this, &conn]() {
+        _pool->returnConnection(std::move(conn));
+    });
+
+    try {
+        /*
+        (1)事务(Transaction)是数据库管理系统执行过程中的一个逻辑工作单元,它由一个或多个SQL语句组成,这些语句要么全部执行成功,要么全部不执行,保证数据的一致性和完整性
+        (2)事务的四大特性（ACID）
+            1. 原子性(Atomicity):事务中的所有操作要么全部完成，要么全部不完成。如果任何一个操作失败，整个事务都会回滚。
+            2. 一致性(Consistency):事务执行前后，数据库从一个一致状态转变为另一个一致状态。所有约束、触发器、规则都得到满足。
+            3. 隔离性(Isolation):多个事务并发执行时，一个事务的执行不应影响其他事务的执行。
+            4. 持久性(Durability):事务一旦提交，其对数据库的修改就是永久性的，即使系统故障也不会丢失
+        (3)回滚(Rollback)是指将事务中已经执行的所有操作撤销，恢复到事务开始前的状态
+        */
+
+        // 开始事务
+        conn->_con->startTransaction();
+
+        // 第一个SQL语句：插入认证方好友数据(from为认证方的ID,to为申请方的ID,备注名为认证方给申请方设置的备注)
+        mysqlx::SqlResult result1 = conn->_con->sql(
+            "INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)" // INSERT IGNORE的作用:防止重复添加好友关系。如果已经存在好友关系,再次添加时INSERT IGNORE会静默忽略,返回受影响行数0;普通INSERT会抛出唯一键冲突异常
+        ).bind(from, to, back_name).execute();
+
+        // 获取受影响的行数
+        int rowAffected1 = result1.getAffectedItemsCount();
+        if (rowAffected1 < 0) {
+            conn->_con->rollback();
+            std::cerr << "AddFriend's SQLError: First insert failed, affected rows: " << rowAffected1 << std::endl;
+            return false;
+        }
+
+        // 第二个SQL语句：插入申请方好友数据
+        mysqlx::SqlResult result2 = conn->_con->sql(
+            "INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)"
+        ).bind(to, from, "").execute();
+
+        // 获取受影响的行数
+        int rowAffected2 = result2.getAffectedItemsCount();
+        if (rowAffected2 < 0) {
+            conn->_con->rollback();
+            std::cerr << "AddFriend's SQLError: Second insert failed, affected rows: " << rowAffected2 << std::endl;
+            return false;
+        }
+        // 提交事务
+        conn->_con->commit();
+        std::cout << "AddFriend insert friends success" << std::endl;
+
+        return true;
+    }
+    catch (const mysqlx::Error& e) {
+        if (conn) {
+            conn->_con->rollback();
+        }
+        std::cerr << "AddFriend's SQLException: " << e.what() << std::endl;
+        return false;
+    }
 }
 
 bool MysqlDao::GetApplyList(int touid, std::vector<std::shared_ptr<ApplyInfo>>& applyList, int begin, int limit) {
@@ -337,7 +398,7 @@ bool MysqlDao::GetApplyList(int touid, std::vector<std::shared_ptr<ApplyInfo>>& 
     // 离开作用域后自动执行该语句
     Defer defer([this, &conn]() {
         _pool->returnConnection(std::move(conn));
-        });
+    });
 
     try {
         // 准备SQL语句(这段MySQL语句的功能是查询指定用户(to_uid)收到的好友申请，返回申请者的基本信息和申请状态，按申请ID升序排序，并支持分页)
@@ -377,6 +438,89 @@ bool MysqlDao::GetApplyList(int touid, std::vector<std::shared_ptr<ApplyInfo>>& 
     }
     catch (const mysqlx::Error& e) {
         std::cerr << "GetApplyList's SQLException: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+bool MysqlDao::AuthFriendApply(const int& from, const int& to) {
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) {
+        return false;
+    }
+
+    // 离开作用域后自动执行该语句
+    Defer defer([this, &conn]() {
+        _pool->returnConnection(std::move(conn));
+    });
+
+    try {
+        // 准备SQL语句
+        mysqlx::SqlResult result = conn->_con->sql(
+            "UPDATE friend_apply SET status = 1 "
+            "WHERE from_uid = ? AND to_uid = ?"
+        ).bind(to, from).execute();  // 注意：第一个?绑定to，第二个?绑定from
+
+        // 获取受影响的行数
+        int rowAffected = result.getAffectedItemsCount(); // getAffectedItemsCount() 返回实际被修改的行数;如果 status 已经是 1，UPDATE 不会实际修改数据，返回 0
+        if (rowAffected < 0) {
+            return false;
+        }
+        return true;
+
+    }
+    catch (const mysqlx::Error& e) {
+        std::cerr << "AuthFriendApply's SQLException: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+bool MysqlDao::GetFriendList(int self_id, std::vector<std::shared_ptr<UserInfo> >& user_info_list) {
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) {
+        return false;
+    }
+
+    // 离开作用域后自动执行该语句
+    Defer defer([this, &conn]() {
+        _pool->returnConnection(std::move(conn));
+    });
+
+    try {
+        // 准备SQL语句
+        mysqlx::SqlResult result = conn->_con->sql(
+            "SELECT friend_id, back FROM friend WHERE self_id = ?"         // 根据自己的id查询自己的好友及其相应的备注名
+        ).bind(self_id).execute();
+
+        if (!result.hasData()) {
+            return true;  // 没有好友数据也算成功
+        }
+        
+        /*
+            遍历多行结果集的方法:
+                (1)直接对结果集res使用范围for循环和迭代器
+                (2)对结果集res调用fetchAll()方法后得到rows,再对rows使用范围for循环和迭代器
+                (3)使用hasData()和fetchOne()逐行提取(fetchOne()会消耗结果集的行,即调用fetchOne()后结果集的游标会移动到下一行,也就是说,每次调用fetchOne()都会获取下一行,通过此方法可以遍历结果集;可以通过调用res的hasData()方法常查看是否还有数据)
+        */
+        // 遍历结果集
+        // 使用列索引获取数据（按SELECT顺序）
+        // 索引: 0-friend_id, 1-back
+        for (auto row : result) {
+            int friend_id = row[0].get<int>();
+            std::string back = row[1].get<std::string>();
+
+            // 再次查询friend_id对应的用户信息
+            auto user_info = GetUser(friend_id); // 存储friend_id对应用户信息的智能指针
+            if (user_info == nullptr) {
+                continue;
+            }
+
+            user_info->back = back.empty() ? user_info->name : back;  // 如果有备注名则使用备注名，否则使用用户名
+            user_info_list.push_back(user_info);
+        }
+        return true;
+    }
+    catch (const mysqlx::Error& e) {
+        std::cerr << "GetFriendList's SQLException: " << e.what() << std::endl;
         return false;
     }
 }

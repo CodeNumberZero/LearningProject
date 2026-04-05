@@ -13,12 +13,12 @@ ContactUserList::ContactUserList(QWidget* parent) : QListWidget(parent), _add_fr
     this->viewport()->installEventFilter(this);                                        // 将当前对象安装为视口的事件过滤器,让ContactUserList对象监视视口的所有事件,当有事件发生时,会先调用ContactUserList::eventFilter函数
 
     // 模拟从数据库或者后端传输过来的数据,进行列表加载
-    addContactUserList();
+    addContactUserList();                                                              // 添加联系人列表的功能是在本文件;添加聊天列表的功能在Chat.cpp文件第100行而不在ChatUserList.cpp文件
 
     // 连接点击的信号和槽
     connect(this, &QListWidget::itemClicked, this, &ContactUserList::slot_item_clicked);
-    connect(TcpMgr::GetInstance().get(), &TcpMgr::sigAddFriendAuth, this, &ContactUserList::slot_add_firend_auth);     // 链接对端同意认证后通知的信号
-    connect(TcpMgr::GetInstance().get(), &TcpMgr::sigAuthRsp, this, &ContactUserList::slot_auth_rsp);      // 链接自己点击同意认证后界面刷新
+    connect(TcpMgr::GetInstance().get(), &TcpMgr::sigAddFriendAuth, this, &ContactUserList::slot_add_firend_auth);     // 链接对端同意认证后通知的信号(即A向B发送了好友申请,B完成认证后返回给A客户端的信号)
+    connect(TcpMgr::GetInstance().get(), &TcpMgr::sigAuthRsp, this, &ContactUserList::slot_auth_rsp);      // 链接自己点击同意认证后界面刷新(即自己这边完成了对方的好友认证后发送该信号完成自己界面刷新)
 }
 
 void ContactUserList::ShowRedPoint(bool b_show) {
@@ -54,25 +54,25 @@ bool ContactUserList::eventFilter(QObject* watched, QEvent* event)
         int currentValue = scrollBar->value();
         //int pageSize = 10; // 每页加载的联系人数量
 
-        if (maxScrollValue - currentValue <= 0) {
-
-            auto b_loaded = UserMgr::GetInstance()->IsLoadChatFin();
-            if (b_loaded) {
+        // 这部分与ChatUserList.cpp文件中的59行类似
+        if (maxScrollValue - currentValue <= 0) {                          // 滚轮滚动到底部，加载新的联系人
+            auto b_loaded = UserMgr::GetInstance()->IsLoadContactFin();    // 先判断好友列表是否已全部加载到联系人列表
+            if (b_loaded) {                                                // 如果已全部加载则直接返回
                 return true;
             }
 
-            if (_load_pending) {
+            if (_load_pending) {                                           // 如果好友列表未全部加载但此时正在加载中，则直接返回，避免重复加载
                 return true;
             }
 
             _load_pending = true;
 
-            QTimer::singleShot(100, [this]() {
+            QTimer::singleShot(100, [this]() {                             // 延迟100ms执行退出应用程序的操作
                 _load_pending = false;
                 QCoreApplication::quit(); // 完成后退出应用程序
-                });
+            });
             // 滚动到底部，加载新的联系人
-            qDebug() << "load more contact user";
+            qDebug() << "ContactUserList load more contact user";
             // 发送信号通知聊天界面加载更多聊天内容
             emit sig_loading_contact_user();
         }
@@ -129,7 +129,7 @@ void ContactUserList::addContactUserList()
 
     UserMgr::GetInstance()->UpdateContactLoadedCount();                            // 更新已加载计数
 
-    // 模拟列表， 创建QListWidgetItem，并设置自定义的widget
+    // 模拟列表，创建QListWidgetItem，并设置自定义的widget
     for (int i = 0; i < 13; i++) {
         int randomValue = QRandomGenerator::global()->bounded(100);               // 生成0到99之间的随机整数
         int str_i = randomValue % strs.size();
@@ -188,7 +188,12 @@ void ContactUserList::slot_item_clicked(QListWidgetItem* item) {
 
 void ContactUserList::slot_add_firend_auth(std::shared_ptr<AuthInfo> auth_info)
 {
-    qDebug() << "slot add auth friend ";
+    qDebug() << "slot add friend auth";
+    bool isFriend = UserMgr::GetInstance()->CheckFriendById(auth_info->_uid); // 先判断对端是否已经在自己的好友列表里
+    if (isFriend) {
+        return;
+    }
+
     // 在 groupitem 之后插入新项
     int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
     int str_i = randomValue % strs.size();
@@ -209,9 +214,14 @@ void ContactUserList::slot_add_firend_auth(std::shared_ptr<AuthInfo> auth_info)
 
 }
 
+// 同意并认证对方为好友后，也需要将对方添加到联系人列表，ContactUserList响应sig_auth_rsp信号
 void ContactUserList::slot_auth_rsp(std::shared_ptr<AuthRsp> auth_rsp)
 {
     qDebug() << "slot auth rsp called";
+    bool isFriend = UserMgr::GetInstance()->CheckFriendById(auth_rsp->_uid);
+    if (isFriend) {
+        return;
+    }
 
     // 在 groupitem 之后插入新项
     int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数

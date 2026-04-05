@@ -79,7 +79,7 @@ GetChatServerRsp StatusGrpcClient::GetChatServer(int uid)
 		return reply;                                                                    // 调用成功则直接返回服务端响应
 	}
 	else {
-		std::cout << "gRPC 调用获取聊天服务失败：" << std::endl;
+		std::cout << "StatusGrpcClient gRPC调用'获取聊天'服务失败：" << std::endl;
 		std::cout << "错误码(Code)：" << status.error_code() << std::endl;
 		std::cout << "错误信息(Message)：" << status.error_message() << std::endl;
 
@@ -105,7 +105,7 @@ LoginRsp StatusGrpcClient::Login(int uid, std::string token)
 		return reply;
 	}
 	else {
-		std::cout << "gRPC 调用登录服务失败：" << std::endl;
+		std::cout << "StatusGrpcClient gRPC调用'登录'服务失败：" << std::endl;
 		std::cout << "错误码(Code)：" << status.error_code() << std::endl;
 		std::cout << "错误信息(Message)：" << status.error_message() << std::endl;
 

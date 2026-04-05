@@ -3,23 +3,23 @@
 
 UserMgr::UserMgr() : _user_info(nullptr), _chat_loaded(0), _contact_loaded(0)
 {
-    connect(TcpMgr::GetInstance().get(), &TcpMgr::sigAuthRsp, this, &UserMgr::SlotAddFriendRsp);
-    connect(TcpMgr::GetInstance().get(), &TcpMgr::sigAddFriendAuth, this, &UserMgr::SlotAddFriendAuth);
+    //connect(TcpMgr::GetInstance().get(), &TcpMgr::sigAuthRsp, this, &UserMgr::SlotAddFriendRsp);
+    //connect(TcpMgr::GetInstance().get(), &TcpMgr::sigAddFriendAuth, this, &UserMgr::SlotAddFriendAuth);
 }
 
 UserMgr::~UserMgr()
 {
 }
 
-void UserMgr::SetName(QString name)
-{
-    _name = name;
-}
-
-void UserMgr::SetUid(int uid)
-{
-    _uid = uid;
-}
+//void UserMgr::SetName(QString name)
+//{
+//    _name = name;
+//}
+//
+//void UserMgr::SetUid(int uid)
+//{
+//    _uid = uid;
+//}
 
 void UserMgr::SetToken(QString token)
 {
@@ -46,6 +46,10 @@ QString UserMgr::GetName()
 QString UserMgr::GetIcon()
 {
     return _user_info->_icon;
+}
+
+std::shared_ptr<UserInfo> UserMgr::GetUserInfo() {
+    return _user_info;
 }
 
 void UserMgr::AppendApplyList(QJsonArray array)
@@ -212,6 +216,16 @@ bool UserMgr::IsAlreadyApply(int uid)
 void UserMgr::AddApplyToList(std::shared_ptr<ApplyInfo> apply)
 {
     _apply_list.push_back(apply);
+}
+
+std::shared_ptr<FriendInfo> UserMgr::GetFriendById(int uid)
+{
+    auto find_it = _friend_map.find(uid);
+    if (find_it == _friend_map.end()) {
+        return nullptr;
+    }
+
+    return *find_it;
 }
 
 void UserMgr::SlotAddFriendRsp(std::shared_ptr<AuthRsp> rsp) {

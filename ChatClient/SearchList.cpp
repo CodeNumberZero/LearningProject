@@ -108,6 +108,12 @@ void SearchList::slot_user_search(std::shared_ptr<SearchInfo> si)
         _find_dlg = std::make_shared<FindFailDialog>(this);
     }
     else {
+        // 如果是自己,先直接返回,以后看逻辑扩充
+        auto self_uid = UserMgr::GetInstance()->GetUid();  // 获取当前登录用户的uid(即自己的uid)
+        if (si->_uid == self_uid) {
+            return;
+        }
+
         // 此处分两种情况:一种是搜索到已经是自己的朋友了,一种是未添加好友
         // 查找是否已经是好友
         bool b_exist = UserMgr::GetInstance()->CheckFriendById(si->_uid);

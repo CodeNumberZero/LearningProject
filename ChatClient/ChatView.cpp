@@ -61,6 +61,23 @@ void ChatView::insertChatItem(QWidget* before, QWidget* item)
 {
 }
 
+// 清空聊天视图中的所有消息项，但保留最后一个占位控件
+void ChatView::removeAllItem() {
+    QVBoxLayout* layout = qobject_cast<QVBoxLayout*>(m_pScrollArea->widget()->layout());
+
+    int count = layout->count();           // 获取布局项数量
+
+    for (int i = 0; i < count - 1; ++i) {       // count - 1：保留最后一个控件（不删除）
+        QLayoutItem* item = layout->takeAt(0);  // 始终从第一个控件开始删除
+        if (item) {
+            if (QWidget* widget = item->widget()) {
+                delete widget;                 // 删除控件
+            }
+            delete item;                       // 删除布局项
+        }
+    }
+}
+
 // 重写事件过滤器
 bool ChatView::eventFilter(QObject* o, QEvent* e)
 {

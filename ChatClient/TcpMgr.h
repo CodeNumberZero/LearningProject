@@ -35,5 +35,6 @@ signals:
 	void sigFriendApply(std::shared_ptr<AddFriendApply>);
 	void sigAddFriendAuth(std::shared_ptr<AuthInfo>);
 	void sigAuthRsp(std::shared_ptr<AuthRsp>);
+	void sigTextChatMsg(std::shared_ptr<TextChatMsg> msg);
 };
 

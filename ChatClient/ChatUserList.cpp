@@ -1,6 +1,7 @@
 #include "ChatUserList.h"
+#include "UserMgr.h"
 
-ChatUserList::ChatUserList(QWidget* parent) : QListWidget(parent)
+ChatUserList::ChatUserList(QWidget* parent) : QListWidget(parent), _load_pending(false)
 {
     Q_UNUSED(parent);
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);                            // 隐藏水平滚动条
@@ -53,10 +54,27 @@ bool ChatUserList::eventFilter(QObject* watched, QEvent* event)
         int maxScrollValue = scrollBar->maximum();
         int currentValue = scrollBar->value();
         //int pageSize = 10; // 每页加载的联系人数量
-        if (maxScrollValue - currentValue <= 0) {
-            // 滚动到底部，加载新的联系人
+
+        // 这部分与ContactUserList.cpp文件中的58行类似
+        if (maxScrollValue - currentValue <= 0) {                         // 滚轮滚动到底部，加载新的联系人
+            auto b_loaded = UserMgr::GetInstance()->IsLoadChatFin();      // 先判断好友列表是否已全部加载到聊天列表
+            if (b_loaded) {                                               // 如果已全部加载则直接返回
+                return true;
+            }
+
+			if (_load_pending) {                                          // 如果好友列表未全部加载但此时正在加载中，则直接返回，避免重复加载
+                return true;
+            }
+
             qDebug() << "ChatUserList load more chat user";
-            //发送信号通知聊天界面加载更多聊天内容
+            _load_pending = true;
+
+            QTimer::singleShot(100, [this]() {                            // 延迟100ms执行退出应用程序的操作
+                _load_pending = false;
+                QCoreApplication::quit(); // 完成后退出应用程序
+            });
+
+            // 发送信号通知聊天界面加载更多聊天内容
             emit sig_loading_chat_user();
         }
         return true; // 停止事件传递

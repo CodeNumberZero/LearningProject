@@ -20,7 +20,9 @@ public:
 	bool AddFriendApply(const int& from, const int& to);
 	bool AddFriend(const int& from, const int& to, std::string back_name);
 	bool GetApplyList(int touid, std::vector<std::shared_ptr<ApplyInfo>>& applyList, int begin, int limit = 10); // 从数据库中获取好友申请列表
-	
+	bool AuthFriendApply(const int& from, const int& to);
+	bool GetFriendList(int self_id, std::vector<std::shared_ptr<UserInfo> >& user_info_list);
+
 	bool TestProcedure(const std::string& email, int& uid, std::string& name);
 
 	std::shared_ptr<UserInfo> GetUser(int uid);                                               // 根据用户id获取用户信息
