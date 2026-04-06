@@ -79,7 +79,7 @@ struct AuthRsp {
     int _sex;
 };
 
-struct TextChatData;
+struct TextChatData;      // Ç°ÖÃÉùÃ÷
 struct FriendInfo {
     FriendInfo(int uid, QString name, QString nick, QString icon, int sex, QString desc, QString back, QString last_msg = "") 
         : _uid(uid), _name(name), _nick(nick), _icon(icon), _sex(sex), _desc(desc), _back(back), _last_msg(last_msg) {

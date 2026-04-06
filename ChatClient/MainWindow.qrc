@@ -56,6 +56,15 @@
         <file>resource/head_20.jpg</file>
         <file>resource/red_point.png</file>
         <file>resource/add_friend.png</file>
+        <file>resource/msg_chat_hover.png</file>
+        <file>resource/msg_chat_normal.png</file>
+        <file>resource/msg_chat_press.png</file>
+        <file>resource/video_chat_hover.png</file>
+        <file>resource/video_chat_normal.png</file>
+        <file>resource/video_chat_press.png</file>
+        <file>resource/voice_chat_hover.png</file>
+        <file>resource/voice_chat_normal.png</file>
+        <file>resource/voice_chat_press.png</file>
     </qresource>
     <qresource prefix="/video">
         <file>resource/sword.mp4</file>

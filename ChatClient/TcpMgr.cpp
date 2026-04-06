@@ -325,6 +325,70 @@ void TcpMgr::initHandlers() {
 
         qDebug() << "Auth Friend Success ";
     });
+
+	// 自己发送了文本消息后，服务器会处理并返回ID_TEXT_CHAT_MSG_RSP的回包信号给自己，客户端需要监听这个信号来判断消息是否发送成功或进行相应的界面展示
+    _handlers.insert(ID_TEXT_CHAT_MSG_RSP, [this](ReqId id, int len, QByteArray data) {
+        Q_UNUSED(len);
+        qDebug() << "handle id is " << id << " data is " << data;
+        // 将QByteArray转换为QJsonDocument
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+        // 检查转换是否成功
+        if (jsonDoc.isNull()) {
+            qDebug() << "TcpMgr's ID_TEXT_CHAT_MSG_RSP Failed to create QJsonDocument.";
+            return;
+        }
+
+        QJsonObject jsonObj = jsonDoc.object();
+
+        if (!jsonObj.contains("error")) {
+            int err = ErrorCodes::ERR_JSON;
+            qDebug() << "TcpMgr Text Chat Msg Failed, err is Json Parse Err, error code is " << err;
+            return;
+        }
+
+        int err = jsonObj["error"].toInt();
+        if (err != ErrorCodes::SUCCESS) {
+            qDebug() << "TcpMgr Text Chat Msg Failed, err is " << err;
+            return;
+        }
+
+        qDebug() << "Receive Text Chat Rsp Success ";
+        //ui设置送达等标记 todo...
+    });
+
+	// A向B发出文本消息后，服务器会给B客户端发送ID_NOTIFY_TEXT_CHAT_MSG_REQ的通知，B客户端需要监听这个信号来判断是否有新的文本消息到达，并进行相应的界面展示
+    _handlers.insert(ID_NOTIFY_TEXT_CHAT_MSG_REQ, [this](ReqId id, int len, QByteArray data) {
+        Q_UNUSED(len);
+        qDebug() << "handle id is " << id << " data is " << data;
+        // 将QByteArray转换为QJsonDocument
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+        // 检查转换是否成功
+        if (jsonDoc.isNull()) {
+            qDebug() << "TcpMgr's ID_NOTIFY_TEXT_CHAT_MSG_REQ Failed to create QJsonDocument.";
+            return;
+        }
+
+        QJsonObject jsonObj = jsonDoc.object();
+
+        if (!jsonObj.contains("error")) {
+            int err = ErrorCodes::ERR_JSON;
+            qDebug() << "TcpMgr Notify Text Chat Msg Failed, err is Json Parse Err, error code is " << err;
+            return;
+        }
+
+        int err = jsonObj["error"].toInt();
+        if (err != ErrorCodes::SUCCESS) {
+            qDebug() << "TcpMgr Notify Text Chat Msg Failed, err is " << err;
+            return;
+        }
+
+        qDebug() << "Receive Text Chat Notify Success ";
+        auto msg_ptr = std::make_shared<TextChatMsg>(jsonObj["fromuid"].toInt(), jsonObj["touid"].toInt(), jsonObj["text_array"].toArray());
+        emit sigTextChatMsg(msg_ptr);
+    });
+
 }
 
 void TcpMgr::HandleMsg(ReqId id, int len, QByteArray data)

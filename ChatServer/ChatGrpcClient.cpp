@@ -1,4 +1,6 @@
 ﻿#include "ChatGrpcClient.h"
+#include "RedisMgr.h"
+#include "MysqlMgr.h"
 
 ChatConnectionPool::ChatConnectionPool(std::size_t pool_size, std::string host, std::string port) 
 	: _pool_size(pool_size), _host(host), _port(port), _b_stop(false)
@@ -149,11 +151,82 @@ AuthFriendRsp ChatGrpcClient::NotifyAuthFriend(std::string server_ip, const Auth
 
 bool ChatGrpcClient::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo>& userinfo)
 {
-	return true;
+	// 优先查redis中查询用户信息
+	auto info_str_val = RedisClient::GetInstance()->get(base_key);
+	if (info_str_val) {
+		std::string info_str = info_str_val.value();
+
+		Json::Reader reader;
+		Json::Value root;
+		reader.parse(info_str, root);
+		userinfo->uid = root["uid"].asInt();
+		userinfo->name = root["name"].asString();
+		userinfo->pwd = root["pwd"].asString();
+		userinfo->email = root["email"].asString();
+		userinfo->nick = root["nick"].asString();
+		userinfo->desc = root["desc"].asString();
+		userinfo->sex = root["sex"].asInt();
+		userinfo->icon = root["icon"].asString();
+		std::cout << "user login uid is  " << userinfo->uid 
+				  << " name  is " << userinfo->name 
+				  << " pwd is " << userinfo->pwd 
+				  << " email is " << userinfo->email << std::endl;
+	}
+	else {
+		// redis中没有则查询mysql数据库
+		std::shared_ptr<UserInfo> user_info = nullptr;
+		user_info = MysqlMgr::GetInstance()->GetUser(uid);
+		if (user_info == nullptr) {
+			return false;
+		}
+		userinfo = user_info;
+
+		// 将数据库内容写入redis缓存
+		Json::Value redis_root;
+		redis_root["uid"] = uid;
+		redis_root["pwd"] = userinfo->pwd;
+		redis_root["name"] = userinfo->name;
+		redis_root["email"] = userinfo->email;
+		redis_root["nick"] = userinfo->nick;
+		redis_root["desc"] = userinfo->desc;
+		redis_root["sex"] = userinfo->sex;
+		redis_root["icon"] = userinfo->icon;
+		RedisClient::GetInstance()->set(base_key, redis_root.toStyledString());
+	}
 }
 
 TextChatMsgRsp ChatGrpcClient::NotifyTextChatMsg(std::string server_ip, const TextChatMsgReq& req, const Json::Value& rtvalue)
 {
 	TextChatMsgRsp rsp;
+	rsp.set_error(ErrorCodes::Success);
+
+	Defer defer([&rsp, &req]() {
+		rsp.set_fromuid(req.fromuid());
+		rsp.set_touid(req.touid());
+		for (const auto& text_data : req.textmsgs()) {
+			TextChatData* new_msg = rsp.add_textmsgs();
+			new_msg->set_msgid(text_data.msgid());
+			new_msg->set_msgcontent(text_data.msgcontent());
+		}
+	});
+
+	auto find_iter = _pools.find(server_ip);
+	if (find_iter == _pools.end()) {
+		return rsp;
+	}
+
+	auto& pool = find_iter->second;
+	ClientContext context;
+	auto stub = pool->GetConnection();
+	Status status = stub->NotifyTextChatMsg(&context, req, &rsp);
+	Defer defercon([&stub, this, &pool]() {
+		pool->ReturnConnection(std::move(stub));
+	});
+
+	if (!status.ok()) {
+		rsp.set_error(ErrorCodes::RPCFailed);
+		return rsp;
+	}
+
 	return rsp;
 }

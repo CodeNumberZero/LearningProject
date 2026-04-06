@@ -228,6 +228,17 @@ std::shared_ptr<FriendInfo> UserMgr::GetFriendById(int uid)
     return *find_it;
 }
 
+void UserMgr::AppendFriendChatMsg(int friend_id, std::vector<std::shared_ptr<TextChatData>> msgs)
+{
+    auto find_iter = _friend_map.find(friend_id);
+    if (find_iter == _friend_map.end()) { 
+        qDebug() << "append friend uid  " << friend_id << " not found";
+        return;
+    }
+
+	find_iter.value()->AppendChatMsgs(msgs);                           // 将新消息追加到对应好友的聊天消息列表中
+}
+
 void UserMgr::SlotAddFriendRsp(std::shared_ptr<AuthRsp> rsp) {
     AddFriend(rsp);
 }

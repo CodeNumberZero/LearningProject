@@ -44,6 +44,7 @@ public:
 	bool IsAlreadyApply(int uid);                                                // 根据uid判断是否已经申请过了,避免重复添加同一条好友申请记录
 	void AddApplyToList(std::shared_ptr<ApplyInfo> apply);                         // 添加好友申请记录到申请列表中
 	std::shared_ptr<FriendInfo> GetFriendById(int uid);
+	void AppendFriendChatMsg(int friend_id, std::vector<std::shared_ptr<TextChatData>> msgs);
 
 public slots:
 	void SlotAddFriendRsp(std::shared_ptr<AuthRsp> rsp);

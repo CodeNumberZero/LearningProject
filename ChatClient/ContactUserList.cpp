@@ -146,6 +146,7 @@ void ContactUserList::addContactUserList()
     }
 }
 
+// 该槽函数与Chat.cpp文件中616行的slot_item_clicked函数非常类似
 void ContactUserList::slot_item_clicked(QListWidgetItem* item) {
     QWidget* widget = this->itemWidget(item);                                    // 获取自定义widget对象
     if (!widget) {
@@ -169,18 +170,18 @@ void ContactUserList::slot_item_clicked(QListWidgetItem* item) {
     if (itemType == ListItemType::APPLY_FRIEND_ITEM) {
         // 创建对话框，提示用户
         qDebug() << "apply friend item clicked ";
-        //跳转到好友申请界面
+        // 跳转到好友申请界面
         emit sig_switch_apply_friend_page();
         return;
     }
 
-    if (itemType == ListItemType::CONTACT_USER_ITEM) {
+    if (itemType == ListItemType::CONTACT_USER_ITEM) {               // 当用户点击联系人列表项时，获取该联系人的信息，并发射信号切换到好友信息页面
         // 创建对话框，提示用户
         qDebug() << "contact user item clicked ";
 
-        auto con_item = qobject_cast<ContactUserItem*>(customItem);
+        auto con_item = qobject_cast<ContactUserItem*>(customItem);  // qobject_cast 是 Qt 提供的类型转换函数，用于在 Qt 对象之间进行安全的向下转型,转换失败返回nullptr
         auto user_info = con_item->GetInfo();
-        // 跳转到好友申请界面
+        // 跳转到好友信息界面
         emit sig_switch_friend_info_page(user_info);
         return;
     }

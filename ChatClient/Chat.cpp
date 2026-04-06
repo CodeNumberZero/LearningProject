@@ -34,7 +34,7 @@
 //};
 
 Chat::Chat(QWidget *parent)
-	: QDialog(parent), _mode(ChatUIMode::ChatMode), _state(ChatUIMode::ChatMode), _b_loading(false), _cur_chat_uid(0)
+	: QDialog(parent), _mode(ChatUIMode::ChatMode), _state(ChatUIMode::ChatMode), _b_loading(false), _last_widget(nullptr), _cur_chat_uid(0)
 {
     /*
     传递this指针可以设置父对象关系,创建的控件都以 Login 为父对象
@@ -47,6 +47,8 @@ Chat::Chat(QWidget *parent)
 	ui.add_Button->SetState("normal", "hover", "press");                           // 显式调用设置一下ClickedButton的三种状态
     //ui.add_Button->setProperty("state", "normal");
     ui.search_lineEdit->SetMaxLength(50);                                          // 设置搜索框可输入的最大字节数
+
+    ui.stackedWidget->setCurrentWidget(ui.chat_page);                              // 设置登录后的中心部件为chatpage
 
     /* ----------------------------------------- 搜索栏设置 --------------------------------------------*/
     // 设置搜索框的默认状态和图标
@@ -99,7 +101,13 @@ Chat::Chat(QWidget *parent)
     AddChatUserList();                                                            // 添加聊天列表的功能是在本文件;添加联系人列表的功能在contactUserList.cpp文件第16行
     connect(ui.chat_user_list, &ChatUserList::sig_loading_chat_user, this, &Chat::slot_loading_chat_user);             // 连接加载聊天列表的信号和槽函数
     connect(ui.contact_user_list, &ContactUserList::sig_loading_contact_user, this, &Chat::slot_loading_contact_user); // 连接加载联系人列表的信号和槽函数
+    connect(ui.contact_user_list, &ContactUserList::sig_switch_friend_info_page, this, &Chat::slot_friend_info_page);  // 连接点击联系人item发出的信号和用户信息展示槽函数
+    connect(ui.contact_user_list, &ContactUserList::sig_switch_apply_friend_page, this, &Chat::slot_switch_apply_friend_page);     // 连接联系人页面点击好友申请条目的信号
+    connect(ui.chat_user_list, &QListWidget::itemClicked, this, &Chat::slot_item_clicked);                             // 连接聊天列表点击信号
 
+    SetSelectChatItem();     // 设置选中条目(该函数根据传入的id选中对应的item,不传参则默认选中第一条item)
+    SetSelectChatPage();     // 更新聊天界面信息(该函数根据用户ID选中聊天item,并在右侧聊天区域显示对应的用户信息,不传参则默认选中第一条item并在右侧区域展示其对应信息)
+    
     /* ---------------------------------------------- 侧边栏设置 --------------------------------*/
     QPixmap pixmap(":/image/resource/head_6.jpg");
     ui.side_head_label->setPixmap(pixmap);                                        // 将图片设置到QLabel上
@@ -125,8 +133,12 @@ Chat::Chat(QWidget *parent)
     connect(TcpMgr::GetInstance().get(), &TcpMgr::sigAuthRsp, this, &Chat::slot_auth_rsp);              // 连接自己认证回复信号
 
     /* ---------------------------------------------- 跳转聊天界面相关 --------------------------------*/
-    connect(ui.search_list, &SearchList::sigJumpChatItem, this, &Chat::slot_jump_chat_item);
+	connect(ui.search_list, &SearchList::sigJumpChatItem, this, &Chat::slot_jump_chat_item);            // 搜索好友时如果是已经添加的好友点击后跳转到聊天界面,连接搜索列表发送的点击事件
+    connect(ui.friend_info_page, &FriendInfoPage::sig_jump_chat_item, this, &Chat::slot_jump_chat_item_from_friendinfopage); // 连接好友信息界面发送的点击事件
 
+    /* ----------------------------------------------文本消息发送相关 --------------------------------*/
+    connect(ui.chat_page, &ChatPage::sig_append_send_chat_msg, this, &Chat::slot_append_send_chat_msg);
+    connect(TcpMgr::GetInstance().get(), &TcpMgr::sigTextChatMsg, this, &Chat::slot_text_chat_msg);     // 连接对端消息通知
 }
 
 Chat::~Chat()
@@ -218,7 +230,7 @@ void Chat::ClearLabelState(StateWidget* lb)
 // 根据用户ID选中聊天列表中对应的聊天项
 void Chat::SetSelectChatItem(int uid)
 {
-    if (ui.chat_user_list->count() <= 0) {                // 列表为空，直接返回
+    if (ui.chat_user_list->count() <= 0) {                // 列表为空，直接返回;count获取列表项数量
         return;
     }
 
@@ -229,7 +241,13 @@ void Chat::SetSelectChatItem(int uid)
             return;
         }
 
-        //转为widget
+        /*
+            转为widget
+            使用 itemWidget() 转为widget是因为：
+            1、QListWidgetItem 本身只存储位置和状态信息，不存储显示的自定义控件
+            2、QListWidgetItem是轻量级，管理列表行为，只是列表项的"占位符"，不负责显示，需要通过 itemWidget() 获取实际显示的控件
+            3、ChatUserWid是重量级，负责显示
+        */
         QWidget* widget = ui.chat_user_list->itemWidget(firstItem); // 获取第一项关联的自定义控件
         if (!widget) {
             return;
@@ -258,13 +276,19 @@ void Chat::SetSelectChatItem(int uid)
 // 根据用户ID选中聊天页面，并在右侧聊天区域显示对应的用户信息
 void Chat::SetSelectChatPage(int uid)
 {
-    if (ui.chat_user_list->count() <= 0) {
+    if (ui.chat_user_list->count() <= 0) {                           // count获取列表项数量
         return;
     }
 
     if (uid == 0) {
         auto item = ui.chat_user_list->item(0);
-        //转为widget
+        /*
+            转为widget
+            使用 itemWidget() 转为widget是因为：
+            1、QListWidgetItem 本身只存储位置和状态信息，不存储显示的自定义控件
+            2、QListWidgetItem是轻量级，管理列表行为，只是列表项的"占位符"，不负责显示，需要通过 itemWidget() 获取实际显示的控件
+            3、ChatUserWid是重量级，负责显示
+        */
         QWidget* widget = ui.chat_user_list->itemWidget(item);
         if (!widget) {
             return;
@@ -381,6 +405,17 @@ void Chat::handleGlobalMousePress(QMouseEvent* event)
         // 如果不在聊天列表内，清空输入框
         ui.search_lineEdit->clear();
         ShowSearch(false);
+    }
+}
+
+void Chat::UpdateChatMsg(std::vector<std::shared_ptr<TextChatData>> msgdata)
+{
+    for (auto& msg : msgdata) {
+		if (msg->_from_uid != _cur_chat_uid) {             // 先判断消息发送者是不是当前聊天页面对应的用户，如果不是则暂不处理(后续可以考虑在聊天列表上展示未读消息数量等信息)
+            break;
+        }
+
+		ui.chat_page->AppendChatMsg(msg);                  // 如果消息发送者是当前聊天页面对应的用户则直接在聊天页面展示消息内容
     }
 }
 
@@ -556,4 +591,161 @@ void Chat::slot_jump_chat_item(std::shared_ptr<SearchInfo> si)
     //更新聊天界面信息
     SetSelectChatPage(si->_uid);
     slot_side_chat();
+}
+
+// 切换到好友信息页面并显示指定用户的信息
+void Chat::slot_friend_info_page(std::shared_ptr<UserInfo> user_info)
+{
+    qDebug() << "receive switch friend info page sig";
+    _last_widget = ui.friend_info_page;                               // 将当前页面(即将切换到的页面)保存为"上一个页面"
+    ui.stackedWidget->setCurrentWidget(ui.friend_info_page);          // 将QStackedWidget的当前显示页面切换到好友信息页friend_info_page
+    ui.friend_info_page->SetInfo(user_info);                          // 传入用户信息，更新页面显示内容
+}
+
+// 切换到好友申请页面
+void Chat::slot_switch_apply_friend_page()
+{
+    qDebug() << "receive switch apply friend page sig";
+    _last_widget = ui.friend_apply_page;
+    ui.stackedWidget->setCurrentWidget(ui.friend_apply_page);
+}
+
+void Chat::slot_jump_chat_item_from_friendinfopage(std::shared_ptr<UserInfo> user_info)
+{
+    qDebug() << "slot jump chat item ";
+    auto find_iter = _chat_items_added.find(user_info->_uid);          // 先查找目前聊天列表有无该用户对应的聊天条目
+    if (find_iter != _chat_items_added.end()) {
+        qDebug() << "jump to chat item , uid is " << user_info->_uid;
+        ui.chat_user_list->scrollToItem(find_iter.value());            // 将列表中的指定项自动滚动到可见区域
+        ui.side_chat_label->SetSelected(true);
+        SetSelectChatItem(user_info->_uid);
+        // 更新聊天界面信息
+        SetSelectChatPage(user_info->_uid);
+        slot_side_chat();
+        return;
+    }
+
+    // 如果聊天列表没找到该用户对应的item，则创建新的item插入listwidget
+    auto* chat_user_wid = new ChatUserWid();
+    chat_user_wid->SetInfo(user_info);
+    QListWidgetItem* item = new QListWidgetItem;
+    item->setSizeHint(chat_user_wid->sizeHint());
+    ui.chat_user_list->insertItem(0, item);                             // 在列表的指定位置插入一个空的列表项,第一个参数为插入位置(索引),第二个参数为要插入的列表项对象; insertItem是在指定位置插入,addItem是添加到末尾
+    ui.chat_user_list->setItemWidget(item, chat_user_wid);              // 将一个自定义控件（chat_user_wid）关联到指定的列表项（item）上，替换默认的显示内容
+    _chat_items_added.insert(user_info->_uid, item);                    // 如果已存在相同的key,则新value会覆盖旧value
+
+    ui.side_chat_label->SetSelected(true);
+    SetSelectChatItem(user_info->_uid);
+    // 更新聊天界面信息
+    SetSelectChatPage(user_info->_uid);
+    slot_side_chat();
+}
+
+// 该槽函数与ContactUserList.cpp文件中149行的slot_item_clicked函数非常类似
+void Chat::slot_item_clicked(QListWidgetItem* item) {
+    QWidget* widget = ui.chat_user_list->itemWidget(item); // 获取自定义widget对象
+    if (!widget) {
+        qDebug() << "slot item clicked widget is nullptr";
+        return;
+    }
+
+    // 对自定义widget进行操作， 将item转化为基类ListItemBase
+    ListItemBase* customItem = qobject_cast<ListItemBase*>(widget);
+    if (!customItem) {
+        qDebug() << "slot item clicked widget is nullptr";
+        return;
+    }
+
+    auto itemType = customItem->GetItemType();
+    if (itemType == ListItemType::INVALID_ITEM || itemType == ListItemType::GROUP_TIP_ITEM) {
+        qDebug() << "slot invalid item clicked ";
+        return;
+    }
+
+    if (itemType == ListItemType::CHAT_USER_ITEM) {
+        // 创建对话框，提示用户
+        qDebug() << "contact user item clicked ";
+
+        auto chat_wid = qobject_cast<ChatUserWid*>(customItem);
+        auto user_info = chat_wid->GetUserInfo();
+        //跳转到聊天界面
+        ui.chat_page->SetUserInfo(user_info);
+        _cur_chat_uid = user_info->_uid;
+        return;
+    }
+}
+
+void Chat::slot_append_send_chat_msg(std::shared_ptr<TextChatData> msgdata)
+{
+    if (_cur_chat_uid == 0) {
+        return;
+    }
+
+    auto find_iter = _chat_items_added.find(_cur_chat_uid);
+    if (find_iter == _chat_items_added.end()) {
+        return;
+    }
+
+    // 转为widget
+    QWidget* widget = ui.chat_user_list->itemWidget(find_iter.value());
+    if (!widget) {
+        return;
+    }
+
+    // 判断转化为自定义的widget
+    // 对自定义widget进行操作， 将item 转化为基类ListItemBase
+    ListItemBase* customItem = qobject_cast<ListItemBase*>(widget);
+    if (!customItem) {
+        qDebug() << "qobject_cast<ListItemBase*>(widget) is nullptr";
+        return;
+    }
+
+    auto itemType = customItem->GetItemType();
+    if (itemType == CHAT_USER_ITEM) {
+        auto con_item = qobject_cast<ChatUserWid*>(customItem);
+        if (!con_item) {
+            return;
+        }
+
+        // 设置信息
+        auto user_info = con_item->GetUserInfo();
+        user_info->_chat_msgs.push_back(msgdata);
+
+        std::vector<std::shared_ptr<TextChatData>> msg_vec;
+        msg_vec.push_back(msgdata);
+        UserMgr::GetInstance()->AppendFriendChatMsg(_cur_chat_uid, msg_vec);               // 将消息存储到用户管理器对应好友的聊天记录中,便于后续切换聊天item时加载聊天记录(这是针对发送方发送消息后的处理,即发送给对方的消息我们自己要缓存一下)
+
+        return;
+    }
+}
+
+void Chat::slot_text_chat_msg(std::shared_ptr<TextChatMsg> msg)
+{
+    auto find_iter = _chat_items_added.find(msg->_from_uid);
+    if (find_iter != _chat_items_added.end()) {
+        qDebug() << "set chat item msg, uid is " << msg->_from_uid;
+        QWidget* widget = ui.chat_user_list->itemWidget(find_iter.value());
+        auto chat_wid = qobject_cast<ChatUserWid*>(widget);
+        if (!chat_wid) {
+            return;
+        }
+        chat_wid->updateLastMsg(msg->_chat_msgs);
+        UpdateChatMsg(msg->_chat_msgs);                                                    // 更新当前聊天页面记录(会根据消息发送者与当前聊天界面对应的用户是否一致进行不同处理)
+		UserMgr::GetInstance()->AppendFriendChatMsg(msg->_from_uid, msg->_chat_msgs);      // 将消息存储到用户管理器对应好友的聊天记录中,便于后续切换聊天item时加载聊天记录(这是针对接收方接收消息后的处理,即对方发给我们的消息我们缓存一下)
+        return;
+    }
+
+    // 如果没找到，则创建新的插入listwidget
+    auto* chat_user_wid = new ChatUserWid();
+    // 查询好友信息
+    auto fi_ptr = UserMgr::GetInstance()->GetFriendById(msg->_from_uid);
+    chat_user_wid->SetInfo(fi_ptr);
+    QListWidgetItem* item = new QListWidgetItem;
+    item->setSizeHint(chat_user_wid->sizeHint());
+    chat_user_wid->updateLastMsg(msg->_chat_msgs);
+    UserMgr::GetInstance()->AppendFriendChatMsg(msg->_from_uid, msg->_chat_msgs);         // 将消息存储到用户管理器对应好友的聊天记录中,便于后续切换聊天item时加载聊天记录(这是针对接收方接收消息后的处理,即对方发给我们的消息我们缓存一下)
+
+    ui.chat_user_list->insertItem(0, item);
+    ui.chat_user_list->setItemWidget(item, chat_user_wid);
+    _chat_items_added.insert(msg->_from_uid, item);
 }

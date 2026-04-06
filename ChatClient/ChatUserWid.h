@@ -16,9 +16,9 @@ public:
 	QSize sizeHint() const override;
 	void SetInfo(std::shared_ptr<UserInfo> user_info);
 	void SetInfo(std::shared_ptr<FriendInfo> friend_info);
-	//void ShowRedPoint(bool bshow);
 	std::shared_ptr<UserInfo> GetUserInfo();
-	//void updateLastMsg(std::vector<std::shared_ptr<TextChatData>> msgs);
+	//void ShowRedPoint(bool bshow);
+	void updateLastMsg(std::vector<std::shared_ptr<TextChatData>> msgs);   // 在聊天列表的聊天条目中显示两人聊天的最后一条消息内容
 
 private:
 	Ui::ChatUserWidClass ui;

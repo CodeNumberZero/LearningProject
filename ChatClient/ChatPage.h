@@ -24,5 +24,8 @@ protected:                                                      // protectedµÄºÃ
 
 private slots:
 	void on_send_Button_clicked();
+
+signals:
+	void sig_append_send_chat_msg(std::shared_ptr<TextChatData> msg);
 };
 

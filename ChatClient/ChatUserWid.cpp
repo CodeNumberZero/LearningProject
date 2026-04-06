@@ -46,30 +46,29 @@ void ChatUserWid::SetInfo(std::shared_ptr<FriendInfo> friend_info) {
 	ui.user_chat_label->setText(_user_info->_last_msg);
 }
 
-
-//void ChatUserWid::ShowRedPoint(bool bshow)
-//{
-//	if (bshow) {
-//		ui->red_point->show();
-//	}
-//	else {
-//		ui->red_point->hide();
-//	}
-//}
-
 std::shared_ptr<UserInfo> ChatUserWid::GetUserInfo()
 {
 	return _user_info;
 }
 
-//void ChatUserWid::updateLastMsg(std::vector<std::shared_ptr<TextChatData>> msgs) {
-//
-//	QString last_msg = "";
-//	for (auto& msg : msgs) {
-//		last_msg = msg->_msg_content;
-//		_user_info->_chat_msgs.push_back(msg);
+//void ChatUserWid::ShowRedPoint(bool bshow)
+//{
+//	if (bshow) {
+//		ui.red_point->show();
 //	}
-//
-//	_user_info->_last_msg = last_msg;
-//	ui->user_chat_lb->setText(_user_info->_last_msg);
+//	else {
+//		ui.red_point->hide();
+//	}
 //}
+
+void ChatUserWid::updateLastMsg(std::vector<std::shared_ptr<TextChatData>> msgs) {
+
+	QString last_msg = "";
+	for (auto& msg : msgs) {
+		last_msg = msg->_msg_content;
+		_user_info->_chat_msgs.push_back(msg);
+	}
+
+	_user_info->_last_msg = last_msg;
+	ui.user_chat_label->setText(_user_info->_last_msg);
+}
