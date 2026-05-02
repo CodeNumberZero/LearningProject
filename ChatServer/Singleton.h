@@ -31,6 +31,15 @@ public:
 		return _instance;
 	}
 
+	/*
+	另一种构造单例实例的方法。如下：
+	static T& GetInstance() {
+		static T instance;
+		return instance;
+	}
+	原理：static变量生命周期随同程序，而在C++11之后，static局部变量的初始化是线程安全的(静态局部变量的初始化只会在控制首次进入包含它的作用域时发生，且之后不会重复初始化)
+    */
+
 	void PrintAddress() {
 		std::cout << _instance.get() << std::endl;
 	}

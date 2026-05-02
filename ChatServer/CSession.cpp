@@ -398,9 +398,14 @@ void Session::asyncReadFull(std::size_t maxLength, std::function<void(const boos
 	asyncReadLen(0, maxLength, handler);
 }
 
-// 读取指定字节数
-// 参数read_len表示已经读取的字节数,下一次读取从第read_len+1个字节开始读,即下一次读取时_data的偏移位置
-// 参数total_len表示要读取的总字节数
+
+/*
+	1、读取指定字节数;参数read_len表示已经读取的字节数,下一次读取从第read_len+1个字节开始读,即下一次读取时_data的偏移位置;参数total_len表示要读取的总字节数
+	2、注意：这里在asyncReadLen函数中又调用了asyncReadLen函数，这种写法虽然看起来像递归，但其实并不是真正的递归，因为asyncReadLen被调用是在lambda表达式中，而lambda表达式是在async_read_some的回调函数中被调用的，
+	   由于asyncReadLen函数调用完async_read_some函数后就执行完了，而asyncReadLen又是异步操作，异步操作的回调函数什么时候触发是不确定的，可能很快，也可能很慢，所以每次调用asyncReadLen函数时，并不会直接进入下一次调用，
+	   而是会先等待下一次读事件触发后才会继续执行lambda表达式，进而进行下一次调用
+	   (简单来将就是把async_read_some理解成注册，在注册完成后asyncReadLen函数都不管了；具体的调用不是由用户来进行调用，而是由底层的驱动级服务在检测到事件后再负责调用)
+*/
 void Session::asyncReadLen(std::size_t read_len, std::size_t total_len, std::function<void(const boost::system::error_code&, std::size_t)> handler)
 {
 	auto self = shared_from_this();
