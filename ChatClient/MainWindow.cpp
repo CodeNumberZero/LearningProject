@@ -1,32 +1,36 @@
-#include "MainWindow.h"
+ï»¿#include "MainWindow.h"
 #include "TcpMgr.h"
+#include "qmessagebox.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     /*
-    Èç¹ûÏ£ÍûLoginÊÇÖ÷´°¿ÚÄÚµÄ¿Ø¼ş£¨¶ø·Ç¶ÀÁ¢´°¿Ú£©£¬ĞèÈ¥µô_login->show()£¬½öÍ¨¹ısetCentralWidget(_login)½«ÆäÇ¶ÈëÖ÷´°¿Ú£¬´ËÊ±Ö÷´°¿ÚµÄÍ¼±ê»áÕı³£ÏÔÊ¾£»
-    Èç¹ûÍ¨¹ı_login->show()µ¥¶ÀÏÔÊ¾ÁËLogin¶Ô»°¿ò£¨ËüÊÇ¶ÀÁ¢´°¿Ú£©£¬´ËÊ±ÆÁÄ»ÉÏÏÔÊ¾µÄÊÇLoginµÄ´°¿Ú£¬¶ø·ÇMainWindowµÄ´°¿Ú£¬ËùÒÔMainWindowµÄÍ¼±ê²»»áÏÔÊ¾,ĞèÒªµ¥¶ÀÎªLogin´°¿ÚÉèÖÃÍ¼±ê¡£
+    å¦‚æœå¸Œæœ›Loginæ˜¯ä¸»çª—å£å†…çš„æ§ä»¶ï¼ˆè€Œéç‹¬ç«‹çª—å£ï¼‰ï¼Œéœ€å»æ‰_login->show()ï¼Œä»…é€šè¿‡setCentralWidget(_login)å°†å…¶åµŒå…¥ä¸»çª—å£ï¼Œæ­¤æ—¶ä¸»çª—å£çš„å›¾æ ‡ä¼šæ­£å¸¸æ˜¾ç¤ºï¼›
+    å¦‚æœé€šè¿‡_login->show()å•ç‹¬æ˜¾ç¤ºäº†Loginå¯¹è¯æ¡†ï¼ˆå®ƒæ˜¯ç‹¬ç«‹çª—å£ï¼‰ï¼Œæ­¤æ—¶å±å¹•ä¸Šæ˜¾ç¤ºçš„æ˜¯Loginçš„çª—å£ï¼Œè€ŒéMainWindowçš„çª—å£ï¼Œæ‰€ä»¥MainWindowçš„å›¾æ ‡ä¸ä¼šæ˜¾ç¤º,éœ€è¦å•ç‹¬ä¸ºLoginçª—å£è®¾ç½®å›¾æ ‡ã€‚
     */
     ui.setupUi(this);
 
-    // ´´½¨Ò»¸öCentralWidget, ²¢½«ÆäÉèÖÃÎªMainWindowµÄÖĞĞÄ²¿¼ş
+    // åˆ›å»ºä¸€ä¸ªCentralWidget, å¹¶å°†å…¶è®¾ç½®ä¸ºMainWindowçš„ä¸­å¿ƒéƒ¨ä»¶
     _login = new Login(this);
     _login->setWindowFlags(Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
     setCentralWidget(_login);
     _login->setWindowIcon(QIcon(":/icon/resource/KamenRider.ico"));
     //_login->show();
 
-    // Á¬½ÓµÇÂ¼½çÃæ×¢²áĞÅºÅ
+    // è¿æ¥ç™»å½•ç•Œé¢æ³¨å†Œä¿¡å·
     connect(_login, &Login::sigSwitchRegister, this, &MainWindow::SlotSwitchReg);
 
-    // Á¬½ÓµÇÂ¼½çÃæÍü¼ÇÃÜÂëĞÅºÅ
+    // è¿æ¥ç™»å½•ç•Œé¢å¿˜è®°å¯†ç ä¿¡å·
     connect(_login, &Login::sigSwitchReset, this, &MainWindow::SlotSwitchReset);
 
-    // Á¬½Ó´´½¨ÁÄÌì½çÃæĞÅºÅ
+    // è¿æ¥åˆ›å»ºèŠå¤©ç•Œé¢ä¿¡å·
     connect(TcpMgr::GetInstance().get(), &TcpMgr::sigSwitchChat, this, &MainWindow::SlotSwitchChat);
 
-    setWindowIcon(QIcon(":/icon/resource/KamenRider.ico")); // :/ÊÇQt×ÊÔ´ÎÄ¼şµÄ¹Ì¶¨Ç°×º¡£ÈôÏëÖ±½ÓÊ¹ÓÃ±¾µØ´ÅÅÌÎÄ¼ş²»Ç¶Èë×ÊÔ´£¬Ğè´«ÈëÍêÕû±¾µØÂ·¾¶
+    // è¿æ¥æœåŠ¡å™¨è¸¢äººæ¶ˆæ¯
+    connect(TcpMgr::GetInstance().get(), &TcpMgr::sigNotifyOffline, this, &MainWindow::SlotOffLine);
+
+    setWindowIcon(QIcon(":/icon/resource/KamenRider.ico")); // :/æ˜¯Qtèµ„æºæ–‡ä»¶çš„å›ºå®šå‰ç¼€ã€‚è‹¥æƒ³ç›´æ¥ä½¿ç”¨æœ¬åœ°ç£ç›˜æ–‡ä»¶ä¸åµŒå…¥èµ„æºï¼Œéœ€ä¼ å…¥å®Œæ•´æœ¬åœ°è·¯å¾„
 
     //emit TcpMgr::GetInstance()->sigSwitchChat();
 }
@@ -37,12 +41,12 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::SlotSwitchReg() {
-    // ×¢²á½çÃæ²»ÔÚÄ¬ÈÏ¹¹Ôì³õÊ¼»¯ÊÇÎªÁË¶¯Ì¬³õÊ¼»¯£¬ÕâÑùÃ¿´ÎÇĞ»»µ½×¢²á½çÃæ¾Í¹¹Ôì£¬ÇĞ»»µ½ÆäËü½çÃæ¾Í×Ô¶¯»ØÊÕ×¢²á½çÃæ
+    // æ³¨å†Œç•Œé¢ä¸åœ¨é»˜è®¤æ„é€ åˆå§‹åŒ–æ˜¯ä¸ºäº†åŠ¨æ€åˆå§‹åŒ–ï¼Œè¿™æ ·æ¯æ¬¡åˆ‡æ¢åˆ°æ³¨å†Œç•Œé¢å°±æ„é€ ï¼Œåˆ‡æ¢åˆ°å…¶å®ƒç•Œé¢å°±è‡ªåŠ¨å›æ”¶æ³¨å†Œç•Œé¢
     _register = new Register(this);
     _register->setWindowFlags(Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
-    //_register->hide();            // ÕâÒ»¾ä¿ÉÓĞ¿ÉÎŞ
+    //_register->hide();            // è¿™ä¸€å¥å¯æœ‰å¯æ— 
 
-    // Á¬½Ó×¢²á½çÃæ·µ»ØµÇÂ¼ĞÅºÅ
+    // è¿æ¥æ³¨å†Œç•Œé¢è¿”å›ç™»å½•ä¿¡å·
     connect(_register, &Register::sigSwitchLogin, this, &MainWindow::SlotSwitchLogin);
     setCentralWidget(_register);
     _login->hide();
@@ -51,41 +55,41 @@ void MainWindow::SlotSwitchReg() {
 
 void MainWindow::SlotSwitchLogin()
 {
-    // ´´½¨Ò»¸öCentralWidget, ²¢½«ÆäÉèÖÃÎªMainWindowµÄÖĞĞÄ²¿¼ş
+    // åˆ›å»ºä¸€ä¸ªCentralWidget, å¹¶å°†å…¶è®¾ç½®ä¸ºMainWindowçš„ä¸­å¿ƒéƒ¨ä»¶
     _login = new Login(this);
     _login->setWindowFlags(Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
     setCentralWidget(_login);
     _register->hide();
     _login->show();
-    // Á¬½ÓµÇÂ¼½çÃæ×¢²áĞÅºÅ
+    // è¿æ¥ç™»å½•ç•Œé¢æ³¨å†Œä¿¡å·
     connect(_login, &Login::sigSwitchRegister, this, &MainWindow::SlotSwitchReg);
-    // Á¬½ÓµÇÂ¼½çÃæÍü¼ÇÃÜÂëĞÅºÅ
+    // è¿æ¥ç™»å½•ç•Œé¢å¿˜è®°å¯†ç ä¿¡å·
     connect(_login, &Login::sigSwitchReset, this, &MainWindow::SlotSwitchReset);
 }
 
 void MainWindow::SlotSwitchReset()
 {
-    // ´´½¨Ò»¸öCentralWidget, ²¢½«ÆäÉèÖÃÎªMainWindowµÄÖĞĞÄ²¿¼ş
+    // åˆ›å»ºä¸€ä¸ªCentralWidget, å¹¶å°†å…¶è®¾ç½®ä¸ºMainWindowçš„ä¸­å¿ƒéƒ¨ä»¶
     _reset = new ResetDialog(this);
     _reset->setWindowFlags(Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
     setCentralWidget(_reset);
     _login->hide();
     _reset->show();
-    // ×¢²á·µ»ØµÇÂ¼ĞÅºÅºÍ²Ûº¯Êı
+    // æ³¨å†Œè¿”å›ç™»å½•ä¿¡å·å’Œæ§½å‡½æ•°
     connect(_reset, &ResetDialog::switchLogin, this, &MainWindow::SlotSwitchLoginFromReset);
 }
 
 void MainWindow::SlotSwitchLoginFromReset()
 {
-    // ´´½¨Ò»¸öCentralWidget, ²¢½«ÆäÉèÖÃÎªMainWindowµÄÖĞĞÄ²¿¼ş
+    // åˆ›å»ºä¸€ä¸ªCentralWidget, å¹¶å°†å…¶è®¾ç½®ä¸ºMainWindowçš„ä¸­å¿ƒéƒ¨ä»¶
     _login = new Login(this);
     _login->setWindowFlags(Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
     setCentralWidget(_login);
     _reset->hide();
     _login->show();
-    // Á¬½ÓµÇÂ¼½çÃæ×¢²áĞÅºÅ
+    // è¿æ¥ç™»å½•ç•Œé¢æ³¨å†Œä¿¡å·
     connect(_login, &Login::sigSwitchRegister, this, &MainWindow::SlotSwitchReg);
-    // Á¬½ÓµÇÂ¼½çÃæÍü¼ÇÃÜÂëĞÅºÅ
+    // è¿æ¥ç™»å½•ç•Œé¢å¿˜è®°å¯†ç ä¿¡å·
     connect(_login, &Login::sigSwitchReset, this, &MainWindow::SlotSwitchReset);
 }
 
@@ -98,4 +102,29 @@ void MainWindow::SlotSwitchChat()
     _login->hide();
     this->setMinimumSize(QSize(1050, 900));
     this->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+}
+
+void MainWindow::SlotOffLine()
+{
+    // ä½¿ç”¨é™æ€æ–¹æ³•ç›´æ¥å¼¹å‡ºä¸€ä¸ªä¿¡æ¯æ¡†
+    QMessageBox::information(this, "ä¸‹çº¿æé†’", "è¯¥è´¦å·å¼‚åœ°ç™»å½•,æœ¬è®¾å¤‡ä¸‹çº¿!");
+    TcpMgr::GetInstance()->CloseConnection();                   // å…³é—­ç½‘ç»œè¿æ¥
+    OffLineLogin();
+}
+
+// æ‰§è¡Œä¸‹çº¿åçš„å¤„ç†é€»è¾‘(é€šå¸¸æ˜¯è¿”å›åˆ°ç™»å½•ç•Œé¢)
+void MainWindow::OffLineLogin()
+{
+    //åˆ›å»ºä¸€ä¸ªCentralWidget, å¹¶å°†å…¶è®¾ç½®ä¸ºMainWindowçš„ä¸­å¿ƒéƒ¨ä»¶
+    _login = new Login(this);
+    _login->setWindowFlags(Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
+    setCentralWidget(_login);
+
+    _chat->hide();
+    this->setMaximumSize(400, 550);
+    this->setMinimumSize(400, 550);
+    this->resize(400, 550);                                                             // åˆ‡æ¢åˆ°ç™»å½•ç•Œé¢åè°ƒæ•´çª—å£å¤§å°
+    _login->show();
+    connect(_login, &Login::sigSwitchRegister, this, &MainWindow::SlotSwitchReg);       // è¿æ¥ç™»å½•ç•Œé¢æ³¨å†Œä¿¡å·
+    connect(_login, &Login::sigSwitchReset, this, &MainWindow::SlotSwitchReset);        // è¿æ¥ç™»å½•ç•Œé¢å¿˜è®°å¯†ç ä¿¡å·
 }

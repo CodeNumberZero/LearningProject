@@ -9,6 +9,7 @@ class TcpMgr : public QObject, public Singleton<TcpMgr>, public std::enable_shar
 	Q_OBJECT
 public:
 	~TcpMgr();
+	void CloseConnection();
 private:
 	QTcpSocket _socket;
 	QString _host;
@@ -26,7 +27,9 @@ private:
 public slots:
 	void slot_tcp_connect(ServerInfo si);
 	void slot_send_data(ReqId id, QByteArray dataBytes);
+	void slot_tcp_close();
 signals:
+	void sigClose();
 	void sigConnectSuccess(bool b_success);
 	void sigSendData(ReqId id, QByteArray data);
 	void sigSwitchChat();
@@ -36,5 +39,6 @@ signals:
 	void sigAddFriendAuth(std::shared_ptr<AuthInfo>);
 	void sigAuthRsp(std::shared_ptr<AuthRsp>);
 	void sigTextChatMsg(std::shared_ptr<TextChatMsg> msg);
+	void sigNotifyOffline();
 };
 

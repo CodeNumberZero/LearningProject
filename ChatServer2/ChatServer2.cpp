@@ -53,7 +53,10 @@ int main()
 			server->Shutdown();
 			});
 		auto port_str = cfg["SelfServer"]["Port"];
-		Server s(io_context, atoi(port_str.c_str()));
+		auto server_ptr = std::make_shared<Server>(io_context, atoi(port_str.c_str()));
+
+		// 将Server注册给逻辑类方便以后清除连接
+		LogicSystem::GetInstance()->SetServer(server_ptr);					 // 这句必须放在io_context.run前面(实际上所有的设置等都应放在io_context.run前面),因为io_context.run会阻塞当前线程,直到io_context被停止(io_context.stop),因此如果放在io_context.run后面那么程序在运行期间就无法执行到这句代码了,也就无法进行设置,进而出现内存访问问题
 		io_context.run();
 
 		RedisClient::GetInstance()->hdel(LOGIN_COUNT, server_name);          // 删掉(清空)redis中该服务器的连接数

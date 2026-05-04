@@ -37,9 +37,11 @@ private:
 	std::thread _worker_thread;                           // 工作线程，从逻辑队列中取数据进行处理
 	bool _b_stop;                                         // 标志位，接收来自上层或网络层的停服信号(可以不要)
 	std::map<short, FunCallBack> _fun_callback;           // 将消息id与回调函数绑定起来
+	std::shared_ptr<Server> _p_server;
 
 public:
 	~LogicSystem();
 	void PostMsgToQueue(std::shared_ptr<LogicNode> msg);  // 将封装后的逻辑节点投递到逻辑队列中
+	void SetServer(std::shared_ptr<Server> p_server);
 };
 

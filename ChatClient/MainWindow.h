@@ -21,6 +21,7 @@ public slots:
     void SlotSwitchReset();
     void SlotSwitchLoginFromReset();
     void SlotSwitchChat();
+    void SlotOffLine();
 
 private:
     Ui::MainWindowClass ui;
@@ -28,5 +29,7 @@ private:
     Register* _register;
     ResetDialog* _reset;
     Chat* _chat;
+
+    void OffLineLogin();
 };
 

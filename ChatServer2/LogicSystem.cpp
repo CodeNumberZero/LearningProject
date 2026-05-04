@@ -4,6 +4,7 @@
 #include "RedisMgr.h"
 #include "UserMgr.h"
 #include "ChatGrpcClient.h"
+#include "CServer.h"
 
 LogicSystem::LogicSystem() : _b_stop(false){                      // 构造函数中将停止信息初始化为false，注册消息处理函数并且启动了一个工作线程，工作线程执行DealMsg逻辑。
 	RegisterCallBack();
@@ -76,16 +77,16 @@ void LogicSystem::LoginHandler(std::shared_ptr<Session> session, const short& ms
 			  << " \nuser token  is "<< token << std::endl;
 
 	Json::Value rtvalue;
-	Defer defer([this, &rtvalue, session] {                                  // 函数执行结束后无论是走哪个分支结束的都会把数据发送给客户端
+	Defer defer([this, &rtvalue, session] {                                  // LogicSystem::LoginHandler()函数执行结束后无论是走哪个分支结束的(即无论成功还是失败)都会把数据发送给客户端
 		std::string return_str = rtvalue.toStyledString();
 		session->Send(return_str, MSG_CHAT_LOGIN_RSP);
 	});
 
+	/*************		一、判断token和uid是否合理		****************************/
 	// 从redis获取用户token是否正确(StatusServiceImpl中将uid和对应的token存入了redis中而不是内存,所以从redis中查询)
-	// redis++中通过key获取value或者弹出一个key失败时,函数返回值是一个OptionalString类型，其内是空值(将其转换为bool类型,值为0，即false),不能直接使用value()方法或*运算符进行操作,所以需要先判断是否为空
 	std::string uid_str = std::to_string(uid);
 	std::string token_key = USERTOKEN_PREFIX + uid_str;
-	auto token_val = RedisClient::GetInstance()->get(token_key);
+	auto token_val = RedisClient::GetInstance()->get(token_key);			 // redis++中通过key获取value或者弹出一个key失败时,函数返回值是一个OptionalString类型，其内是空值(将其转换为bool类型,值为0，即false),不能直接使用value()方法或*运算符进行操作,所以需要先判断是否为空
 	if (!token_val) {                                                        // OptionalString重载了bool()运算符,可以直接进行布尔判断
 		rtvalue["error"] = ErrorCodes::UidInvalid;
 		return;
@@ -96,9 +97,40 @@ void LogicSystem::LoginHandler(std::shared_ptr<Session> session, const short& ms
 		rtvalue["error"] = ErrorCodes::TokenInvalid;
 		return;
 	}
-
 	rtvalue["error"] = ErrorCodes::Success;
 
+	/*************		二、根据uid构造分布式锁key,然后实现分布式锁加锁操作		****************************/
+	// 此处添加分布式锁,让该线程独占登录
+	auto lock_key = LOCK_PREFIX + uid_str;
+	auto identifier = RedisClient::GetClientInstance().acquireLock(lock_key, LOCK_TIME_OUT, ACQUIRE_TIME_OUT);
+	// todo:这里没有对是否成功获取到锁进行判断
+
+	// 利用defer机制解锁
+	Defer defer_lock([this, identifier, lock_key]() {
+		RedisClient::GetClientInstance().releaseLock(lock_key, identifier);
+	});
+
+	// 此处判断该用户是否在别处或者本服务器登录
+	auto uid_ip_key = USERIP_PREFIX + uid_str;
+	auto uid_ip_val = RedisClient::GetInstance()->get(uid_ip_key);				// 函数返回值是一个OptionalString类型
+	if (uid_ip_val) {															// OptionalString重载了bool()运算符,可以直接进行布尔判断
+		auto uid_ip_value = uid_ip_val.value();									// 使用value()方法或*运算符获取对应的值
+
+		auto& cfg = ConfigMgr::GetInstance();									
+		auto self_name = cfg["SelfServer"]["Name"];								// 获取当前服务器ip信息
+		if (uid_ip_value == self_name) {										// 如果之前登录的服务器和当前相同,则直接在本服务器踢掉,只需要通过线程锁控制好并发逻辑即可
+			auto old_session = UserMgr::GetInstance()->GetSession(uid);			// 查找旧有的连接
+			if (old_session) {
+				old_session->NotifyOffline(uid);
+				_p_server->ClearSession(old_session->GetSessionId());
+			}
+		}
+		else {
+			// 如果不是本服务器,则通知grpc通知其他服务器踢掉
+		}
+	}
+
+	/*************		三、加载用户基本信息以及相应的好友列表和申请列表		****************************/
 	std::string base_key = USER_BASE_INFO + uid_str;
 	auto user_info = std::make_shared<UserInfo>();
 	bool b_base = GetBaseInfo(base_key, uid, user_info);
@@ -147,6 +179,9 @@ void LogicSystem::LoginHandler(std::shared_ptr<Session> session, const short& ms
 		rtvalue["friend_list"].append(obj);
 	}
 
+	/*************		四、更新redis中的信息		****************************
+	*登录成功后，要将uid和对应的ip信息写入redis,方便以后跨服查找;同时将uid和session关联,这样可以通过uid快速找到session;另外uid对应的session信息也要写入redis*/
+	
 	// 在redis中更新各个服务器的登陆数量
 	auto server_name = ConfigMgr::GetInstance().GetValue("SelfServer", "Name"); // 获取自身服务器的名称
 	auto name_val = RedisClient::GetInstance()->hget(LOGIN_COUNT, server_name); // 从redis中获取服务器的连接数
@@ -154,14 +189,18 @@ void LogicSystem::LoginHandler(std::shared_ptr<Session> session, const short& ms
 	if (name_val) {                                                             // OptionalString重载了bool()运算符,可以直接进行布尔判断
 		count = std::stoi(name_val.value());                                    // 若从redis中获取到服务器的连接数,直接转为整型使用
 	}
-
 	count++;                                                                    // 将登录数量增加
 	auto count_str = std::to_string(count);
-	RedisClient::GetInstance()->hset(LOGIN_COUNT, server_name, count_str);
+	RedisClient::GetInstance()->hset(LOGIN_COUNT, server_name, count_str);		// 将更新后的数量写入redis
+
 	session->SetUserId(uid);                                                    // session绑定用户uid
 	std::string ipkey = USERIP_PREFIX + uid_str;                                // 为用户设置登录ip server的名字
 	RedisClient::GetInstance()->set(ipkey, server_name);
-	UserMgr::GetInstance()->SetUserSession(uid, session);                       // uid和session绑定管理,方便以后踢人操作
+
+	UserMgr::GetInstance()->SetUserSession(uid, session);                       // uid和session绑定到本服务中,方便以后踢人操作
+
+	std::string uid_session_key = USER_SESSION_PREFIX + uid_str;
+	RedisMgr::GetInstance()->Set(uid_session_key, session->GetSessionId());		// 将uid对应的session信息写入redis,这里对应的就是USerMgr.cpp文件中第48行的注释以及CSession.cpp文件中251行
 
 	return;
 }
@@ -647,4 +686,9 @@ void LogicSystem::PostMsgToQueue(std::shared_ptr<LogicNode> msg)
 		lock.unlock();
 		_consume.notify_one();             // 唤醒线程，线程在处理消息时会上锁(对应DealMsg的逻辑)
 	}
+}
+
+void LogicSystem::SetServer(std::shared_ptr<Server> p_server)
+{
+	_p_server = p_server;
 }

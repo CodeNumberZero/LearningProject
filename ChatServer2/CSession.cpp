@@ -1,6 +1,7 @@
 #include "CSession.h"
 #include "CServer.h"
 #include "LogicSystem.h"
+#include "RedisMgr.h"
 
 Session::Session(boost::asio::io_context& ioc, Server* server) : _socket(ioc), _server(server), _b_close(false), _b_head_parse(false), _user_uid(0) {
 	boost::uuids::uuid a_uuid = boost::uuids::random_generator()();       // 第一个括号是构建临时对象，第二个括号是调用重载的()运算符，即仿函数
@@ -92,8 +93,7 @@ void Session::AsyncReadHead(int total_len)
 			if (ec) {
 				std::cout << "AsyncReadHead handle read failed, error is " << ec.what() << std::endl;
 				Close();
-				//DealExceptionSession();
-				_server->ClearSession(_session_id);
+				DealExceptionSession();
 				return;
 			}
 
@@ -154,10 +154,10 @@ void Session::AsyncReadBody(int total_len)
 	asyncReadFull(total_len, [self, this, total_len](const boost::system::error_code& ec, std::size_t bytes_transfered) {
 		try {
 			if (ec) {
+				/* 为了简化逻辑,只要收到错误我们就认为连接已断开,进行相应的逻辑处理 */
 				std::cout << "AsyncReadBody handle read failed, error is " << ec.what() << std::endl;
-				Close();
-				//DealExceptionSession();
-				_server->ClearSession(_session_id);
+				Close();														// 只要发生错误,这个连接就没意义了,直接Close()
+				DealExceptionSession();											// 连接断开的时候可能同一uid的用户在新的客户端登录,为了保证互斥就需要加分布式锁进行处理(登录处理的时候加了分布式锁,此时离线处理时也要加分布式锁,两者的目的都是确保对redis的分布式操作是互斥的)						
 				return;
 			}
 
@@ -220,36 +220,38 @@ void Session::UpdateHeartbeat()
 	_last_heartbeat = now;
 }
 
-//void Session::DealExceptionSession()
-//{
-//	auto self = shared_from_this();
-//	//加锁清除session
-//	auto uid_str = std::to_string(_user_uid);
-//	auto lock_key = LOCK_PREFIX + uid_str;
-//	auto identifier = RedisMgr::GetInstance()->acquireLock(lock_key, LOCK_TIME_OUT, ACQUIRE_TIME_OUT);
-//	Defer defer([identifier, lock_key, self, this]() {
-//		_server->ClearSession(_session_id);
-//		RedisMgr::GetInstance()->releaseLock(lock_key, identifier);
-//	});
-//
-//	if (identifier.empty()) {
-//		return;
-//	}
-//	std::string redis_session_id = "";
-//	auto bsuccess = RedisMgr::GetInstance()->Get(USER_SESSION_PREFIX + uid_str, redis_session_id);
-//	if (!bsuccess) {
-//		return;
-//	}
-//
-//	if (redis_session_id != _session_id) {
-//		//说明有客户在其他服务器异地登录了
-//		return;
-//	}
-//
-//	RedisMgr::GetInstance()->Del(USER_SESSION_PREFIX + uid_str);
-//	//清除用户登录信息
-//	RedisMgr::GetInstance()->Del(USERIPPREFIX + uid_str);
-//}
+// 通过添加分布式锁处理异常连接,保证对redis中信息的操作的互斥性,避免同一uid的用户在不同客户端登录时对redis中的信息进行冲突性的操作
+void Session::DealExceptionSession()
+{
+	auto self = shared_from_this();
+
+	// 加锁清除session
+	auto uid_str = std::to_string(_user_uid);
+	auto lock_key = LOCK_PREFIX + uid_str;
+	auto identifier = RedisClient::GetClientInstance().acquireLock(lock_key, LOCK_TIME_OUT, ACQUIRE_TIME_OUT);
+	Defer defer([identifier, lock_key, self, this]() {
+		_server->ClearSession(_session_id);							// 从该session所在的服务器中清除该session
+		RedisClient::GetClientInstance().releaseLock(lock_key, identifier);
+	});
+
+	if (identifier.empty()) {
+		return;
+	}
+	
+	// 从redis中获取uid对应的session id,并与本服务器获取的session id进行比较
+	auto redis_session_id_val = RedisClient::GetInstance()->get(USER_SESSION_PREFIX + uid_str);
+	if (!redis_session_id_val) {									// OptionalString重载了bool()运算符,可以直接进行布尔判断
+		return;	
+	}
+	std::string redis_session_id = redis_session_id_val.value();	// 使用value()方法或*运算符获取对应的值
+	if (redis_session_id != _session_id) {							// 不相同说明有客户在其他服务器异地登录了,不需要进行任何处理,直接返回
+		return;
+	}
+
+	RedisClient::GetInstance()->del(USER_SESSION_PREFIX + uid_str); // 相同则说明还在本服务器上,清除用户和session的关联;这里对应的是LogicSystem.cpp文件中203行
+	RedisClient::GetInstance()->del(USERIP_PREFIX + uid_str);		// 清除用户登录信息
+	//RedisClient::GetInstance()->del(USERTOKEN_PREFIX + uid_str);	// 清除用户token信息
+}
 
 // 全双工通信写法
 void Session::HandleRead(const boost::system::error_code& ec, std::size_t bytes_transferred, std::shared_ptr<Session> shared_self) {
@@ -382,8 +384,7 @@ void Session::HandleWrite(const boost::system::error_code& ec, std::shared_ptr<S
 		else {
 			std::cout << "Handle write failed! error code = " << ec.value() << ". Message is " << ec.message() << std::endl;
 			Close();
-			//DealExceptionSession();
-			_server->ClearSession(_session_id);
+			DealExceptionSession();
 		}
 	}
 	catch (std::exception& e) {

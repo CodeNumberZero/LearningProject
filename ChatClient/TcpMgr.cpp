@@ -76,11 +76,19 @@ TcpMgr::TcpMgr() : _host(""), _port(0), _b_rece_pending(false), _message_id(0), 
     // 连接发送信号用来发送数据
     QObject::connect(this, &TcpMgr::sigSendData, this, &TcpMgr::slot_send_data);
 
+    // 关闭socket
+    connect(this, &TcpMgr::sigClose, this, &TcpMgr::slot_tcp_close);
+
     // 注册消息
     initHandlers();
 }
 
 TcpMgr::~TcpMgr() {}
+
+void TcpMgr::CloseConnection()
+{
+    emit sigClose();
+}
 
 void TcpMgr::initHandlers() {
 	// auto self = shared_from_this();  
@@ -389,6 +397,37 @@ void TcpMgr::initHandlers() {
         emit sigTextChatMsg(msg_ptr);
     });
 
+    _handlers.insert(ID_NOTIFY_OFF_LINE_REQ, [this](ReqId id, int len, QByteArray data) {
+        Q_UNUSED(len);
+        qDebug() << "handle id is " << id << " data is " << data;
+        // 将QByteArray转换为QJsonDocument
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+        // 检查转换是否成功
+        if (jsonDoc.isNull()) {
+            qDebug() << "TcpMgr's ID_NOTIFY_OFF_LINE_REQ Failed to create QJsonDocument.";
+            return;
+        }
+
+        QJsonObject jsonObj = jsonDoc.object();
+
+        if (!jsonObj.contains("error")) {
+            int err = ErrorCodes::ERR_JSON;
+            qDebug() << "TcpMgr Notify Offline Failed, err is Json Parse Err, error code is " << err;
+            return;
+        }
+
+        int err = jsonObj["error"].toInt();
+        if (err != ErrorCodes::SUCCESS) {
+            qDebug() << "TcpMgr Notify Offline Failed, err is " << err;
+            return;
+        }
+
+        auto uid = jsonObj["uid"].toInt();
+        qDebug() << "Receive offline Notify Success, uid is " << uid;
+        // 断开连接,并且发送通知到界面
+        emit sigNotifyOffline();
+    });
 }
 
 void TcpMgr::HandleMsg(ReqId id, int len, QByteArray data)
@@ -439,4 +478,9 @@ void TcpMgr::slot_send_data(ReqId reqId, QByteArray dataBytes)
 
     // 发送数据
     _socket.write(block);
+}
+
+void TcpMgr::slot_tcp_close()
+{
+    _socket.close();
 }

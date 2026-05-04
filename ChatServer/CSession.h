@@ -59,7 +59,7 @@ public:
 	void NotifyOffline(int uid);
 	bool IsHeartbeatExpired(std::time_t& now);                 // 判断心跳是否过期
 	void UpdateHeartbeat();                                    // 更新心跳
-	//void DealExceptionSession();                               // 处理异常连接
+	void DealExceptionSession();                               // 处理异常连接
 };
 
 
