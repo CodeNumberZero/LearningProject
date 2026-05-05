@@ -25,6 +25,10 @@ public:
 	static std::shared_ptr<sw::redis::Redis> GetInstance();				 // 返回智能指针的拷贝(而非可修改的引用),避免外部重置内部指针导致隐蔽错误
 	std::string acquireLock(const std::string& lockName, int lockTimeout, int acquireTimeout);		// 获取分布式锁,成功返回锁的唯一标识符，失败返回空字符串
 	bool releaseLock(const std::string& lockName, const std::string& identifier);					// 释放分布式锁,成功返回true，失败返回false
+	void IncreaseCount(std::string server_name);
+	void DecreaseCount(std::string server_name);
+	void InitCount(std::string server_name);
+	void DelCount(std::string server_name);
 }; 
 
 /*-----------------------------------------------------------------------下面都是基于hiredis库封装的对redis的操作函数和连接池(项目中并没有使用)--------------------------------------------------------*/

@@ -1,6 +1,7 @@
 #include "RedisMgr.h"
 #include "ConfigMgr.h"
 #include "MysqlDao.h"
+#include "DistributeLock.h"
 
 RedisClient::RedisClient()
 {
@@ -15,11 +16,11 @@ RedisClient::RedisClient()
 	ConOpts.password = pwd;
 
 	sw::redis::ConnectionPoolOptions PoolOpts;                               // 连接池参数
-	PoolOpts.size = 5;                                                       // 连接池大小(包括使用中的和空闲的)
+	PoolOpts.size = 10;                                                       // 连接池大小(包括使用中的和空闲的)
 
 	/*
 		多个线程共享同一个Redis实例;
-		每个线程执行的Redis命令会自动绑定到池分配的空闲连接，执行完成后连接自动归还池，无需手动释放
+		每个线程执行的Redis命令会自动绑定到池分配的空闲连接，执行完成后连接自动归还池，无需手动释放(Redis++的设计是自动管理连接池的,可以直接使用定义的redis对象执行命令,它会自动从连接池中获取连接、执行命令、归还连接)
 		连接池、客户端、命令结果的资源均由 Redis++ 自动管理，无需手动关闭连接、释放对象
 	*/                                                            
 	// 这里不要使用auto,否则_redis会成为构造函数内的局部变量，而不是给成员变量赋值
@@ -30,9 +31,107 @@ RedisClient::~RedisClient()
 {
 }
 
-std::shared_ptr<sw::redis::Redis>& RedisClient::GetInstance() {
+RedisClient& RedisClient::GetClientInstance()
+{
 	static RedisClient instance;
-	return instance._redis;
+	return instance;
+}
+
+std::shared_ptr<sw::redis::Redis> RedisClient::GetInstance() {
+	//static RedisClient instance;
+	//return instance._redis;
+	return GetClientInstance()._redis;
+}
+
+std::string RedisClient::acquireLock(const std::string& lockName, int lockTimeout, int acquireTimeout)
+{
+	/*
+		lockName:想要加锁的资源名称
+		lockTimeout: 锁过期时间，单位毫秒
+		acquireTimeout: 尝试获取锁的最长时间，单位毫秒
+	*/
+	return DistributeLock::GetInstance().acquireLock(_redis, lockName, lockTimeout, acquireTimeout);
+}
+
+/*
+注意：
+	1、Redis服务端本身是单线程串行执行所有命令的，天然保证单个命令的原子性，无论多少个客户端连接同时操作同一个Key，Redis都会按命令接收顺序依次执行(类似队列，先进先出)，不会出现多个连接操作同一个key导致的底层执行错误
+	2、Redis保证了单个命令的原子性，但多个命令的组合原子性需要开发者自己保证(分布式锁)
+*/
+bool RedisClient::releaseLock(const std::string& lockName, const std::string& identifier)
+{
+	if (identifier.empty()) {										// identifier为空时表明没有要释放的锁,直接返回成功
+		return true;
+	}
+	return DistributeLock::GetInstance().releaseLock(_redis, lockName, identifier);
+}
+
+void RedisClient::IncreaseCount(std::string server_name)
+{
+	auto lock_key = LOCK_COUNT;
+	auto identifier = RedisClient::GetClientInstance().acquireLock(lock_key, LOCK_TIME_OUT, ACQUIRE_TIME_OUT);
+	// 利用defer解锁
+	Defer defer([this, identifier, lock_key]() {
+		RedisClient::GetClientInstance().releaseLock(lock_key, identifier);
+	});
+
+	// 将登录数量增加
+	auto count_val = RedisClient::GetInstance()->hget(LOGIN_COUNT, server_name);
+	int count = 0;
+	if (count_val) {
+		count = std::stoi(count_val.value());
+	}
+
+	count++;
+	auto count_str = std::to_string(count);
+	RedisClient::GetInstance()->hset(LOGIN_COUNT, server_name, count_str);
+}
+
+void RedisClient::DecreaseCount(std::string server_name)
+{
+	auto lock_key = LOCK_COUNT;
+	auto identifier = RedisClient::GetClientInstance().acquireLock(lock_key, LOCK_TIME_OUT, ACQUIRE_TIME_OUT);
+	// 利用defer解锁
+	Defer defer([this, identifier, lock_key]() {
+		RedisClient::GetClientInstance().releaseLock(lock_key, identifier);
+		});
+
+	// 将登录数量减少
+	auto count_val = RedisClient::GetInstance()->hget(LOGIN_COUNT, server_name);
+	int count = 0;
+	if (count_val) {
+		count = std::stoi(count_val.value());
+		if (count > 0) {
+			count--;
+		}
+	}
+
+	auto count_str = std::to_string(count);
+	RedisClient::GetInstance()->hset(LOGIN_COUNT, server_name, count_str);
+}
+
+void RedisClient::InitCount(std::string server_name)
+{
+	auto lock_key = LOCK_COUNT;
+	auto identifier = RedisClient::GetClientInstance().acquireLock(lock_key, LOCK_TIME_OUT, ACQUIRE_TIME_OUT);
+	// 利用defer解锁
+	Defer defer([this, identifier, lock_key]() {
+		RedisClient::GetClientInstance().releaseLock(lock_key, identifier);
+	});
+
+	RedisClient::GetInstance()->hset(LOGIN_COUNT, server_name, "0");
+}
+
+void RedisClient::DelCount(std::string server_name)
+{
+	auto lock_key = LOCK_COUNT;
+	auto identifier = RedisClient::GetClientInstance().acquireLock(lock_key, LOCK_TIME_OUT, ACQUIRE_TIME_OUT);
+	// 利用defer解锁
+	Defer defer([this, identifier, lock_key]() {
+		RedisClient::GetClientInstance().releaseLock(lock_key, identifier);
+	});
+
+	RedisClient::GetInstance()->hdel(LOGIN_COUNT, server_name);
 }
 
 

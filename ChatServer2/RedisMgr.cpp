@@ -66,6 +66,74 @@ bool RedisClient::releaseLock(const std::string& lockName, const std::string& id
 	return DistributeLock::GetInstance().releaseLock(_redis, lockName, identifier);
 }
 
+void RedisClient::IncreaseCount(std::string server_name)
+{
+	auto lock_key = LOCK_COUNT;
+	auto identifier = RedisClient::GetClientInstance().acquireLock(lock_key, LOCK_TIME_OUT, ACQUIRE_TIME_OUT);
+	// 利用defer解锁
+	Defer defer([this, identifier, lock_key]() {
+		RedisClient::GetClientInstance().releaseLock(lock_key, identifier);
+	});
+
+	// 将登录数量增加
+	auto count_val = RedisClient::GetInstance()->hget(LOGIN_COUNT, server_name);
+	int count = 0;
+	if (count_val) {
+		count = std::stoi(count_val.value());
+	}
+
+	count++;
+	auto count_str = std::to_string(count);
+	RedisClient::GetInstance()->hset(LOGIN_COUNT, server_name, count_str);
+}
+
+void RedisClient::DecreaseCount(std::string server_name)
+{
+	auto lock_key = LOCK_COUNT;
+	auto identifier = RedisClient::GetClientInstance().acquireLock(lock_key, LOCK_TIME_OUT, ACQUIRE_TIME_OUT);
+	// 利用defer解锁
+	Defer defer([this, identifier, lock_key]() {
+		RedisClient::GetClientInstance().releaseLock(lock_key, identifier);
+		});
+
+	// 将登录数量减少
+	auto count_val = RedisClient::GetInstance()->hget(LOGIN_COUNT, server_name);
+	int count = 0;
+	if (count_val) {
+		count = std::stoi(count_val.value());
+		if (count > 0) {
+			count--;
+		}
+	}
+
+	auto count_str = std::to_string(count);
+	RedisClient::GetInstance()->hset(LOGIN_COUNT, server_name, count_str);
+}
+
+void RedisClient::InitCount(std::string server_name)
+{
+	auto lock_key = LOCK_COUNT;
+	auto identifier = RedisClient::GetClientInstance().acquireLock(lock_key, LOCK_TIME_OUT, ACQUIRE_TIME_OUT);
+	// 利用defer解锁
+	Defer defer([this, identifier, lock_key]() {
+		RedisClient::GetClientInstance().releaseLock(lock_key, identifier);
+	});
+
+	RedisClient::GetInstance()->hset(LOGIN_COUNT, server_name, "0");
+}
+
+void RedisClient::DelCount(std::string server_name)
+{
+	auto lock_key = LOCK_COUNT;
+	auto identifier = RedisClient::GetClientInstance().acquireLock(lock_key, LOCK_TIME_OUT, ACQUIRE_TIME_OUT);
+	// 利用defer解锁
+	Defer defer([this, identifier, lock_key]() {
+		RedisClient::GetClientInstance().releaseLock(lock_key, identifier);
+	});
+
+	RedisClient::GetInstance()->hdel(LOGIN_COUNT, server_name);
+}
+
 
 RedisConnectionPool::RedisConnectionPool(size_t poolSize, const char* host, int port, const char* pwd)
 	: poolSize_(poolSize), host_(host), port_(port), b_stop_(false) {

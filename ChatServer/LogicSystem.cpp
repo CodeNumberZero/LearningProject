@@ -174,8 +174,10 @@ void LogicSystem::LoginHandler(std::shared_ptr<Session> session, const short& ms
 				_p_server->ClearSession(old_session->GetSessionId());
 			}
 		}
-		else {
-			// 如果不是本服务器,则通知grpc通知其他服务器踢掉
+		else {																	// 如果不是本服务器,则通过grpc通知其他服务器踢掉
+			KickUserReq kick_req;												// KickUserReq的作用域messag::在ChatGrpcClient.h文件中进行了声明,所以这里直接使用KickUserReq就可以了
+			kick_req.set_uid(uid);
+			ChatGrpcClient::GetInstance()->NotifyKickUser(uid_ip_value, kick_req);
 		}
 	}
 
@@ -200,8 +202,8 @@ void LogicSystem::LoginHandler(std::shared_ptr<Session> session, const short& ms
 	UserMgr::GetInstance()->SetUserSession(uid, session);                       // uid和session绑定到本服务中,方便以后踢人操作
 
 	std::string uid_session_key = USER_SESSION_PREFIX + uid_str;
-	RedisMgr::GetInstance()->Set(uid_session_key, session->GetSessionId());		// 将uid对应的session信息写入redis,这里对应的就是USerMgr.cpp文件中第48行的注释以及CSession.cpp文件中251行
-
+	//RedisMgr::GetInstance()->Set(uid_session_key, session->GetSessionId());		// 将uid对应的session信息写入redis,这里对应的就是USerMgr.cpp文件中第48行的注释以及CSession.cpp文件中251行
+	RedisClient::GetInstance()->set(uid_session_key, session->GetSessionId());	// 将uid对应的session信息写入redis,这里对应的就是USerMgr.cpp文件中第48行的注释以及CSession.cpp文件中251行
 	return;
 }
 

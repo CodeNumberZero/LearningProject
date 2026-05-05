@@ -99,38 +99,7 @@ void LogicSystem::LoginHandler(std::shared_ptr<Session> session, const short& ms
 	}
 	rtvalue["error"] = ErrorCodes::Success;
 
-	/*************		二、根据uid构造分布式锁key,然后实现分布式锁加锁操作		****************************/
-	// 此处添加分布式锁,让该线程独占登录
-	auto lock_key = LOCK_PREFIX + uid_str;
-	auto identifier = RedisClient::GetClientInstance().acquireLock(lock_key, LOCK_TIME_OUT, ACQUIRE_TIME_OUT);
-	// todo:这里没有对是否成功获取到锁进行判断
-
-	// 利用defer机制解锁
-	Defer defer_lock([this, identifier, lock_key]() {
-		RedisClient::GetClientInstance().releaseLock(lock_key, identifier);
-	});
-
-	// 此处判断该用户是否在别处或者本服务器登录
-	auto uid_ip_key = USERIP_PREFIX + uid_str;
-	auto uid_ip_val = RedisClient::GetInstance()->get(uid_ip_key);				// 函数返回值是一个OptionalString类型
-	if (uid_ip_val) {															// OptionalString重载了bool()运算符,可以直接进行布尔判断
-		auto uid_ip_value = uid_ip_val.value();									// 使用value()方法或*运算符获取对应的值
-
-		auto& cfg = ConfigMgr::GetInstance();									
-		auto self_name = cfg["SelfServer"]["Name"];								// 获取当前服务器ip信息
-		if (uid_ip_value == self_name) {										// 如果之前登录的服务器和当前相同,则直接在本服务器踢掉,只需要通过线程锁控制好并发逻辑即可
-			auto old_session = UserMgr::GetInstance()->GetSession(uid);			// 查找旧有的连接
-			if (old_session) {
-				old_session->NotifyOffline(uid);
-				_p_server->ClearSession(old_session->GetSessionId());
-			}
-		}
-		else {
-			// 如果不是本服务器,则通知grpc通知其他服务器踢掉
-		}
-	}
-
-	/*************		三、加载用户基本信息以及相应的好友列表和申请列表		****************************/
+	/*************		二、加载用户基本信息以及相应的好友列表和申请列表		****************************/
 	std::string base_key = USER_BASE_INFO + uid_str;
 	auto user_info = std::make_shared<UserInfo>();
 	bool b_base = GetBaseInfo(base_key, uid, user_info);
@@ -179,6 +148,39 @@ void LogicSystem::LoginHandler(std::shared_ptr<Session> session, const short& ms
 		rtvalue["friend_list"].append(obj);
 	}
 
+	/*************		三、根据uid构造分布式锁key,然后实现分布式锁加锁操作		****************************/
+	// 此处添加分布式锁,让该线程独占登录
+	auto lock_key = LOCK_PREFIX + uid_str;
+	auto identifier = RedisClient::GetClientInstance().acquireLock(lock_key, LOCK_TIME_OUT, ACQUIRE_TIME_OUT);
+	// todo:这里没有对是否成功获取到锁进行判断
+
+	// 利用defer机制解锁
+	Defer defer_lock([this, identifier, lock_key]() {
+		RedisClient::GetClientInstance().releaseLock(lock_key, identifier);
+	});
+
+	// 此处判断该用户是否在别处或者本服务器登录
+	auto uid_ip_key = USERIP_PREFIX + uid_str;
+	auto uid_ip_val = RedisClient::GetInstance()->get(uid_ip_key);				// 函数返回值是一个OptionalString类型
+	if (uid_ip_val) {															// OptionalString重载了bool()运算符,可以直接进行布尔判断
+		auto uid_ip_value = uid_ip_val.value();									// 使用value()方法或*运算符获取对应的值
+
+		auto& cfg = ConfigMgr::GetInstance();									
+		auto self_name = cfg["SelfServer"]["Name"];								// 获取当前服务器ip信息
+		if (uid_ip_value == self_name) {										// 如果之前登录的服务器和当前相同,则直接在本服务器踢掉,只需要通过线程锁控制好并发逻辑即可
+			auto old_session = UserMgr::GetInstance()->GetSession(uid);			// 查找旧有的连接
+			if (old_session) {
+				old_session->NotifyOffline(uid);
+				_p_server->ClearSession(old_session->GetSessionId());
+			}
+		}
+		else {																	// 如果不是本服务器,则通过grpc通知其他服务器踢掉
+			KickUserReq kick_req;												// KickUserReq的作用域messag::在ChatGrpcClient.h文件中进行了声明,所以这里直接使用KickUserReq就可以了
+			kick_req.set_uid(uid);
+			ChatGrpcClient::GetInstance()->NotifyKickUser(uid_ip_value, kick_req);
+		}
+	}
+
 	/*************		四、更新redis中的信息		****************************
 	*登录成功后，要将uid和对应的ip信息写入redis,方便以后跨服查找;同时将uid和session关联,这样可以通过uid快速找到session;另外uid对应的session信息也要写入redis*/
 	
@@ -200,8 +202,8 @@ void LogicSystem::LoginHandler(std::shared_ptr<Session> session, const short& ms
 	UserMgr::GetInstance()->SetUserSession(uid, session);                       // uid和session绑定到本服务中,方便以后踢人操作
 
 	std::string uid_session_key = USER_SESSION_PREFIX + uid_str;
-	RedisMgr::GetInstance()->Set(uid_session_key, session->GetSessionId());		// 将uid对应的session信息写入redis,这里对应的就是USerMgr.cpp文件中第48行的注释以及CSession.cpp文件中251行
-
+	//RedisMgr::GetInstance()->Set(uid_session_key, session->GetSessionId());		// 将uid对应的session信息写入redis,这里对应的就是USerMgr.cpp文件中第48行的注释以及CSession.cpp文件中251行
+	RedisClient::GetInstance()->set(uid_session_key, session->GetSessionId());	// 将uid对应的session信息写入redis,这里对应的就是USerMgr.cpp文件中第48行的注释以及CSession.cpp文件中251行
 	return;
 }
 

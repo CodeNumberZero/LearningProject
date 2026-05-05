@@ -136,6 +136,7 @@ xcopy "$(ProjectDir)*.lib"   "$(SolutionDir)$(Platform)\$(Configuration)\"   /y<
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ConfigMgr.cpp" />
+    <ClCompile Include="DistributeLock.cpp" />
     <ClCompile Include="GateServer.cpp" />
     <ClCompile Include="HttpConnection.cpp" />
     <ClCompile Include="IOServicePool.cpp" />
@@ -152,6 +153,7 @@ xcopy "$(ProjectDir)*.lib"   "$(SolutionDir)$(Platform)\$(Configuration)\"   /y<
   <ItemGroup>
     <ClInclude Include="ConfigMgr.h" />
     <ClInclude Include="const.h" />
+    <ClInclude Include="DistributeLock.h" />
     <ClInclude Include="HttpConnection.h" />
     <ClInclude Include="IOServicePool.h" />
     <ClInclude Include="LogicSystem.h" />

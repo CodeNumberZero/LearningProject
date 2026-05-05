@@ -29,7 +29,20 @@
 
 #include "Singleton.h"
 
-constexpr auto CODEPREFIX = "code_";             // 编译期常量表达式，值在编译时就确定
+constexpr auto CODEPREFIX = "code_";				// 编译期常量表达式，值在编译时就确定
+constexpr auto USERIP_PREFIX = "uip_";       
+constexpr auto USERTOKEN_PREFIX = "utoken_";
+constexpr auto IPCOUNT_PREFIX = "ipcount_";
+constexpr auto USER_BASE_INFO = "ubaseinfo_";
+constexpr auto LOGIN_COUNT = "logincount";
+constexpr auto NAME_INFO = "nameinfo_";
+constexpr auto LOCK_PREFIX = "lock_";
+constexpr auto USER_SESSION_PREFIX = "usession_";
+constexpr auto LOCK_COUNT = "lockcount";
+constexpr auto DISTRIBUTE_LOCK_PREFIX = "lock:";	// 分布式锁的key前缀
+
+constexpr int LOCK_TIME_OUT = 10;            // 分布式锁的持有时间(单位为秒)
+constexpr int ACQUIRE_TIME_OUT = 5;          // 分布式锁的重试时间(单位为秒)
 
 enum ErrorCodes {
 	Success = 0,

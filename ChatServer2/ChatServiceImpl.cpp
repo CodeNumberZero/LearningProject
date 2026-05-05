@@ -162,3 +162,35 @@ bool ChatServiceImpl::GetBaseInfo(std::string base_key, int uid, std::shared_ptr
 
 	return true;
 }
+
+/*关于gRPC同一方法的不同参数的相关说明:查看StatusServiceImpl.cpp文件第15行*/
+
+Status ChatServiceImpl::NotifyKickUser(ServerContext* context, const KickUserReq* request, KickUserRsp* reply)
+{
+	/* 这里不需要获取分布式锁,因为当调用该函数时一定是另一服务器调用本服务器的踢人逻辑,此时另一服务器已经加了分布式锁,如果这里再加就会造成死锁 */
+	// 查找用户是否在本服务器
+	auto uid = request->uid();
+	auto session = UserMgr::GetInstance()->GetSession(uid);
+
+	Defer defer([request, reply]() {
+		reply->set_error(ErrorCodes::Success);
+		reply->set_uid(request->uid());
+	});
+
+	// 用户不在内存中则直接返回
+	if (session == nullptr) {
+		return Status::OK;
+	}
+
+	// 在内存中则直接发送通知客户端下线
+	session->NotifyOffline(uid);
+	// 清除旧的连接
+	_p_server->ClearSession(session->GetSessionId());
+
+	return Status::OK;
+}
+
+void ChatServiceImpl::RegisterServer(std::shared_ptr<Server> p_server)
+{
+	_p_server = p_server;
+}

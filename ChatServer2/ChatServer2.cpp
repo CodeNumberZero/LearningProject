@@ -24,8 +24,19 @@ int main()
 	try {
 		auto pool = IOServicePool::GetInstance();
 
-		// 服务器刚启动,没有任何连接,因此将登陆数量设置为0
-		RedisClient::GetInstance()->hset(LOGIN_COUNT, server_name, "0");
+		// 服务器刚启动,没有任何连接,因此将登陆数量设置为0(在StatusServer中利用分布式锁获取登录数量,动态分配Server给客户端,这里也要用ChatServer启动和退出时清空登录数量)
+		//RedisClient::GetInstance()->hset(LOGIN_COUNT, server_name, "0");
+		RedisClient::GetClientInstance().InitCount(server_name);
+		Defer defer([server_name]() {
+			//RedisClient::GetInstance()->hdel(LOGIN_COUNT, server_name);          // 删掉(清空)redis中该服务器的连接数
+			RedisClient::GetClientInstance().DelCount(server_name);					// 删掉(清空)redis中该服务器的连接数
+			RedisClient::GetInstance().reset();										// 关闭连接池
+			});
+
+		boost::asio::io_context io_context;
+		auto port_str = cfg["SelfServer"]["Port"];
+		auto server_ptr = std::make_shared<Server>(io_context, atoi(port_str.c_str()));		// 创建智能指针
+		//std::cout << "server_ptr :" << server_ptr.get() << std::endl;
 
 		// 定义一个gRPCServer
 		std::string server_address(cfg["SelfServer"]["Host"] + ":" + cfg["SelfServer"]["RPCPort"]);
@@ -35,6 +46,7 @@ int main()
 		// 监听端口和添加服务
 		builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());        // AddListeningPort()方法指定服务器监听的地址和端口
 		builder.RegisterService(&service);                                                  // RegisterService()方法注册要实现的具体服务
+		service.RegisterServer(server_ptr);
 
 		// 构建并启动gRPC服务器
 		std::unique_ptr<grpc::Server> server(builder.BuildAndStart());                      // BuildAndStart()方法创建并启动服务器
@@ -45,27 +57,20 @@ int main()
 			server->Wait();
 			});
 
-		boost::asio::io_context io_context;
 		boost::asio::signal_set signals(io_context, SIGINT, SIGTERM);
 		signals.async_wait([&io_context, pool, &server](auto, auto) {
 			io_context.stop();
 			pool->Stop();
 			server->Shutdown();
 			});
-		auto port_str = cfg["SelfServer"]["Port"];
-		auto server_ptr = std::make_shared<Server>(io_context, atoi(port_str.c_str()));
 
 		// 将Server注册给逻辑类方便以后清除连接
 		LogicSystem::GetInstance()->SetServer(server_ptr);					 // 这句必须放在io_context.run前面(实际上所有的设置等都应放在io_context.run前面),因为io_context.run会阻塞当前线程,直到io_context被停止(io_context.stop),因此如果放在io_context.run后面那么程序在运行期间就无法执行到这句代码了,也就无法进行设置,进而出现内存访问问题
 		io_context.run();
 
-		RedisClient::GetInstance()->hdel(LOGIN_COUNT, server_name);          // 删掉(清空)redis中该服务器的连接数
-		RedisClient::GetInstance().reset();                                  // 关闭连接池
 		grpc_server_thread.join();
 	}
 	catch (std::exception& e) {
 		std::cerr << "ChatServer's Exception: " << e.what() << std::endl;
-		RedisClient::GetInstance()->hdel(LOGIN_COUNT, server_name);
-		RedisClient::GetInstance().reset();
 	}
 }

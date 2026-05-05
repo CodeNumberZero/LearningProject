@@ -230,3 +230,34 @@ TextChatMsgRsp ChatGrpcClient::NotifyTextChatMsg(std::string server_ip, const Te
 
 	return rsp;
 }
+
+/*关于gRPC同一方法的不同参数的相关说明:查看StatusGrpcClient.cpp文件第59行*/
+
+KickUserRsp ChatGrpcClient::NotifyKickUser(std::string server_ip, const KickUserReq& req)
+{
+	KickUserRsp rsp;
+	rsp.set_error(ErrorCodes::Success);
+	Defer defer([&rsp, &req]() {
+		rsp.set_uid(req.uid());
+	});
+
+	auto find_iter = _pools.find(server_ip);
+	if (find_iter == _pools.end()) {
+		return rsp;
+	}
+
+	auto& pool = find_iter->second;
+	ClientContext context;
+	auto stub = pool->GetConnection();
+	Defer defer_connection([&stub, this, &pool]() {
+		pool->ReturnConnection(std::move(stub));
+	});
+	Status status = stub->NotifyKickUser(&context, req, &rsp);
+
+	if (!status.ok()) {
+		rsp.set_error(ErrorCodes::RPCFailed);
+		return rsp;
+	}
+
+	return rsp;
+}

@@ -63,36 +63,43 @@ ChatServer StatusServiceImpl::getChatServer() {
 	std::lock_guard<std::mutex> guard(_server_mtx);
 	auto minServer = _servers.begin()->second;
 
-	/* 暂时注释,测试单服务器踢人逻辑 */
-	//// 从redis中获取服务器的连接数
-	//auto val = RedisClient::GetInstance()->hget(LOGIN_COUNT, minServer.name);                 // hget就是用来从哈希表中提取特定字段的值;hget返回的是OptionalString，需要检查是否有值
-	//if (!val) {
-	//	// 不存在则默认设置为最大(这样写会存在问题：只有第一次登录的服务器才会保存登录数量，没登录的那一台默认设为最大值，后续连接就一直登不上，因此需要在登录服务器时就向redis中将服务器的登录数量置为0，见ChatServer.cpp文件27行)
-	//	minServer.connection_count = INT_MAX;                                            
-	//}
-	//else {
-	//	std::string count_str = val.value();
-	//	minServer.connection_count = std::stoi(count_str);
-	//}
+	// 获取分布式锁,用来控制服务器人数记录,确保对redis的操作是互斥的(理论上各个服务器对redis进行操作都要加锁)
+	auto lock_key = LOCK_COUNT;
+	auto identifier = RedisClient::GetClientInstance().acquireLock(lock_key, LOCK_TIME_OUT, ACQUIRE_TIME_OUT);
+	// 利用defer解锁
+	Defer defer_lock([this, identifier, lock_key]() {
+		RedisClient::GetClientInstance().releaseLock(lock_key, identifier);
+	});
 
-	//for (auto& server : _servers) {
-	//	if (server.second.name == minServer.name) {
-	//		continue;
-	//	}
+	// 从redis中获取服务器的连接数
+	auto val = RedisClient::GetInstance()->hget(LOGIN_COUNT, minServer.name);                 // hget就是用来从哈希表中提取特定字段的值;hget返回的是OptionalString，需要检查是否有值
+	if (!val) {
+		// 不存在则默认设置为最大(这样写会存在问题：只有第一次登录的服务器才会保存登录数量，没登录的那一台默认设为最大值，后续连接就一直登不上，因此需要在登录服务器时就向redis中将服务器的登录数量置为0，见ChatServer.cpp文件27行)
+		minServer.connection_count = INT_MAX;                                            
+	}
+	else {
+		std::string count_str = val.value();
+		minServer.connection_count = std::stoi(count_str);
+	}
 
-	//	auto val = RedisClient::GetInstance()->hget(LOGIN_COUNT, server.second.name);
-	//	if (!val) {
-	//		server.second.connection_count = INT_MAX;
-	//	}
-	//	else {
-	//		std::string count_str = val.value();
-	//		server.second.connection_count = std::stoi(count_str);
-	//	}
+	for (auto& server : _servers) {
+		if (server.second.name == minServer.name) {
+			continue;
+		}
 
-	//	if (server.second.connection_count < minServer.connection_count) {
-	//		minServer = server.second;
-	//	}
-	//}
+		auto val = RedisClient::GetInstance()->hget(LOGIN_COUNT, server.second.name);
+		if (!val) {
+			server.second.connection_count = INT_MAX;
+		}
+		else {
+			std::string count_str = val.value();
+			server.second.connection_count = std::stoi(count_str);
+		}
+
+		if (server.second.connection_count < minServer.connection_count) {
+			minServer = server.second;
+		}
+	}
 
 	return minServer;
 }

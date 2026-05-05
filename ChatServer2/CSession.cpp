@@ -2,6 +2,7 @@
 #include "CServer.h"
 #include "LogicSystem.h"
 #include "RedisMgr.h"
+#include "ConfigMgr.h"
 
 Session::Session(boost::asio::io_context& ioc, Server* server) : _socket(ioc), _server(server), _b_close(false), _b_head_parse(false), _user_uid(0) {
 	boost::uuids::uuid a_uuid = boost::uuids::random_generator()();       // 第一个括号是构建临时对象，第二个括号是调用重载的()运算符，即仿函数
@@ -10,8 +11,12 @@ Session::Session(boost::asio::io_context& ioc, Server* server) : _socket(ioc), _
 	_last_heartbeat = std::time(nullptr);                                 // 参数为 nullptr 时表明函数忽略参数，返回当前时间的 time_t 值
 }
 
+// session析构就说明对端已经关闭了,该session已经无效了,这时就要修改redis中服务器的登录数量
 Session::~Session() {
-	std::cout << "Session destruct delete this:" << this << std::endl;
+	std::cout << "~Session destruct delete this:" << this << std::endl;
+	auto& cfg = ConfigMgr::GetInstance();
+	auto self_name = cfg["SelfServer"]["Name"];
+	RedisClient::GetClientInstance().DecreaseCount(self_name);
 }
 
 boost::asio::ip::tcp::socket& Session::GetSocket() {
@@ -169,8 +174,8 @@ void Session::AsyncReadBody(int total_len)
 				return;
 			}
 
-			//判断连接无效
-			if (!_server->CheckValid(_session_id)) {
+			// 判断连接无效
+			if (!_server->CheckValid(_session_id)) {							// 根据sessionid判断该session是否还在服务器中,如果不在说明连接已经无效了,直接关闭连接即可
 				Close();
 				return;
 			}
@@ -200,7 +205,7 @@ void Session::NotifyOffline(int uid)
 
 	std::string return_str = rtvalue.toStyledString();
 
-	Send(return_str, ID_NOTIFY_OFF_LINE_REQ);
+	Send(return_str, ID_NOTIFY_OFF_LINE_REQ);						// 服务端发送通知给客户端,让客户端下线,即断开连接(如果服务端主动断开连接会出现大量TIME_WAIT)
 	return;
 }
 

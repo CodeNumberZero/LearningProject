@@ -223,6 +223,57 @@ struct LoginReqDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 LoginReqDefaultTypeInternal _LoginReq_default_instance_;
 
+inline constexpr KickUserRsp::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : error_{0},
+        uid_{0},
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR KickUserRsp::KickUserRsp(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct KickUserRspDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR KickUserRspDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~KickUserRspDefaultTypeInternal() {}
+  union {
+    KickUserRsp _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 KickUserRspDefaultTypeInternal _KickUserRsp_default_instance_;
+
+inline constexpr KickUserReq::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : uid_{0},
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR KickUserReq::KickUserReq(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct KickUserReqDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR KickUserReqDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~KickUserReqDefaultTypeInternal() {}
+  union {
+    KickUserReq _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 KickUserReqDefaultTypeInternal _KickUserReq_default_instance_;
+
 inline constexpr GetVarifyRsp::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : email_(
@@ -707,6 +758,25 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::message::TextChatMsgRsp, _impl_.fromuid_),
         PROTOBUF_FIELD_OFFSET(::message::TextChatMsgRsp, _impl_.touid_),
         PROTOBUF_FIELD_OFFSET(::message::TextChatMsgRsp, _impl_.textmsgs_),
+        ~0u,  // no _has_bits_
+        PROTOBUF_FIELD_OFFSET(::message::KickUserReq, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::message::KickUserReq, _impl_.uid_),
+        ~0u,  // no _has_bits_
+        PROTOBUF_FIELD_OFFSET(::message::KickUserRsp, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::message::KickUserRsp, _impl_.error_),
+        PROTOBUF_FIELD_OFFSET(::message::KickUserRsp, _impl_.uid_),
 };
 
 static const ::_pbi::MigrationSchema
@@ -728,6 +798,8 @@ static const ::_pbi::MigrationSchema
         {153, -1, -1, sizeof(::message::TextChatMsgReq)},
         {164, -1, -1, sizeof(::message::TextChatData)},
         {174, -1, -1, sizeof(::message::TextChatMsgRsp)},
+        {186, -1, -1, sizeof(::message::KickUserReq)},
+        {195, -1, -1, sizeof(::message::KickUserRsp)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::message::_GetVarifyReq_default_instance_._instance,
@@ -747,6 +819,8 @@ static const ::_pb::Message* const file_default_instances[] = {
     &::message::_TextChatMsgReq_default_instance_._instance,
     &::message::_TextChatData_default_instance_._instance,
     &::message::_TextChatMsgRsp_default_instance_._instance,
+    &::message::_KickUserReq_default_instance_._instance,
+    &::message::_KickUserRsp_default_instance_._instance,
 };
 const char descriptor_table_protodef_message_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
@@ -778,33 +852,37 @@ const char descriptor_table_protodef_message_2eproto[] ABSL_ATTRIBUTE_SECTION_VA
     "(\t\022\022\n\nmsgcontent\030\002 \001(\t\"h\n\016TextChatMsgRsp"
     "\022\r\n\005error\030\001 \001(\005\022\017\n\007fromuid\030\002 \001(\005\022\r\n\005toui"
     "d\030\003 \001(\005\022\'\n\010textmsgs\030\004 \003(\0132\025.message.Text"
-    "ChatData2P\n\rVarifyService\022\?\n\rGetVarifyCo"
-    "de\022\025.message.GetVarifyReq\032\025.message.GetV"
-    "arifyRsp\"\0002\207\001\n\rStatusService\022G\n\rGetChatS"
-    "erver\022\031.message.GetChatServerReq\032\031.messa"
-    "ge.GetChatServerRsp\"\000\022-\n\005Login\022\021.message"
-    ".LoginReq\032\021.message.LoginRsp2\350\002\n\013ChatSer"
-    "vice\022A\n\017NotifyAddFriend\022\025.message.AddFri"
-    "endReq\032\025.message.AddFriendRsp\"\000\022D\n\016Reply"
-    "AddFriend\022\027.message.ReplyFriendReq\032\027.mes"
-    "sage.ReplyFriendRsp\"\000\022A\n\013SendChatMsg\022\027.m"
-    "essage.SendChatMsgReq\032\027.message.SendChat"
-    "MsgRsp\"\000\022D\n\020NotifyAuthFriend\022\026.message.A"
-    "uthFriendReq\032\026.message.AuthFriendRsp\"\000\022G"
-    "\n\021NotifyTextChatMsg\022\027.message.TextChatMs"
-    "gReq\032\027.message.TextChatMsgRsp\"\000b\006proto3"
+    "ChatData\"\032\n\013KickUserReq\022\013\n\003uid\030\001 \001(\005\")\n\013"
+    "KickUserRsp\022\r\n\005error\030\001 \001(\005\022\013\n\003uid\030\002 \001(\0052"
+    "P\n\rVarifyService\022\?\n\rGetVarifyCode\022\025.mess"
+    "age.GetVarifyReq\032\025.message.GetVarifyRsp\""
+    "\0002\207\001\n\rStatusService\022G\n\rGetChatServer\022\031.m"
+    "essage.GetChatServerReq\032\031.message.GetCha"
+    "tServerRsp\"\000\022-\n\005Login\022\021.message.LoginReq"
+    "\032\021.message.LoginRsp2\250\003\n\013ChatService\022A\n\017N"
+    "otifyAddFriend\022\025.message.AddFriendReq\032\025."
+    "message.AddFriendRsp\"\000\022D\n\016ReplyAddFriend"
+    "\022\027.message.ReplyFriendReq\032\027.message.Repl"
+    "yFriendRsp\"\000\022A\n\013SendChatMsg\022\027.message.Se"
+    "ndChatMsgReq\032\027.message.SendChatMsgRsp\"\000\022"
+    "D\n\020NotifyAuthFriend\022\026.message.AuthFriend"
+    "Req\032\026.message.AuthFriendRsp\"\000\022G\n\021NotifyT"
+    "extChatMsg\022\027.message.TextChatMsgReq\032\027.me"
+    "ssage.TextChatMsgRsp\"\000\022>\n\016NotifyKickUser"
+    "\022\024.message.KickUserReq\032\024.message.KickUse"
+    "rRsp\"\000b\006proto3"
 };
 static ::absl::once_flag descriptor_table_message_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_message_2eproto = {
     false,
     false,
-    1719,
+    1854,
     descriptor_table_protodef_message_2eproto,
     "message.proto",
     &descriptor_table_message_2eproto_once,
     nullptr,
     0,
-    17,
+    19,
     schemas,
     file_default_instances,
     TableStruct_message_2eproto::offsets,
@@ -5553,6 +5631,454 @@ void TextChatMsgRsp::InternalSwap(TextChatMsgRsp* PROTOBUF_RESTRICT other) {
 }
 
 ::google::protobuf::Metadata TextChatMsgRsp::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class KickUserReq::_Internal {
+ public:
+};
+
+KickUserReq::KickUserReq(::google::protobuf::Arena* arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:message.KickUserReq)
+}
+KickUserReq::KickUserReq(
+    ::google::protobuf::Arena* arena, const KickUserReq& from)
+    : KickUserReq(arena) {
+  MergeFrom(from);
+}
+inline PROTOBUF_NDEBUG_INLINE KickUserReq::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : _cached_size_{0} {}
+
+inline void KickUserReq::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.uid_ = {};
+}
+KickUserReq::~KickUserReq() {
+  // @@protoc_insertion_point(destructor:message.KickUserReq)
+  SharedDtor(*this);
+}
+inline void KickUserReq::SharedDtor(MessageLite& self) {
+  KickUserReq& this_ = static_cast<KickUserReq&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
+}
+
+inline void* KickUserReq::PlacementNew_(const void*, void* mem,
+                                        ::google::protobuf::Arena* arena) {
+  return ::new (mem) KickUserReq(arena);
+}
+constexpr auto KickUserReq::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(KickUserReq),
+                                            alignof(KickUserReq));
+}
+PROTOBUF_CONSTINIT
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::google::protobuf::internal::ClassDataFull KickUserReq::_class_data_ = {
+    ::google::protobuf::internal::ClassData{
+        &_KickUserReq_default_instance_._instance,
+        &_table_.header,
+        nullptr,  // OnDemandRegisterArenaDtor
+        nullptr,  // IsInitialized
+        &KickUserReq::MergeImpl,
+        ::google::protobuf::Message::GetNewImpl<KickUserReq>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        &KickUserReq::SharedDtor,
+        ::google::protobuf::Message::GetClearImpl<KickUserReq>(), &KickUserReq::ByteSizeLong,
+            &KickUserReq::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+        PROTOBUF_FIELD_OFFSET(KickUserReq, _impl_._cached_size_),
+        false,
+    },
+    &KickUserReq::kDescriptorMethods,
+    &descriptor_table_message_2eproto,
+    nullptr,  // tracker
+};
+const ::google::protobuf::internal::ClassData* KickUserReq::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
+  return _class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 1, 0, 0, 2> KickUserReq::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    1, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967294,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    1,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    _class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::message::KickUserReq>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // int32 uid = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(KickUserReq, _impl_.uid_), 63>(),
+     {8, 63, 0, PROTOBUF_FIELD_OFFSET(KickUserReq, _impl_.uid_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // int32 uid = 1;
+    {PROTOBUF_FIELD_OFFSET(KickUserReq, _impl_.uid_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+
+PROTOBUF_NOINLINE void KickUserReq::Clear() {
+// @@protoc_insertion_point(message_clear_start:message.KickUserReq)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.uid_ = 0;
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::uint8_t* KickUserReq::_InternalSerialize(
+            const MessageLite& base, ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) {
+          const KickUserReq& this_ = static_cast<const KickUserReq&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::uint8_t* KickUserReq::_InternalSerialize(
+            ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+          const KickUserReq& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(serialize_to_array_start:message.KickUserReq)
+          ::uint32_t cached_has_bits = 0;
+          (void)cached_has_bits;
+
+          // int32 uid = 1;
+          if (this_._internal_uid() != 0) {
+            target = ::google::protobuf::internal::WireFormatLite::
+                WriteInt32ToArrayWithField<1>(
+                    stream, this_._internal_uid(), target);
+          }
+
+          if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+            target =
+                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+          }
+          // @@protoc_insertion_point(serialize_to_array_end:message.KickUserReq)
+          return target;
+        }
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::size_t KickUserReq::ByteSizeLong(const MessageLite& base) {
+          const KickUserReq& this_ = static_cast<const KickUserReq&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::size_t KickUserReq::ByteSizeLong() const {
+          const KickUserReq& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(message_byte_size_start:message.KickUserReq)
+          ::size_t total_size = 0;
+
+          ::uint32_t cached_has_bits = 0;
+          // Prevent compiler warnings about cached_has_bits being unused
+          (void)cached_has_bits;
+
+           {
+            // int32 uid = 1;
+            if (this_._internal_uid() != 0) {
+              total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                  this_._internal_uid());
+            }
+          }
+          return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                                     &this_._impl_._cached_size_);
+        }
+
+void KickUserReq::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<KickUserReq*>(&to_msg);
+  auto& from = static_cast<const KickUserReq&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:message.KickUserReq)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_uid() != 0) {
+    _this->_impl_.uid_ = from._impl_.uid_;
+  }
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void KickUserReq::CopyFrom(const KickUserReq& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:message.KickUserReq)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void KickUserReq::InternalSwap(KickUserReq* PROTOBUF_RESTRICT other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+        swap(_impl_.uid_, other->_impl_.uid_);
+}
+
+::google::protobuf::Metadata KickUserReq::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class KickUserRsp::_Internal {
+ public:
+};
+
+KickUserRsp::KickUserRsp(::google::protobuf::Arena* arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:message.KickUserRsp)
+}
+KickUserRsp::KickUserRsp(
+    ::google::protobuf::Arena* arena, const KickUserRsp& from)
+    : KickUserRsp(arena) {
+  MergeFrom(from);
+}
+inline PROTOBUF_NDEBUG_INLINE KickUserRsp::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : _cached_size_{0} {}
+
+inline void KickUserRsp::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, error_),
+           0,
+           offsetof(Impl_, uid_) -
+               offsetof(Impl_, error_) +
+               sizeof(Impl_::uid_));
+}
+KickUserRsp::~KickUserRsp() {
+  // @@protoc_insertion_point(destructor:message.KickUserRsp)
+  SharedDtor(*this);
+}
+inline void KickUserRsp::SharedDtor(MessageLite& self) {
+  KickUserRsp& this_ = static_cast<KickUserRsp&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
+}
+
+inline void* KickUserRsp::PlacementNew_(const void*, void* mem,
+                                        ::google::protobuf::Arena* arena) {
+  return ::new (mem) KickUserRsp(arena);
+}
+constexpr auto KickUserRsp::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(KickUserRsp),
+                                            alignof(KickUserRsp));
+}
+PROTOBUF_CONSTINIT
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::google::protobuf::internal::ClassDataFull KickUserRsp::_class_data_ = {
+    ::google::protobuf::internal::ClassData{
+        &_KickUserRsp_default_instance_._instance,
+        &_table_.header,
+        nullptr,  // OnDemandRegisterArenaDtor
+        nullptr,  // IsInitialized
+        &KickUserRsp::MergeImpl,
+        ::google::protobuf::Message::GetNewImpl<KickUserRsp>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        &KickUserRsp::SharedDtor,
+        ::google::protobuf::Message::GetClearImpl<KickUserRsp>(), &KickUserRsp::ByteSizeLong,
+            &KickUserRsp::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+        PROTOBUF_FIELD_OFFSET(KickUserRsp, _impl_._cached_size_),
+        false,
+    },
+    &KickUserRsp::kDescriptorMethods,
+    &descriptor_table_message_2eproto,
+    nullptr,  // tracker
+};
+const ::google::protobuf::internal::ClassData* KickUserRsp::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
+  return _class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2> KickUserRsp::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    2, 8,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967292,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    2,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    _class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::message::KickUserRsp>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // int32 uid = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(KickUserRsp, _impl_.uid_), 63>(),
+     {16, 63, 0, PROTOBUF_FIELD_OFFSET(KickUserRsp, _impl_.uid_)}},
+    // int32 error = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(KickUserRsp, _impl_.error_), 63>(),
+     {8, 63, 0, PROTOBUF_FIELD_OFFSET(KickUserRsp, _impl_.error_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // int32 error = 1;
+    {PROTOBUF_FIELD_OFFSET(KickUserRsp, _impl_.error_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
+    // int32 uid = 2;
+    {PROTOBUF_FIELD_OFFSET(KickUserRsp, _impl_.uid_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+
+PROTOBUF_NOINLINE void KickUserRsp::Clear() {
+// @@protoc_insertion_point(message_clear_start:message.KickUserRsp)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ::memset(&_impl_.error_, 0, static_cast<::size_t>(
+      reinterpret_cast<char*>(&_impl_.uid_) -
+      reinterpret_cast<char*>(&_impl_.error_)) + sizeof(_impl_.uid_));
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::uint8_t* KickUserRsp::_InternalSerialize(
+            const MessageLite& base, ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) {
+          const KickUserRsp& this_ = static_cast<const KickUserRsp&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::uint8_t* KickUserRsp::_InternalSerialize(
+            ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+          const KickUserRsp& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(serialize_to_array_start:message.KickUserRsp)
+          ::uint32_t cached_has_bits = 0;
+          (void)cached_has_bits;
+
+          // int32 error = 1;
+          if (this_._internal_error() != 0) {
+            target = ::google::protobuf::internal::WireFormatLite::
+                WriteInt32ToArrayWithField<1>(
+                    stream, this_._internal_error(), target);
+          }
+
+          // int32 uid = 2;
+          if (this_._internal_uid() != 0) {
+            target = ::google::protobuf::internal::WireFormatLite::
+                WriteInt32ToArrayWithField<2>(
+                    stream, this_._internal_uid(), target);
+          }
+
+          if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+            target =
+                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+          }
+          // @@protoc_insertion_point(serialize_to_array_end:message.KickUserRsp)
+          return target;
+        }
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::size_t KickUserRsp::ByteSizeLong(const MessageLite& base) {
+          const KickUserRsp& this_ = static_cast<const KickUserRsp&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::size_t KickUserRsp::ByteSizeLong() const {
+          const KickUserRsp& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(message_byte_size_start:message.KickUserRsp)
+          ::size_t total_size = 0;
+
+          ::uint32_t cached_has_bits = 0;
+          // Prevent compiler warnings about cached_has_bits being unused
+          (void)cached_has_bits;
+
+          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+           {
+            // int32 error = 1;
+            if (this_._internal_error() != 0) {
+              total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                  this_._internal_error());
+            }
+            // int32 uid = 2;
+            if (this_._internal_uid() != 0) {
+              total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                  this_._internal_uid());
+            }
+          }
+          return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                                     &this_._impl_._cached_size_);
+        }
+
+void KickUserRsp::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<KickUserRsp*>(&to_msg);
+  auto& from = static_cast<const KickUserRsp&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:message.KickUserRsp)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_error() != 0) {
+    _this->_impl_.error_ = from._impl_.error_;
+  }
+  if (from._internal_uid() != 0) {
+    _this->_impl_.uid_ = from._impl_.uid_;
+  }
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void KickUserRsp::CopyFrom(const KickUserRsp& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:message.KickUserRsp)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void KickUserRsp::InternalSwap(KickUserRsp* PROTOBUF_RESTRICT other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(KickUserRsp, _impl_.uid_)
+      + sizeof(KickUserRsp::_impl_.uid_)
+      - PROTOBUF_FIELD_OFFSET(KickUserRsp, _impl_.error_)>(
+          reinterpret_cast<char*>(&_impl_.error_),
+          reinterpret_cast<char*>(&other->_impl_.error_));
+}
+
+::google::protobuf::Metadata KickUserRsp::GetMetadata() const {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // @@protoc_insertion_point(namespace_scope)

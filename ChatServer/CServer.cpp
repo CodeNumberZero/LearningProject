@@ -44,7 +44,7 @@ void Server::HandleAccept(std::shared_ptr<Session> new_session, const boost::sys
 	StartAccept();                           // 处理完一个连接后，acceptor继续接收新的连接
 }
 
-// 根据session 的id删除session,并移除用户和session的关联
+// 根据session的id删除session,并移除用户和session的关联
 void Server::ClearSession(std::string session_id) {
 	std::lock_guard<std::mutex> lock(_mutex);
 	if (_sessions.find(session_id) != _sessions.end()) {

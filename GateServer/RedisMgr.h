@@ -1,6 +1,11 @@
 #pragma once
 #include "const.h"
 
+/*
+注意：
+	1、Redis服务端本身是单线程串行执行所有命令的，天然保证单个命令的原子性，无论多少个客户端连接同时操作同一个Key，Redis都会按命令接收顺序依次执行(类似队列，先进先出)，不会出现多个连接操作同一个key导致的底层执行错误
+	2、Redis保证了单个命令的原子性，但多个命令的组合原子性需要开发者自己保证(分布式锁)
+*/
 class RedisClient {
 private:
 	RedisClient();                                                       // 如果不写构造函数,系统会生成默认构造,而默认构造函数是public的,会导致单例模式被破坏             
@@ -16,10 +21,17 @@ private:
 
 public:
 	~RedisClient();                                                      // 析构设为公有,如果设为私有，析构时就无法调用，这种情况就需要使用辅助类作为删除器来进行析构
-	static std::shared_ptr<sw::redis::Redis>& GetInstance();
+	static RedisClient& GetClientInstance();
+	static std::shared_ptr<sw::redis::Redis> GetInstance();				 // 返回智能指针的拷贝(而非可修改的引用),避免外部重置内部指针导致隐蔽错误
+	std::string acquireLock(const std::string& lockName, int lockTimeout, int acquireTimeout);		// 获取分布式锁,成功返回锁的唯一标识符，失败返回空字符串
+	bool releaseLock(const std::string& lockName, const std::string& identifier);					// 释放分布式锁,成功返回true，失败返回false
+	void IncreaseCount(std::string server_name);
+	void DecreaseCount(std::string server_name);
+	void InitCount(std::string server_name);
+	void DelCount(std::string server_name);
 }; 
 
-/*-----------------------------------------------------------------------下面都是基于hiredis库封装的对redis的操作函数和连接池--------------------------------------------------------*/
+/*-----------------------------------------------------------------------下面都是基于hiredis库封装的对redis的操作函数和连接池(项目中并没有使用)--------------------------------------------------------*/
 // Redis连接池类
 class RedisConnectionPool {
 public:
@@ -43,7 +55,7 @@ private:
 // 基于hiredis库封装的redis操作类(实际上安装了redis plus plus就可以直接调用相关的函数，不需要自己封装)
 // 注意：
 //	1、Redis服务端本身是单线程串行执行所有命令的，天然保证单个命令的原子性，无论多少个客户端连接同时操作同一个Key，Redis都会按命令接收顺序依次执行(类似队列，先进先出)，不会出现多个连接操作同一个key导致的底层执行错误
-//  2、Redis保证了单个命令的原子性，但多个命令的组合原子性需要开发者自己保证
+//  2、Redis保证了单个命令的原子性，但多个命令的组合原子性需要开发者自己保证(分布式锁)
 class RedisMgr : public Singleton<RedisMgr>,
 	public std::enable_shared_from_this<RedisMgr>
 {
